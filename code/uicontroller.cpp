@@ -31,6 +31,15 @@ QVariantList UiController::resultToList(const DatabaseManager::ResultSet& rs)
     return list;
 }
 
+int UiController::getCountFromResult(const DatabaseManager::ResultSet& result)
+{
+    if (result.empty()) 
+    {
+        return 0;
+    }
+    return result.front().begin()->second.toInt();
+}
+
 UiController::UiController(QObject *parent) : QObject(parent)
 {
     // 确保数据库连接已初始化并创建了表
@@ -685,7 +694,7 @@ bool UiController::createMedicalRecord(int appointmentId, const QString &diagnos
     QString checkSql = QString("SELECT COUNT(*) FROM appointments WHERE appointment_id = %1").arg(appointmentId);
     DatabaseManager::ResultSet checkResult = DatabaseManager::instance().query(checkSql);
     
-    if (checkResult.empty() || checkResult.front().begin()->second.toInt() == 0) 
+    if (getCountFromResult(checkResult) == 0) 
     {
         emit medicalOperationFailed("预约记录不存在");
         return false;
@@ -695,7 +704,7 @@ bool UiController::createMedicalRecord(int appointmentId, const QString &diagnos
     QString existsSql = QString("SELECT COUNT(*) FROM medical_records WHERE appointment_id = %1").arg(appointmentId);
     DatabaseManager::ResultSet existsResult = DatabaseManager::instance().query(existsSql);
     
-    if (!existsResult.empty() && existsResult.front().begin()->second.toInt() > 0) 
+    if (getCountFromResult(existsResult) > 0) 
     {
         emit medicalOperationFailed("该预约已有病历记录");
         return false;
@@ -772,7 +781,7 @@ bool UiController::addPrescription(int recordId, const QString &prescriptionDeta
     QString checkSql = QString("SELECT COUNT(*) FROM medical_records WHERE record_id = %1").arg(recordId);
     DatabaseManager::ResultSet checkResult = DatabaseManager::instance().query(checkSql);
     
-    if (checkResult.empty() || checkResult.front().begin()->second.toInt() == 0) 
+    if (getCountFromResult(checkResult) == 0) 
     {
         emit medicalOperationFailed("病历记录不存在");
         return false;
@@ -842,7 +851,7 @@ bool UiController::createHospitalization(int recordId, const QString &doctorId, 
     QString checkSql = QString("SELECT COUNT(*) FROM medical_records WHERE record_id = %1").arg(recordId);
     DatabaseManager::ResultSet checkResult = DatabaseManager::instance().query(checkSql);
     
-    if (checkResult.empty() || checkResult.front().begin()->second.toInt() == 0) 
+    if (getCountFromResult(checkResult) == 0) 
     {
         emit medicalOperationFailed("病历记录不存在");
         return false;
@@ -852,7 +861,7 @@ bool UiController::createHospitalization(int recordId, const QString &doctorId, 
     QString existsSql = QString("SELECT COUNT(*) FROM hospitalizations WHERE record_id = %1").arg(recordId);
     DatabaseManager::ResultSet existsResult = DatabaseManager::instance().query(existsSql);
     
-    if (!existsResult.empty() && existsResult.front().begin()->second.toInt() > 0) 
+    if (getCountFromResult(existsResult) > 0) 
     {
         emit medicalOperationFailed("该病历已有住院记录");
         return false;
@@ -1031,7 +1040,7 @@ bool UiController::checkIn(const QString &doctorId)
 
     DatabaseManager::ResultSet checkResult = DatabaseManager::instance().query(checkSql);
     
-    if (!checkResult.empty() && checkResult.front().begin()->second.toInt() > 0) 
+    if (getCountFromResult(checkResult) > 0) 
     {
         // 智能处理：如果当天已有记录，则更新签到时间（支持重复签到）
         DatabaseManager::DataRow updateData;

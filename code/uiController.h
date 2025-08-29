@@ -490,6 +490,18 @@ private:
      */
     QVariantList resultToList(const DatabaseManager::ResultSet& rs);
 
+    /**
+     * @brief 从查询结果中获取计数值
+     * 
+     * 功能：从COUNT查询结果中提取整数值，简化复杂的链式调用
+     * 简化操作：替代复杂的front().begin()->second.toInt()模式
+     * 注意事项：适用于SELECT COUNT(*) 或类似的单值查询结果
+     * 
+     * @param result 数据库查询返回的结果集
+     * @return int 计数值，如果结果为空则返回0
+     */
+    int getCountFromResult(const DatabaseManager::ResultSet& result);
+
 signals:
     // 认证信号
     void loginSuccessAdmin();
