@@ -2,10 +2,41 @@
 #include <QDebug>
 #include <QDateTime> // 用于验证码的过期时间（可选，但推荐）
 
+// --- 辅助函数实现 ---
+bool UiController::ensureDbConnected(const char* where)
+{
+    if (!ensureDbConnected(__func__)) 
+    {
+        qCritical() << "数据库未连接，位置：" << where;
+        return false;
+    }
+    return true;
+}
+
+QVariantMap UiController::rowToMap(const DatabaseManager::DataRow& row)
+{
+    QVariantMap map;
+    for (const auto& pair : row) 
+    {
+        map[pair.first] = pair.second;
+    }
+    return map;
+}
+
+QVariantList UiController::resultToList(const DatabaseManager::ResultSet& rs)
+{
+    QVariantList list;
+    for (const auto& row : rs) 
+    {
+        list.append(rowToMap(row));
+    }
+    return list;
+}
+
 UiController::UiController(QObject *parent) : QObject(parent)
 {
     // 确保数据库连接已初始化并创建了表
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         qCritical() << "数据库连接失败！";
         // 可以发出一个全局错误信号或者在UI上显示错误
@@ -20,7 +51,7 @@ void UiController::login(const QString &email, const QString &password)
         return;
     }
 
-    if (!DatabaseManager::instance().isConnected()) {
+    if (!ensureDbConnected(__func__)) {
         emit loginFailed("数据库未连接。");
         return;
     }
@@ -74,7 +105,7 @@ void UiController::registerUser(const QString &username, const QString &email, c
         return;
     }
 
-    if (!DatabaseManager::instance().isConnected()) {
+    if (!ensureDbConnected(__func__)) {
         emit registrationFailed("数据库未连接。");
         return;
     }
@@ -125,7 +156,7 @@ void UiController::registerUser(const QString &username, const QString &email, c
 // 检查邮箱是否已注册
 bool UiController::isEmailRegistered(const QString &email)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         qWarning() << "邮箱检查时数据库未连接";
         return false; // 如果数据库未连接，暂时认为未注册
@@ -174,7 +205,7 @@ void UiController::forgotPassword(const QString &email)
         return;
     }
 
-    if (!DatabaseManager::instance().isConnected()) {
+    if (!ensureDbConnected(__func__)) {
         emit forgotPasswordRequestFailed("数据库未连接。");
         return;
     }
@@ -202,7 +233,7 @@ void UiController::resetPassword(const QString &email, const QString &verificati
         return;
     }
 
-    if (!DatabaseManager::instance().isConnected()) {
+    if (!ensureDbConnected(__func__)) {
         emit passwordResetFailed("数据库未连接。");
         return;
     }
@@ -257,9 +288,8 @@ QString UiController::generateVerificationCode()
 // --- 2. 个人信息后端 ---
 QVariantMap UiController::getPatientInfo(int userId)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
-        qCritical() << "获取患者信息失败：数据库未连接";
         return {};
     }
 
@@ -279,20 +309,12 @@ QVariantMap UiController::getPatientInfo(int userId)
         return {}; // 没有找到用户
     }
 
-    // 将 std::map 转换为 QVariantMap 以便在QML中使用
-    QVariantMap patientInfo;
-    // 使用 result.front() 或 result[0]
-    for(const auto& pair : result.front()) {
-        patientInfo[pair.first] = pair.second;
-    }
-
-    return patientInfo;
+    return rowToMap(result.front());
 }
 
 bool UiController::updatePatientInfo(int userId, const QVariantMap &details)
 {
-    if (!DatabaseManager::instance().isConnected()) {
-        qCritical() << "更新患者信息失败：数据库未连接";
+    if (!ensureDbConnected(__func__)) {
         return false;
     }
 
@@ -361,9 +383,8 @@ bool UiController::updatePatientInfo(int userId, const QVariantMap &details)
 
 QVariantMap UiController::getDoctorInfo(const QString &doctorId)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
-        qCritical() << "获取医生信息失败：数据库未连接.";
         return {};
     }
 
@@ -382,21 +403,13 @@ QVariantMap UiController::getDoctorInfo(const QString &doctorId)
         return {};
     }
 
-    // 将 std::map 转换为 QVariantMap
-    QVariantMap doctorInfo;
-    for(const auto& pair : result.front()) 
-    {
-        doctorInfo[pair.first] = pair.second;
-    }
-
-    return doctorInfo;
+    return rowToMap(result.front());
 }
 
 bool UiController::updateDoctorInfo(const QString &doctorId, const QVariantMap &details)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
-        qCritical() << "更新医生信息失败：数据库未连接。";
         return false;
     }
 
@@ -465,38 +478,30 @@ bool UiController::updateDoctorInfo(const QString &doctorId, const QVariantMap &
 
 QVariantList UiController::getAvailableDoctors(const QString &department)
 {
-    DatabaseManager::ResultSet result = DatabaseManager::instance().getDoctorsByDepartment(department);
-    
-    QVariantList doctorList;
-    for (const auto& row : result) 
+    if (!ensureDbConnected(__func__)) 
     {
-        QVariantMap doctor;
-        for (const auto& pair : row) 
-        {
-            doctor[pair.first] = pair.second;
-        }
-        doctorList.append(doctor);
+        emit doctorListReady(QVariantList());
+        return QVariantList();
     }
-
+    
+    auto result = DatabaseManager::instance().getDoctorsByDepartment(department);
+    auto doctorList = resultToList(result);
+    
     emit doctorListReady(doctorList);
     return doctorList;
 }
 
 QVariantList UiController::getDoctorScheduleForDate(const QString &doctorId, const QDate &date)
 {
-    DatabaseManager::ResultSet result = DatabaseManager::instance().getDoctorSchedule(doctorId, date);
-    
-    QVariantList scheduleList;
-    for (const auto& row : result) 
+    if (!ensureDbConnected(__func__)) 
     {
-        QVariantMap schedule;
-        for (const auto& pair : row) 
-        {
-            schedule[pair.first] = pair.second;
-        }
-        scheduleList.append(schedule);
+        emit doctorScheduleReady(QVariantList());
+        return QVariantList();
     }
-
+    
+    auto result = DatabaseManager::instance().getDoctorSchedule(doctorId, date);
+    auto scheduleList = resultToList(result);
+    
     emit doctorScheduleReady(scheduleList);
     return scheduleList;
 }
@@ -511,7 +516,7 @@ QVariantList UiController::getDoctorScheduleForDate(const QString &doctorId, con
  */
 bool UiController::createAppointment(int patientId, const QString &doctorId, const QDateTime &appointmentTime)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit appointmentCreationFailed("数据库未连接");
         return false;
@@ -576,26 +581,22 @@ bool UiController::createAppointment(int patientId, const QString &doctorId, con
 
 QVariantList UiController::getPatientAppointments(int patientId, const QDate &date)
 {
-    DatabaseManager::ResultSet result = DatabaseManager::instance().getPatientAppointments(patientId, date);
-    
-    QVariantList appointmentList;
-    for (const auto& row : result) 
+    if (!ensureDbConnected(__func__)) 
     {
-        QVariantMap appointment;
-        for (const auto& pair : row) 
-        {
-            appointment[pair.first] = pair.second;
-        }
-        appointmentList.append(appointment);
+        emit appointmentListReady(QVariantList());
+        return QVariantList();
     }
-
+    
+    auto result = DatabaseManager::instance().getPatientAppointments(patientId, date);
+    auto appointmentList = resultToList(result);
+    
     emit appointmentListReady(appointmentList);
     return appointmentList;
 }
 
 bool UiController::cancelAppointment(int appointmentId)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit appointmentOperationFailed("数据库未连接");
         return false;
@@ -620,7 +621,7 @@ bool UiController::cancelAppointment(int appointmentId)
 
 bool UiController::updateAppointmentStatus(int appointmentId, const QString &status)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit appointmentOperationFailed("数据库未连接");
         return false;
@@ -654,19 +655,15 @@ bool UiController::updateAppointmentStatus(int appointmentId, const QString &sta
 
 QVariantList UiController::getPatientMedicalHistory(int patientId)
 {
-    DatabaseManager::ResultSet result = DatabaseManager::instance().getPatientMedicalRecords(patientId);
-    
-    QVariantList recordList;
-    for (const auto& row : result) 
+    if (!ensureDbConnected(__func__)) 
     {
-        QVariantMap record;
-        for (const auto& pair : row) 
-        {
-            record[pair.first] = pair.second;
-        }
-        recordList.append(record);
+        emit medicalHistoryReady(QVariantList());
+        return QVariantList();
     }
-
+    
+    auto result = DatabaseManager::instance().getPatientMedicalRecords(patientId);
+    auto recordList = resultToList(result);
+    
     emit medicalHistoryReady(recordList);
     return recordList;
 }
@@ -680,7 +677,7 @@ QVariantList UiController::getPatientMedicalHistory(int patientId)
  */
 bool UiController::createMedicalRecord(int appointmentId, const QString &diagnosisNotes)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit medicalOperationFailed("数据库未连接");
         return false;
@@ -767,7 +764,7 @@ bool UiController::createMedicalRecord(int appointmentId, const QString &diagnos
 
 bool UiController::addPrescription(int recordId, const QString &prescriptionDetails)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit medicalOperationFailed("数据库未连接");
         return false;
@@ -809,7 +806,7 @@ bool UiController::addPrescription(int recordId, const QString &prescriptionDeta
 
 QVariantList UiController::getPatientPrescriptions(int patientId)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit medicalOperationFailed("数据库未连接");
         return {};
@@ -829,24 +826,15 @@ QVariantList UiController::getPatientPrescriptions(int patientId)
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
     
-    QVariantList prescriptionList;
-    for (const auto& row : result) 
-    {
-        QVariantMap prescription;
-        for (const auto& pair : row) 
-        {
-            prescription[pair.first] = pair.second;
-        }
-        prescriptionList.append(prescription);
-    }
-
+    auto prescriptionList = resultToList(result);
+    
     emit prescriptionListReady(prescriptionList);
     return prescriptionList;
 }
 
 bool UiController::createHospitalization(int recordId, const QString &doctorId, const QString &wardNo, const QString &bedNo)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit medicalOperationFailed("数据库未连接");
         return false;
@@ -903,7 +891,7 @@ bool UiController::createHospitalization(int recordId, const QString &doctorId, 
 
 QVariantList UiController::getUpcomingAppointments(int userId)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         return {};
     }
@@ -930,17 +918,8 @@ QVariantList UiController::getUpcomingAppointments(int userId)
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
     
-    QVariantList appointmentList;
-    for (const auto& row : result) 
-    {
-        QVariantMap appointment;
-        for (const auto& pair : row) 
-        {
-            appointment[pair.first] = pair.second;
-        }
-        appointmentList.append(appointment);
-    }
-
+    auto appointmentList = resultToList(result);
+    
     emit upcomingAppointmentsReady(appointmentList);
     return appointmentList;
 }
@@ -949,7 +928,7 @@ QVariantList UiController::getUpcomingAppointments(int userId)
 
 bool UiController::sendMessage(int senderId, int receiverId, const QString &content)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit chatOperationFailed("数据库未连接");
         return false;
@@ -990,26 +969,16 @@ bool UiController::sendMessage(int senderId, int receiverId, const QString &cont
 
 QVariantList UiController::getChatHistory(int user1Id, int user2Id)
 {
-    DatabaseManager::ResultSet result = DatabaseManager::instance().getChatHistory(user1Id, user2Id);
+    auto result = DatabaseManager::instance().getChatHistory(user1Id, user2Id);
+    auto messageList = resultToList(result);
     
-    QVariantList messageList;
-    for (const auto& row : result) 
-    {
-        QVariantMap message;
-        for (const auto& pair : row) 
-        {
-            message[pair.first] = pair.second;
-        }
-        messageList.append(message);
-    }
-
     emit chatHistoryReady(messageList);
     return messageList;
 }
 
 QVariantList UiController::getRecentContacts(int userId)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit chatOperationFailed("数据库未连接");
         return {};
@@ -1037,17 +1006,8 @@ QVariantList UiController::getRecentContacts(int userId)
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
     
-    QVariantList contactList;
-    for (const auto& row : result) 
-    {
-        QVariantMap contact;
-        for (const auto& pair : row) 
-        {
-            contact[pair.first] = pair.second;
-        }
-        contactList.append(contact);
-    }
-
+    auto contactList = resultToList(result);
+    
     emit contactListReady(contactList);
     return contactList;
 }
@@ -1056,7 +1016,7 @@ QVariantList UiController::getRecentContacts(int userId)
 
 bool UiController::checkIn(const QString &doctorId)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit attendanceOperationFailed("数据库未连接");
         return false;
@@ -1109,7 +1069,7 @@ bool UiController::checkIn(const QString &doctorId)
 
 bool UiController::checkOut(const QString &doctorId)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit attendanceOperationFailed("数据库未连接");
         return false;
@@ -1138,7 +1098,7 @@ bool UiController::checkOut(const QString &doctorId)
 
 QVariantList UiController::getAttendanceHistory(const QString &doctorId, const QDate &startDate, const QDate &endDate)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit attendanceOperationFailed("数据库未连接");
         return {};
@@ -1155,24 +1115,15 @@ QVariantList UiController::getAttendanceHistory(const QString &doctorId, const Q
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
     
-    QVariantList attendanceList;
-    for (const auto& row : result) 
-    {
-        QVariantMap attendance;
-        for (const auto& pair : row) 
-        {
-            attendance[pair.first] = pair.second;
-        }
-        attendanceList.append(attendance);
-    }
-
+    auto attendanceList = resultToList(result);
+    
     emit attendanceHistoryReady(attendanceList);
     return attendanceList;
 }
 
 bool UiController::submitLeaveRequest(const QString &doctorId, const QString &requestType, const QDate &startDate, const QDate &endDate, const QString &reason)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit attendanceOperationFailed("数据库未连接");
         return false;
@@ -1222,7 +1173,7 @@ bool UiController::submitLeaveRequest(const QString &doctorId, const QString &re
 
 QVariantList UiController::getLeaveRequests(const QString &doctorId)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit attendanceOperationFailed("数据库未连接");
         return {};
@@ -1236,24 +1187,15 @@ QVariantList UiController::getLeaveRequests(const QString &doctorId)
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
     
-    QVariantList requestList;
-    for (const auto& row : result) 
-    {
-        QVariantMap request;
-        for (const auto& pair : row) 
-        {
-            request[pair.first] = pair.second;
-        }
-        requestList.append(request);
-    }
-
+    auto requestList = resultToList(result);
+    
     emit leaveRequestsReady(requestList);
     return requestList;
 }
 
 bool UiController::cancelLeave(int requestId)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit attendanceOperationFailed("数据库未连接");
         return false;
@@ -1280,7 +1222,7 @@ bool UiController::cancelLeave(int requestId)
 
 QVariantList UiController::searchDrugs(const QString &keyword)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit drugOperationFailed("数据库未连接");
         return {};
@@ -1304,24 +1246,15 @@ QVariantList UiController::searchDrugs(const QString &keyword)
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
     
-    QVariantList drugList;
-    for (const auto& row : result) 
-    {
-        QVariantMap drug;
-        for (const auto& pair : row) 
-        {
-            drug[pair.first] = pair.second;
-        }
-        drugList.append(drug);
-    }
-
+    auto drugList = resultToList(result);
+    
     emit drugSearchResultReady(drugList);
     return drugList;
 }
 
 QVariantMap UiController::getDrugDetails(int drugId)
 {
-    if (!DatabaseManager::instance().isConnected()) 
+    if (!ensureDbConnected(__func__)) 
     {
         emit drugOperationFailed("数据库未连接");
         return {};
@@ -1336,12 +1269,8 @@ QVariantMap UiController::getDrugDetails(int drugId)
         return {};
     }
 
-    QVariantMap drugDetails;
-    for (const auto& pair : result.front()) 
-    {
-        drugDetails[pair.first] = pair.second;
-    }
-
+    auto drugDetails = rowToMap(result.front());
+    
     emit drugDetailsReady(drugDetails);
     return drugDetails;
 }

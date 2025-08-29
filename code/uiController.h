@@ -453,6 +453,43 @@ private:
     // 存储邮箱和对应的验证码 (模拟，实际应用中会通过邮件发送并有过期机制)
     QMap<QString, QString> m_verificationCodes; // 仍然需要这个来模拟验证码的临时存储
 
+    // --- 辅助函数 ---
+    /**
+     * @brief 数据库连接状态检查守卫
+     * 
+     * 功能：统一检查数据库连接状态，避免在每个方法中重复检查
+     * 简化操作：一行代码完成数据库状态检查和错误日志记录
+     * 注意事项：使用__func__宏可以自动获取调用函数名，便于调试
+     * 
+     * @param where 调用位置标识（通常传入__func__）
+     * @return bool true-数据库已连接，false-数据库未连接
+     */
+    bool ensureDbConnected(const char* where);
+
+    /**
+     * @brief 将单行数据转换为QVariantMap
+     * 
+     * 功能：将DatabaseManager::DataRow转换为Qt标准的QVariantMap格式
+     * 简化操作：消除手动遍历键值对的重复代码
+     * 注意事项：适用于单行查询结果的转换
+     * 
+     * @param row 数据库查询返回的单行数据
+     * @return QVariantMap 转换后的键值映射表
+     */
+    QVariantMap rowToMap(const DatabaseManager::DataRow& row);
+
+    /**
+     * @brief 将查询结果集转换为QVariantList
+     * 
+     * 功能：将DatabaseManager::ResultSet转换为Qt标准的QVariantList格式
+     * 简化操作：一行代码完成整个结果集的转换，替代手动循环
+     * 注意事项：适用于多行查询结果，每行转换为QVariantMap后加入列表
+     * 
+     * @param rs 数据库查询返回的结果集
+     * @return QVariantList 转换后的数据列表
+     */
+    QVariantList resultToList(const DatabaseManager::ResultSet& rs);
+
 signals:
     // 认证信号
     void loginSuccessAdmin();
