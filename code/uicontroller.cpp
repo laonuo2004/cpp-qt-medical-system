@@ -396,7 +396,7 @@ bool UiController::updateDoctorInfo(const QString &doctorId, const QVariantMap &
 {
     if (!DatabaseManager::instance().isConnected()) 
     {
-        qCritical() << "Update doctor info failed: Database not connected.";
+        qCritical() << "更新医生信息失败：数据库未连接。";
         return false;
     }
 
