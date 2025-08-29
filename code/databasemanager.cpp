@@ -431,7 +431,7 @@ DatabaseManager& DatabaseManager::instance()
                     description TEXT,
                     usage TEXT,
                     precautions TEXT,
-                    drug_price TEXT,
+                    drug_price REAL,
                     image_url TEXT
                 )
             )");

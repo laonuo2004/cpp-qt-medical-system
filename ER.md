@@ -88,7 +88,7 @@ erDiagram
         string description "药品简介"
         string usage "使用说明"
         string precautions "注意事项"
-        string drug_price "药品价格"
+        real drug_price "药品价格"
         string image_url "药品图片URL"
     }
 
