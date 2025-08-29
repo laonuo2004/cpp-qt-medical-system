@@ -143,4 +143,5 @@ erDiagram
     MEDICAL_RECORDS ||--|| HOSPITALIZATIONS : "可生成住院信息"
     DOCTORS ||--o{ HOSPITALIZATIONS : "负责治疗"
     PATIENTS ||--o{ HOSPITALIZATIONS : "对应住院"
+
 ```
