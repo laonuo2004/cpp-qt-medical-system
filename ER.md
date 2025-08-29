@@ -39,6 +39,10 @@ erDiagram
         string department "科室"
         string title "职称"
         string phone_no "手机号 (唯一)"
+        time doc_start "医生上班时间"
+        time doc_finish "医生下班时间"
+        string registration_fee "挂号费用"
+        int patient_limit "单日患者上限"
         string photo_url "照片URL"
     }
 
@@ -60,11 +64,32 @@ erDiagram
         datetime created_at "创建时间"
     }
 
+    HOSPITALIZATIONS {
+        int hospitalization_id PK "住院ID (主键)"
+        int record_id FK "关联病历ID (一对一)"
+        int doctor_id FK "主治医生ID"
+        string ward_no "病房号"
+        string bed_no "床号"
+        date admission_date "入院日期"
+        date discharge_date "出院日期(可为空)"
+    }
+
+
     PRESCRIPTIONS { 
         int prescription_id PK "处方ID (主键)"
         int record_id FK "关联病历ID (外键)"
-        text details "处方详情"
+        text details "处方详情(应该就是各种药品)"
         datetime issued_at "开具时间"
+    }
+
+    DRUGS {
+        int drug_id PK "药品ID (主键)"
+        string drug_name "药品名称 (唯一)"
+        string description "药品简介"
+        string usage "使用说明"
+        string precautions "注意事项"
+        string drug_price "药品价格"
+        string image_url "药品图片URL"
     }
 
     CHAT_MESSAGES {
@@ -104,6 +129,7 @@ erDiagram
     USERS ||--o| PATIENTS : "拥有个人资料"
     USERS ||--o| DOCTORS : "拥有个人资料"
     USERS ||--o| ADMINS  : "拥有个人资料"
+    PATIENTS ||--o{ DRUGS : "搜索/查看"
     USERS }o--o{ CHAT_MESSAGES : "发送"
     USERS }o--o{ CHAT_MESSAGES : "接收"
     
@@ -115,4 +141,9 @@ erDiagram
 
     APPOINTMENTS ||--|| MEDICAL_RECORDS : "生成"
     MEDICAL_RECORDS ||--|{ PRESCRIPTIONS : "包含"
+    
+    MEDICAL_RECORDS ||--|| HOSPITALIZATIONS : "可生成住院信息"
+    DOCTORS ||--o{ HOSPITALIZATIONS : "负责治疗"
+    PATIENTS ||--o{ HOSPITALIZATIONS : "对应住院"
+
 ```
