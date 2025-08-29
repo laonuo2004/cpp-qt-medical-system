@@ -450,7 +450,7 @@ bool UiController::updateDoctorInfo(const QString &doctorId, const QVariantMap &
         QString doctorWhereClause = QString("doctor_id = '%1'").arg(doctorId);
         if (!DatabaseManager::instance().update("doctors", doctorData, doctorWhereClause)) 
         {
-            qCritical() << "Failed to update doctor info:" << DatabaseManager::instance().lastError();
+            qCritical() << "更新医生信息失败:" << DatabaseManager::instance().lastError();
             DatabaseManager::instance().rollbackTransaction();
             return false;
         }
