@@ -1265,7 +1265,7 @@ bool UiController::cancelLeave(int requestId)
 
     if (DatabaseManager::instance().update("leave_requests", updateData, whereClause)) 
     {
-        qInfo() << "Leave request" << requestId << "取消成功";
+        qInfo() << "请假申请" << requestId << "取消成功";
         emit leaveCancelled(requestId);
         return true;
     } 
