@@ -1147,7 +1147,10 @@ bool UiController::submitLeaveRequest(const QString &doctorId, const QString &re
     requestData["request_type"] = requestType;
     requestData["start_date"] = startDate;
     requestData["end_date"] = endDate;
-    requestData["reason"] = reason.left(60); // 限制60字
+    // 限制60字（按Unicode字符计）
+    QVector<uint> ucs4 = reason.toUcs4();
+    if (ucs4.size() > 60) ucs4.resize(60);
+    requestData["reason"] = QString::fromUcs4(ucs4.constData(), ucs4.size());
     requestData["status"] = "未销假";
 
     if (DatabaseManager::instance().insert("leave_requests", requestData)) 
