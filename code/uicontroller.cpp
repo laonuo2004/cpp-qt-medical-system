@@ -1125,7 +1125,7 @@ bool UiController::checkOut(const QString &doctorId)
 
     if (DatabaseManager::instance().update("attendance", updateData, whereClause)) 
     {
-        qInfo() << "Doctor" << doctorId << "签退成功，时间为" << currentTime.toString();
+        qInfo() << "医生" << doctorId << "签退成功，时间为" << currentTime.toString();
         emit checkOutSuccess();
         return true;
     } 
