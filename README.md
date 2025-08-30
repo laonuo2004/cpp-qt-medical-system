@@ -10,8 +10,7 @@
 4. [架构设计与接口约定](#4-架构设计与接口约定)
 5. [初步时间计划](#5-初步时间计划)
 6. [开发规范](#6-开发规范)
-7. [尚待讨论的问题](#7-尚待讨论的问题)
-8. [可供参考的资料](#8-可供参考的资料)
+7. [可供参考的资料](#7-可供参考的资料)
 
 ---
 
@@ -207,13 +206,13 @@ graph TD
 ### 4.2 核心架构与数据模型
 
 - 我们将采用一个**单例**的 `UiController` 类作为前后端交互的唯一入口，以实现逻辑解耦。
-- 前后端之间的数据传递将通过**自定义的C++类/结构体**完成（例如 `PatientInfo`, `AppointmentDetails`），而不是通用的 `QVariantMap`。
-- **【待讨论】** 我们需要定义这些数据模型类的具体成员。
+- 前后端之间的数据传递将使用通用的 `QVariantMap`, `QVariantList` 等完成。
 
-### 4.3 前后端接口约定 (`UiController.h`)
+### 4.3 前后端交互 (`UiController`)
 
-- **【待讨论】** 我们需要定义 `UiController` 类的**所有公开接口**，包括函数签名、参数和返回值。
-- **【待讨论】** 我们需要确定需要哪些 **Qt信号** 来实现从后端到前端的异步通知（例如，新消息提醒）。
+- 我们使用 `UiController` 来完成前后端之间的交互。
+- 关于 `UiController` 当中函数功能的实现，请与 **周鑫** 商量讨论后，由 **周鑫** 负责具体实现，不用自己上手来完成。
+- 需要用到的 Qt 信号同理，由 **周鑫** 来具体实现，其他人只需要提需求即可。
 
 ---
 
@@ -252,11 +251,12 @@ gantt
 - **分支命名:**
   - 功能开发: `feature/user-login` 或 `feat/chat-module`
   - Bug修复: `fix/login-crash`
+  - ......
 - **提交信息:**
   - 尽量遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范。格式: `<type>: <subject>`
 - **合并流程:**
   - 禁止直接 `push` 到 `main` 分支，容易导致代码冲突。
-  - 所有代码通过 **Pull Request (PR)** 合并，需要 **左逸龙** 或 **胡艺镭** 进行 **Code Review**。
+  - 所有代码通过 **Pull Request (PR)** 合并，需要至少一人进行 **Code Review**。
 
 ### 6.2 代码风格
 
@@ -264,36 +264,22 @@ gantt
   - 类名: `UpperCamelCase` (e.g., `PatientModel`)
   - 函数/变量名: `lowerCamelCase` (e.g., `getUserName`)
   - 私有成员变量: 加 `m_` 前缀 (e.g., `m_userName`)
-- 其他规范可以后续补充
+- **缩进规范**
+  - 统一采用 `Allman Style`，主要是左大括号需要下放到下一行
+  - 统一使用四个空格的缩进长度，如果 `Tab` 缩进长度不同的可能需要调整一下
+- **其他的规范可以后续继续补充**
 
 ---
 
-## 7. 尚待讨论的问题
-
-1.  **数据库设计:**
-    - 需要哪些数据表？（可能的表：`Users`, `Patients`, `Doctors`, `Appointments`, `MedicalRecords`, `Prescriptions`, `ChatMessages`, `CaseTemplates`, `Attendance`）
-    - 每张表的具体字段、数据类型和约束是什么？
-    - 表之间的主外键关系如何建立？
-
-2.  **数据模型设计:**
-    - 需要定义哪些C++类/结构体来在前后端传递数据？(e.g., `UserInfo`, `AppointmentInfo`, `MessageData`)
-    - 每个类的成员变量有哪些？
-
-3.  **核心接口 `UiController.h` 设计:**
-    - 需要哪些公开函数（槽）来响应前端请求？
-    - 需要哪些信号来通知前端后台状态变化？
-
-4.  **三方库依赖:**
-    - 除了Qt自带模块，是否需要引入任何第三方库？
-
----
-
-## 8. 可供参考的资料
+## 7. 可供参考的资料
 
 > 有的代码可以直接照抄过来，尤其是聊天相关的代码，前人有较多具体实现。
 
 - [一个同样也是 Qt + Cpp 开发的医院管理系统，推荐参考](https://github.com/OmerJauhar/Hospital-Management-System-HMS-QT-Software-OOP-C-)
 - [使用 Qt + Cpp 开发的实时聊天系统，推荐参考](https://github.com/vRFEducation/qtchatapplication)
+- 23级其他组正在进行当中的项目：
+  - [同样也是医疗系统，流程图画得比较清晰，可以参考](https://github.com/xialinguo/hospital)
+  - [目前为空，等待后续动作](https://github.com/Dingnuooo/bit2025xxq)
 - 往年学长学姐们的项目 (之前的项目有所区别，不过也可以参考)：
   - [22级车载系统，含有聊天模块，可以参考其他文档攥写](https://github.com/YYT-0901/CS-BIT-INFORMATION/tree/master/5semester%20%E5%A4%A7%E4%B8%89%E4%B8%8A/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%93%E4%B8%9A%E5%9F%BA%E7%A1%80%E5%AE%9E%E4%B9%A0)
   - [同样也是车载系统](https://github.com/xChang1021x/BIT/tree/main/Y3S1/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%93%E4%B8%9A%E5%9F%BA%E7%A1%80%E5%AE%9E%E4%B9%A0)
