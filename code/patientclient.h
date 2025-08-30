@@ -17,6 +17,9 @@ public:
 
 private:
     Ui::PatientClient *ui;
+    class PatientInformationWidget* m_patientInformationWidget;
+    class PatientRegisterWidget* m_patientRegisterWidget;
+    class PatientReportWidget* m_patientReportWidget;
 };
 
 #endif // PATIENTCLIENT_H

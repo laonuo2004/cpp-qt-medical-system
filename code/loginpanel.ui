@@ -47,17 +47,17 @@
       <widget class="QComboBox" name="roleInput">
        <item>
         <property name="text">
-         <string>Doctor</string>
+         <string>病患</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Patient</string>
+         <string>医生</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Role</string>
+         <string>管理员</string>
         </property>
        </item>
       </widget>
