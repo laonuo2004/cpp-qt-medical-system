@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QMainWindow>
 #include <QDialog>
+#include <QDebug>
 
 
 int main(int argc, char *argv[])
@@ -14,7 +15,7 @@ int main(int argc, char *argv[])
     LoginPanel* loginPanel = new LoginPanel;
     if (loginPanel->exec() == QDialog::Accepted)
     {
-        QMainWindow* NewWindow;
+        QMainWindow* NewWindow = nullptr;
         switch(loginPanel->getMainWindowType())
         {
             case 0:
@@ -30,6 +31,10 @@ int main(int argc, char *argv[])
         if (NewWindow)
         {
             NewWindow->show();
+        }
+        else
+        {
+            qDebug() << "Main window initialization failed.";
         }
     }
     delete loginPanel;
