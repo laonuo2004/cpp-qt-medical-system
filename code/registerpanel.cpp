@@ -1,5 +1,6 @@
 #include "registerpanel.h"
 #include "ui_registerpanel.h"
+#include <QDebug>
 
 RegisterPanel::RegisterPanel(QWidget *parent) :
     QDialog(parent),
@@ -10,5 +11,4 @@ RegisterPanel::RegisterPanel(QWidget *parent) :
 
 RegisterPanel::~RegisterPanel()
 {
-    delete ui;
 }

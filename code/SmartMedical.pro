@@ -16,26 +16,59 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    doctorattendancewidget.cpp \
     doctorclient.cpp \
+    doctorinformationdetail.cpp \
+    doctorinformationwidget.cpp \
+    doctorpatientprofilewidget.cpp \
     loginpanel.cpp \
     main.cpp \
     manager.cpp \
     patientclient.cpp \
-    registerpanel.cpp
+    patienthistoryitem.cpp \
+    patientinformationdetail.cpp \
+    patientinformationwidget.cpp \
+    patientprescription.cpp \
+    patientregisterwidget.cpp \
+    patientreportwidget.cpp \
+    registerpanel.cpp \
+    userinfocard.cpp
 
 HEADERS += \
+    doctorattendancewidget.h \
     doctorclient.h \
+    doctorinformationdetail.h \
+    doctorinformationwidget.h \
+    doctorpatientprofilewidget.h \
     loginpanel.h \
     manager.h \
     patientclient.h \
-    registerpanel.h
+    patienthistoryitem.h \
+    patientinformationdetail.h \
+    patientinformationwidget.h \
+    patientprescription.h \
+    patientregisterwidget.h \
+    patientreportwidget.h \
+    registerpanel.h \
+    userinfocard.h
 
 FORMS += \
+    doctorattendancewidget.ui \
     doctorclient.ui \
+    doctorinformationdetail.ui \
+    doctorinformationwidget.ui \
+    doctorpatientprofilewidget.ui \
     loginpanel.ui \
     manager.ui \
     patientclient.ui \
-    registerpanel.ui
+    patienthistoryitem.ui \
+    patientinformationdetail.ui \
+    patientinformationwidget.ui \
+    patientprescription.ui \
+    patientregisterwidget.ui \
+    patientreportwidget.ui \
+    registerpanel.ui \
+    userinfocard.ui
 
 TRANSLATIONS += \
     SmartMedical_zh_CN.ts
@@ -44,3 +77,6 @@ TRANSLATIONS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    res.qrc

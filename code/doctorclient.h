@@ -17,6 +17,9 @@ public:
 
 private:
     Ui::DoctorClient *ui;
+    class DoctorInformationWidget* m_doctorInformationWidget;
+    class DoctorPatientProfileWidget* m_doctorPatientProfileWidget;
+    class DoctorAttendanceWidget* m_doctorAttendanceWidget;
 };
 
 #endif // DOCTORCLIENT_H
