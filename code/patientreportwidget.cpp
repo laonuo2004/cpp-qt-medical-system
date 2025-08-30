@@ -18,7 +18,7 @@ PatientReportWidget::~PatientReportWidget()
 void PatientReportWidget::loadPatientHistory()
 {
     // Test
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 3; i++)
     {
         PatientHistoryItem* NewHistoryItem = new PatientHistoryItem(this);
         ui->PatientHistoryList->addWidget(NewHistoryItem);
