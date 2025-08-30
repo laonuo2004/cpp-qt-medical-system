@@ -1,7 +1,7 @@
 #include "loginpanel.h"
 #include "ui_loginpanel.h"
 #include "registerpanel.h"
-#include "uiController.h"
+#include "uicontroller.h"
 #include <QMessageBox>
 
 LoginPanel::LoginPanel(QWidget *parent) :
