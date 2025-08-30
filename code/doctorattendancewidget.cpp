@@ -51,9 +51,6 @@ void DoctorAttendanceWidget::RequestLeave()
         newLeaveItem->setupLeaveItem(LeaveMsg);
         ui->LeaveList->addWidget(newLeaveItem);
     }
+    delete newLeaveForm;
 }
 
-void DoctorAttendanceWidget::CancelLeave()
-{
-
-}

@@ -6,7 +6,7 @@ DoctorLeaveItem::DoctorLeaveItem(QWidget *parent) :
     ui(new Ui::DoctorLeaveItem)
 {
     ui->setupUi(this);
-    connect(ui->CancelBtn, &QPushButton::clicked, this, &DoctorLeaveItem::cancelLeaveRequset);
+    connect(ui->CancelBtn, &QPushButton::clicked, this, &DoctorLeaveItem::cancelLeaveRequest);
 }
 
 void DoctorLeaveItem::setupLeaveItem(QString& LeaveMsg)
@@ -14,7 +14,7 @@ void DoctorLeaveItem::setupLeaveItem(QString& LeaveMsg)
     ui->LeaveMsg->setText(LeaveMsg);
 }
 
-void DoctorLeaveItem::cancelLeaveRequset()
+void DoctorLeaveItem::cancelLeaveRequest()
 {
     ui->CancelBtn->setDisabled(true);
     ui->LeaveMsg->setText("[已销假] " + ui->LeaveMsg->text());

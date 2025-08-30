@@ -12,9 +12,6 @@ LeaveForm::LeaveForm(QWidget *parent) :
 
 void LeaveForm::getLeaveMsg(QString& leaveMsg)
 {
-    QString LeaveType = ui->LeaveTypeInput->currentText();
-    QString StartDate = ui->StartDateInput->text();
-    QString EndDate = ui->EndDateInput->text();
     leaveMsg = QString("请假性质: %1 | 开始日期: %2 | 结束日期: %3")
         .arg(ui->LeaveTypeInput->currentText())
         .arg(ui->StartDateInput->text())
