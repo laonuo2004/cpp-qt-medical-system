@@ -1,11 +1,13 @@
-#include "widget.h"
+#include "loginpanel.h"
+#include "engine.h"
 
 #include <QApplication>
+
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    Widget w;
-    w.show();
+    Engine *engine = Engine::instance();
+    engine->Login();
     return a.exec();
 }
