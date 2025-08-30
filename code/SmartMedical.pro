@@ -21,6 +21,7 @@ SOURCES += \
     doctorinformationdetail.cpp \
     doctorinformationwidget.cpp \
     doctorpatientprofilewidget.cpp \
+    engine.cpp \
     loginpanel.cpp \
     main.cpp \
     manager.cpp \
@@ -40,6 +41,7 @@ HEADERS += \
     doctorinformationdetail.h \
     doctorinformationwidget.h \
     doctorpatientprofilewidget.h \
+    engine.h \
     loginpanel.h \
     manager.h \
     patientclient.h \

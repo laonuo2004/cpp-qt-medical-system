@@ -16,23 +16,47 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QComboBox" name="comboBox">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <property name="text">
-        <string>所有用户</string>
-       </property>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>查看:</string>
+        </property>
+       </widget>
       </item>
       <item>
-       <property name="text">
-        <string>医生</string>
-       </property>
+       <widget class="QComboBox" name="comboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <item>
+         <property name="text">
+          <string>所有用户</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>医生</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>病患</string>
+         </property>
+        </item>
+       </widget>
       </item>
       <item>
-       <property name="text">
-        <string>病患</string>
-       </property>
+       <widget class="QPushButton" name="LogoutBtn">
+        <property name="text">
+         <string>退出登录</string>
+        </property>
+       </widget>
       </item>
-     </widget>
+     </layout>
     </item>
     <item>
      <widget class="QListWidget" name="UserList"/>

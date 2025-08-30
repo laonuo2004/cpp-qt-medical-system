@@ -7,8 +7,8 @@ UserInfoCard::UserInfoCard(QWidget *parent, bool isPatient) :
     QWidget(parent), ui(new Ui::UserInfoCard), m_isPatient(isPatient)
 {
     ui->setupUi(this);
-    setFixedSize(275, 150);
-    ui->Photo->setFixedSize(90, 110);
+    setFixedSize(400, 200);
+    ui->Photo->setFixedSize(120, 150);
 
     if (isPatient)
     {
