@@ -7,6 +7,7 @@ MedicalRecord::MedicalRecord(QWidget *parent) :
     ui(new Ui::MedicalRecord)
 {
     ui->setupUi(this);
+    connect(ui->prescriptionBtn, &QPushButton::clicked, this, &MedicalRecord::showPrescription);
 }
 
 MedicalRecord::~MedicalRecord()
@@ -14,7 +15,7 @@ MedicalRecord::~MedicalRecord()
     delete ui;
 }
 
-void MedicalRecord::on_prescriptionBtn_clicked()
+void MedicalRecord::showPrescription()
 {
     Prescription* patientPrescription = new Prescription(this);
     patientPrescription->exec();

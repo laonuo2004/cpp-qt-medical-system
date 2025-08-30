@@ -10,7 +10,7 @@ DoctorClient::DoctorClient(QWidget *parent) :
     ui(new Ui::DoctorClient)
 {
     ui->setupUi(this);
-    // Build up stack widget.
+    // 创建子页面，添加到stack控件
     m_doctorInfoPage = new DoctorInfoPage(this);
     m_patientCardsPage = new PatientCardsPage(this);
     m_AttendancePage = new AttendancePage(this);
@@ -18,7 +18,7 @@ DoctorClient::DoctorClient(QWidget *parent) :
     ui->stackedWidget->addWidget(m_patientCardsPage);
     ui->stackedWidget->addWidget(m_AttendancePage);
 
-    // Setup side bar button size.
+    // 设置侧边导航栏按钮大小
     ui->InfoBtn->setFixedSize(150, 50);
     ui->PatientBtn->setFixedSize(150, 50);
     ui->AttendanceBtn->setFixedSize(150, 50);

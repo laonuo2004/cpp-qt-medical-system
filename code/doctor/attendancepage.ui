@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="CheckInTab">
       <attribute name="title">
@@ -109,8 +109,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>346</width>
-                 <height>171</height>
+                 <width>354</width>
+                 <height>190</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_5">

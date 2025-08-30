@@ -7,6 +7,13 @@ namespace Ui {
 class RegisterPanel;
 }
 
+/**
+ * @class RegisterPanel
+ * @brief 注册面板
+ *
+ * 该类负责处理用户注册操作，未完成。
+ */
+
 class RegisterPanel : public QDialog
 {
     Q_OBJECT
