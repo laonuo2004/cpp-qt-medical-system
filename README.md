@@ -64,7 +64,7 @@
 
 ```mermaid
 graph TD
-    %% --- Actors: 定义用户角色 ---
+    %% --- Actors ---
     subgraph "Actors"
         direction LR
         Doctor(fa:fa-user-doctor Doctor)
@@ -72,80 +72,92 @@ graph TD
         Admin(fa:fa-user-shield Admin)
     end
 
-    %% --- Application Architecture: 整个应用的核心结构 ---
+    %% --- App Architecture ---
     subgraph "Application Architecture"
         direction TB
 
-        %% 1. UI Layer: 更具体的界面划分
-        subgraph "1.用户界面 (UI Layer)"
+        %% 1. UI（客户端）
+        subgraph "1.UI (Client)"
             direction LR
-            LoginUI["登录 / 注册 UI"]
-            PatientUI["患者主界面"]
-            DoctorUI["医生主界面"]
-            AdminUI["后台管理界面"]
+            LoginUI["登录/注册"]
+            PatientUI["患者端"]
+            DoctorUI["医生端"]
+            AdminUI["后台端"]
         end
 
-        %% 2. Business Logic Layer: 核心控制器，保持不变
-        subgraph "2.业务逻辑层 (Business Logic)"
-            Controller{"UiController (核心控制器)"}
-        end
-
-        %% 3. Backend Layers: 功能模块和数据访问
-        subgraph "3.后端服务 (Backend Services)"
-            direction LR
-            
-            subgraph "功能模块 (Feature Modules)"
+        %% 2. 业务层（客户端）
+        subgraph "2.Biz (Client)"
+            direction TB
+            Controller{"UiController（核心控制）"}
+            subgraph "功能模块 (Features)"
                 direction TB
-                ChatModule["医患聊天模块"]
-                AnalysisModule["数据分析模块"]
-                TemplateModule["病历模板模块"]
-            end
-            
-            subgraph "数据访问层 (Data Access)"
-                direction TB
-                DBModule["Database Module (SQLite)"]
+                ChatModule["医患聊天"]
+                AnalysisModule["数据分析"]
+                TemplateModule["病历模板"]
             end
         end
 
-        %% 4. Data Models: 体现数据库产出的信息
-        subgraph "4.数据模型 / 表 (Data Models / Tables)"
+        %% 3. 后端（仅数据访问）
+        subgraph "3.Backend (Server)"
+            direction TB
+            ServerAPI{"Server API(服务器)"}
+            subgraph "数据访问 (Data Access)"
+                direction TB
+                Manages["Manages（数据访问接口）"]
+                DBModule["Database (SQLite)"]
+            end
+        end
+
+        %% 4. 数据模型
+        subgraph "4.Tables(部分)"
             direction LR
             UserInfo["用户信息"]
             MedicalRecords["病历信息"]
             Appointments["预约信息"]
         end
-
     end
 
-    %% --- Connections: 定义流程和依赖关系 ---
+    %% --- Connections ---
     Doctor & Patient & Admin --> LoginUI
     LoginUI --> Controller
     PatientUI --> Controller
     DoctorUI --> Controller
     AdminUI --> Controller
-    
+
+    %% 功能模块仍与 UiController 直连（客户端内调用）
     Controller --> ChatModule
     Controller --> AnalysisModule
     Controller --> TemplateModule
-    
-    Controller <--> DBModule
-    
+
+    %% 数据访问链路：Controller -> Manages -> ServerAPI -> DB
+    Controller --> Manages
+    Manages -->|TCPIP| ServerAPI
+    ServerAPI <--> DBModule
+
+    %% 数据模型由数据库模块管理（保留“Manages”语义）
     DBModule -- Manages --> UserInfo
     DBModule -- Manages --> MedicalRecords
     DBModule -- Manages --> Appointments
 
-    %% --- Styling ---
+    %% --- Styling（紧凑+深灰字+稍大字号）---
     style Doctor fill:#d4edda,stroke:#155724
     style Patient fill:#d1ecf1,stroke:#0c5460
     style Admin fill:#f8d7da,stroke:#721c24
-    classDef ui fill:#cce5ff,stroke:#004085
-    classDef logic fill:#fff3cd,stroke:#856404
-    classDef feature fill:#e2e3e5,stroke:#383d41
-    classDef data fill:#d4edda,stroke:#155724
+
+    classDef actor color:#333,font-size:14px,stroke-width:1.2px
+    classDef ui fill:#cce5ff,stroke:#004085,color:#333,font-size:14px,stroke-width:1.2px
+    classDef logic fill:#fff3cd,stroke:#856404,color:#333,font-size:14px,stroke-width:1.2px
+    classDef feature fill:#e2e3e5,stroke:#383d41,color:#333,font-size:14px,stroke-width:1.2px
+    classDef data fill:#d4edda,stroke:#155724,color:#333,font-size:14px,stroke-width:1.2px
+
+    class Doctor,Patient,Admin actor
     class LoginUI,PatientUI,DoctorUI,AdminUI ui
     class Controller logic
     class ChatModule,AnalysisModule,TemplateModule feature
-    class DBModule,UserInfo,MedicalRecords,Appointments data
+    class ServerAPI,Manages,DBModule,UserInfo,MedicalRecords,Appointments data
+
+    linkStyle default stroke-width:1.1px
+
 ```
 
 ### 3.2 详细任务分配表
