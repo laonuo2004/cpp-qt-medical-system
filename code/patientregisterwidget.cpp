@@ -19,7 +19,7 @@ PatientRegisterWidget::~PatientRegisterWidget()
 void PatientRegisterWidget::loadDoctorInformation()
 {
     // Test
-    for (int i = 0; i < 11; i++)
+    for (int i = 0; i < 3; i++)
     {
         UserInfoCard* NewDoctorCard = new UserInfoCard(this, false);
         ui->DoctorCardList->addWidget(NewDoctorCard, i / 2, i % 2);

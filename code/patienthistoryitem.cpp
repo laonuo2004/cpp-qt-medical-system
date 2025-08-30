@@ -7,7 +7,6 @@ PatientHistoryItem::PatientHistoryItem(QWidget *parent) :
     ui(new Ui::PatientHistoryItem)
 {
     ui->setupUi(this);
-    setFixedSize(600, 75);
 }
 
 PatientHistoryItem::~PatientHistoryItem()

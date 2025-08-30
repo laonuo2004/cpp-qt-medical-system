@@ -18,7 +18,7 @@ DoctorPatientProfileWidget::~DoctorPatientProfileWidget()
 void DoctorPatientProfileWidget::loadPatientInformation()
 {
     // Test
-    for (int i = 0; i < 11; i++)
+    for (int i = 0; i < 3; i++)
     {
         UserInfoCard* NewPatientCard = new UserInfoCard(this, true);
         ui->PatientCards->addWidget(NewPatientCard, i / 2, i % 2);

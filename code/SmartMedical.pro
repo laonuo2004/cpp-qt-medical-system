@@ -20,8 +20,10 @@ SOURCES += \
     doctorclient.cpp \
     doctorinformationdetail.cpp \
     doctorinformationwidget.cpp \
+    doctorleaveitem.cpp \
     doctorpatientprofilewidget.cpp \
     engine.cpp \
+    leaveform.cpp \
     loginpanel.cpp \
     main.cpp \
     manager.cpp \
@@ -40,8 +42,10 @@ HEADERS += \
     doctorclient.h \
     doctorinformationdetail.h \
     doctorinformationwidget.h \
+    doctorleaveitem.h \
     doctorpatientprofilewidget.h \
     engine.h \
+    leaveform.h \
     loginpanel.h \
     manager.h \
     patientclient.h \
@@ -59,7 +63,9 @@ FORMS += \
     doctorclient.ui \
     doctorinformationdetail.ui \
     doctorinformationwidget.ui \
+    doctorleaveitem.ui \
     doctorpatientprofilewidget.ui \
+    leaveform.ui \
     loginpanel.ui \
     manager.ui \
     patientclient.ui \
