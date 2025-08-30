@@ -131,7 +131,6 @@ void UiController::registerUser(const QString &username, const QString &email, c
 
     if (!isPasswordComplex(password)) {
         emit registrationFailed("密码不符合复杂度要求：至少包含8位，大小写字母，数字和特殊字符。");
-        qDebug()<<"密码不符合复杂度要求：至少包含8位，大小写字母，数字和特殊字符。";
         return;
     }
 

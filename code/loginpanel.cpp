@@ -34,14 +34,11 @@ LoginPanel::~LoginPanel()
 void LoginPanel::on_RegisterBtn_clicked()
 {
     RegisterPanel* registerPanel = new RegisterPanel(this);
-    if (registerPanel->exec() == QDialog::Accepted)
-    {
-        //QMessageBox::information(this, tr("注册成功"), tr("用户注册成功。"));
-    }
-    else
+    if (registerPanel->exec() == QDialog::Rejected)
     {
         qDebug() << "用户取消注册或注册失败。";
     }
+
     delete registerPanel;
 }
 
@@ -68,7 +65,7 @@ void LoginPanel::handleLoginFailed(const QString &reason)
 {
     qDebug() << "登录失败：" << reason;
     QMessageBox::warning(this, tr("登录失败"), tr("登录失败，原因：") + reason);
-    ui->userInput->clear(); // 清空密码，要求用户重新输入
+    ui->pwdInput->clear(); // 清空密码，要求用户重新输入
     ui->pwdInput->setFocus(); // 将焦点设置回邮箱输入框
     // 保持 LoginPanel 打开
 }

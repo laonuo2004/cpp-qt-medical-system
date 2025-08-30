@@ -99,7 +99,7 @@ void Engine::onLoginSuccessAdmin()
 // Engine 的槽函数：处理医生登录成功
 void Engine::onLoginSuccessDoctor()
 {
-    //qDebug() << "Engine 收到医生登录成功信号。正在创建 DoctorClient 窗口。";
+    qDebug() << "Engine 收到医生登录成功信号。正在创建 DoctorClient 窗口。";
     if (m_mainWindow) {
         delete m_mainWindow;
     }
