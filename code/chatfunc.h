@@ -18,24 +18,12 @@ public:
     explicit chatfunc(QWidget *parent = nullptr);
     ~chatfunc();
 
-
-private slots:
-    void showChatPage();
-    void showDocChatPage() ;
-    void showPatientChatPage() ;
-
 private:
     Ui::chatfunc *ui;
 
-    chattool *Chatpage;
+signals:
+    void gochat() ;
 
-    DoctorChatTool *DC;
-    PatientChatTool *PC;
-
-    QWidget *previousPage;
-    QWidget *currentPage;
-
-    void switchPage(QWidget *page);
 
 };
 

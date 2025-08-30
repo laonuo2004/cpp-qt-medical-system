@@ -5,8 +5,8 @@
 #include <QMainWindow>
 #include "doctorchattool.h"
 #include "patientchattool.h"
-#include "payfunc.h"
-#include "chatfunc.h"
+#include "payinterface.h"
+#include "chatinterface.h"
 #include "apiget.h"
 
 namespace Ui {
@@ -22,14 +22,14 @@ public:
     ~BasicFunc();
 
 private slots:
-    void onShowPayFunc();  // 显示PayFunc窗口的槽函数
-    void onShowChatFunc() ;  // to show chatfunc
+    void onShowPayInterface();  // 显示PayFunc窗口的槽函数
+    void onShowChatInterface() ;  // to show chatfunc
     void onShowLineChartFunc() ; //to show linechart
 
 private:
     Ui::BasicFunc *ui;
-    PayFunc *PF;
-    chatfunc *CF;
+    PayInterface *PF;
+    ChatInterface *CF;
     APIGet *AF;
 };
 

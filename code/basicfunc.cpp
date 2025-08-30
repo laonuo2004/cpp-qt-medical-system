@@ -7,14 +7,14 @@ BasicFunc::BasicFunc(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->payfunc, &QPushButton::clicked, this, &BasicFunc::onShowPayFunc);
-    connect(ui->chatfunc , &QPushButton::clicked , this , &BasicFunc::onShowChatFunc) ;
+    connect(ui->payfunc, &QPushButton::clicked, this, &BasicFunc::onShowPayInterface);
+    connect(ui->chatfunc , &QPushButton::clicked , this , &BasicFunc::onShowChatInterface) ;
     connect(ui->chart , &QPushButton::clicked , this , &BasicFunc::onShowLineChartFunc ) ;
 
-    PF = new PayFunc();
+    PF = new PayInterface();
     PF->hide();  // 初始时隐藏
 
-    CF = new chatfunc() ;
+    CF = new ChatInterface() ;
     CF->hide();
 
     AF = new APIGet() ;
@@ -26,15 +26,15 @@ BasicFunc::~BasicFunc()
     delete ui;
 }
 
-void BasicFunc::onShowPayFunc()
+void BasicFunc::onShowPayInterface()
 {
     if (PF)
     {
-        PF->show();  // 显示PayFunc窗口
+        PF->show();  // 显示PayINterface窗口
     }
 }
 
-void BasicFunc::onShowChatFunc()
+void BasicFunc::onShowChatInterface()
 {
     if (CF)
     {
