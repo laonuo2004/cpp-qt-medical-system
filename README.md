@@ -14,6 +14,17 @@
 
 ---
 
+## 0. TODO
+
+> 随时更新需要处理的事务
+
+### 📅 8/30
+
+1. [ ] 当前的项目中，数据库尚且存放在本地，无法实现数据共享，需要更改为 C/S 架构，将数据库转移到服务器端
+2. [ ] 黄奕晨的模块需要修改以集成到现有代码当中，当前还是独立的部分，在各方面与当前代码不兼容
+
+---
+
 ## 1. 项目概述
 
 ### 1.1 项目目标
@@ -94,6 +105,11 @@ graph TD
                 ChatModule["医患聊天"]
                 AnalysisModule["数据分析"]
                 TemplateModule["病历模板"]
+                OtherModule["......"]
+            end
+            subgraph "数据访问 (Data Access)"
+                direction TB
+                Manages["dataBaseManager"]
             end
         end
 
@@ -101,28 +117,23 @@ graph TD
         subgraph "3.Backend (Server)"
             direction TB
             ServerAPI{"Server API(服务器)"}
-            subgraph "数据访问 (Data Access)"
+            subgraph "数据存储 (Data Storage)"
                 direction TB
-                Manages["Manages（数据访问接口）"]
                 DBModule["Database (SQLite)"]
+                UserInfo["用户信息"]
+                MedicalRecords["病历信息"]
+                Appointments["预约信息"]
+                OtherTable["......"]
             end
-        end
-
-        %% 4. 数据模型
-        subgraph "4.Tables(部分)"
-            direction LR
-            UserInfo["用户信息"]
-            MedicalRecords["病历信息"]
-            Appointments["预约信息"]
         end
     end
 
     %% --- Connections ---
     Doctor & Patient & Admin --> LoginUI
     LoginUI --> Controller
-    PatientUI --> Controller
-    DoctorUI --> Controller
-    AdminUI --> Controller
+    PatientUI <--> Controller
+    DoctorUI <--> Controller
+    AdminUI <--> Controller
 
     %% 功能模块仍与 UiController 直连（客户端内调用）
     Controller --> ChatModule
@@ -131,13 +142,14 @@ graph TD
 
     %% 数据访问链路：Controller -> Manages -> ServerAPI -> DB
     Controller --> Manages
-    Manages -->|TCPIP| ServerAPI
+    Manages <-->|TCPIP| ServerAPI
     ServerAPI <--> DBModule
 
-    %% 数据模型由数据库模块管理（保留“Manages”语义）
-    DBModule -- Manages --> UserInfo
-    DBModule -- Manages --> MedicalRecords
-    DBModule -- Manages --> Appointments
+    %% 数据模型由数据库模块管理
+    DBModule --> UserInfo
+    DBModule --> MedicalRecords
+    DBModule --> Appointments
+    DBModule --> OtherTable
 
     %% --- Styling（紧凑+深灰字+稍大字号）---
     style Doctor fill:#d4edda,stroke:#155724
@@ -153,8 +165,8 @@ graph TD
     class Doctor,Patient,Admin actor
     class LoginUI,PatientUI,DoctorUI,AdminUI ui
     class Controller logic
-    class ChatModule,AnalysisModule,TemplateModule feature
-    class ServerAPI,Manages,DBModule,UserInfo,MedicalRecords,Appointments data
+    class ChatModule,AnalysisModule,TemplateModule,OtherModule feature
+    class ServerAPI,Manages,DBModule,UserInfo,MedicalRecords,Appointments,OtherTable data
 
     linkStyle default stroke-width:1.1px
 
