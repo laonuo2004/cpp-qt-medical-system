@@ -2,4 +2,7 @@
     <qresource prefix="/img">
         <file>picture/DefaultPhoto.jpg</file>
     </qresource>
+    <qresource prefix="/style">
+        <file>picture/medicaltheme.qss</file>
+    </qresource>
 </RCC>

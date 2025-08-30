@@ -9,6 +9,7 @@
 #include <QMainWindow>
 #include <QDialog>
 #include <QDebug>
+#include <QFile>
 
 
 Engine::Engine(QObject *parent) : QObject(parent)
@@ -50,4 +51,3 @@ void Engine::Login()
     }
     delete loginPanel;
 }
-

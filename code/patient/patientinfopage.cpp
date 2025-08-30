@@ -6,7 +6,7 @@ PatientInfoPage::PatientInfoPage(QWidget *parent) :
     ui(new Ui::PatientInfoPage)
 {
     ui->setupUi(this);
-    ui->PatientPhoto->setFixedSize(150, 175);
+    ui->PatientPhoto->setFixedSize(200, 250);
 }
 
 PatientInfoPage::~PatientInfoPage()

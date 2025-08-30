@@ -24,6 +24,11 @@ PatientClient::PatientClient(QWidget *parent) :
     ui->ReportBtn->setFixedSize(150, 50);
     ui->LogoutBtn->setFixedSize(150, 50);
 
+    ui->InfoBtn->setProperty("class", "sidebar-btn");
+    ui->RegisterBtn->setProperty("class", "sidebar-btn");
+    ui->ReportBtn->setProperty("class", "sidebar-btn");
+    ui->LogoutBtn->setProperty("class", "sidebar-btn");
+
     connect(ui->InfoBtn, &QPushButton::clicked, [this](){ui->stackedWidget->setCurrentIndex(0);});
     connect(ui->RegisterBtn, &QPushButton::clicked, [this](){ui->stackedWidget->setCurrentIndex(1);});
     connect(ui->ReportBtn, &QPushButton::clicked, [this](){ui->stackedWidget->setCurrentIndex(2);});
