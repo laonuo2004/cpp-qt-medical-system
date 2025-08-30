@@ -14,7 +14,7 @@ class DoctorLeaveItem : public QWidget
 public:
     explicit DoctorLeaveItem(QWidget *parent = nullptr);
     void setupLeaveItem(QString& LeaveMsg);
-    void cancelLeaveRequset();
+    void cancelLeaveRequest();
     ~DoctorLeaveItem();
 
 private:

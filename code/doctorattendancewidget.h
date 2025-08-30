@@ -19,7 +19,6 @@ protected:
     void signIn();
     void signOut();
     void RequestLeave();
-    void CancelLeave();
 
 private:
     Ui::DoctorAttendanceWidget *ui;
