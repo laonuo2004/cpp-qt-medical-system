@@ -18,5 +18,6 @@ PatientHistoryItem::~PatientHistoryItem()
 void PatientHistoryItem::on_prescriptionBtn_clicked()
 {
     PatientPrescription* patientPrescription = new PatientPrescription(this);
-    patientPrescription->show();
+    patientPrescription->exec();
+    delete patientPrescription;
 }

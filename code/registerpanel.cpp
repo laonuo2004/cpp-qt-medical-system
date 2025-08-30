@@ -11,4 +11,5 @@ RegisterPanel::RegisterPanel(QWidget *parent) :
 
 RegisterPanel::~RegisterPanel()
 {
+    delete ui;
 }

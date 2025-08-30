@@ -23,7 +23,7 @@ UserInfoCard::UserInfoCard(QWidget *parent, bool isPatient) :
         ui->ShowText_3->setText("职务:");
     }
 
-    connect(ui->DetailBtn, &QPushButton::clicked, this, &UserInfoCard::openDetailPenel);
+    connect(ui->DetailBtn, &QPushButton::clicked, this, &UserInfoCard::openDetailPanel);
 }
 
 UserInfoCard::~UserInfoCard()
@@ -31,7 +31,7 @@ UserInfoCard::~UserInfoCard()
     delete ui;
 }
 
-void UserInfoCard::openDetailPenel()
+void UserInfoCard::openDetailPanel()
 {
     QDialog* detailPanel;
     if (m_isPatient)

@@ -15,44 +15,38 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>今日预约</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QScrollArea" name="scrollArea">
      <property name="widgetResizable">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <widget class="QWidget" name="scrollAreaWidgetContents">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>800</width>
-        <height>600</height>
+        <width>376</width>
+        <height>276</height>
        </rect>
       </property>
-      <widget class="QWidget" name="gridLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>160</width>
-         <height>80</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="PatientCards">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetMinAndMaxSize</enum>
-        </property>
-        <property name="spacing">
-         <number>6</number>
-        </property>
-       </layout>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>今日预约</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="PatientCards">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMinAndMaxSize</enum>
+         </property>
+         <property name="spacing">
+          <number>6</number>
+         </property>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>

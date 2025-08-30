@@ -22,6 +22,5 @@ void PatientReportWidget::loadPatientHistory()
     {
         PatientHistoryItem* NewHistoryItem = new PatientHistoryItem(this);
         ui->PatientHistoryList->addWidget(NewHistoryItem);
-        ui->scrollAreaWidgetContents->setGeometry(0, 0, 600, ui->scrollAreaWidgetContents->height() + 30);
     }
 }

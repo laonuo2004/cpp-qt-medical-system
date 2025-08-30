@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>529</width>
+    <height>523</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,44 +15,38 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>就诊记录</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QScrollArea" name="scrollArea">
      <property name="widgetResizable">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <widget class="QWidget" name="scrollAreaWidgetContents">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>800</width>
-        <height>600</height>
+        <width>505</width>
+        <height>499</height>
        </rect>
       </property>
-      <widget class="QWidget" name="verticalLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>2</x>
-         <y>10</y>
-         <width>371</width>
-         <height>231</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="PatientHistoryList">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="sizeConstraint">
-         <enum>QLayout::SetMinimumSize</enum>
-        </property>
-       </layout>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>就诊记录</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="PatientHistoryList">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMinAndMaxSize</enum>
+         </property>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>

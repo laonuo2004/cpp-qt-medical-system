@@ -86,12 +86,12 @@
         <widget class="QComboBox" name="GenderInput">
          <item>
           <property name="text">
-           <string>Male</string>
+           <string>男</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Female</string>
+           <string>女</string>
           </property>
          </item>
         </widget>

@@ -22,6 +22,5 @@ void DoctorPatientProfileWidget::loadPatientInformation()
     {
         UserInfoCard* NewPatientCard = new UserInfoCard(this, true);
         ui->PatientCards->addWidget(NewPatientCard, i / 2, i % 2);
-        ui->scrollAreaWidgetContents->setGeometry(0, 0, 600, ui->scrollAreaWidgetContents->height() + 35);
     }
 }

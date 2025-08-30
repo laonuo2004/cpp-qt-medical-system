@@ -16,7 +16,7 @@ public:
     ~UserInfoCard();
 
 protected:
-    void openDetailPenel();
+    void openDetailPanel();
 
 private:
     Ui::UserInfoCard *ui;

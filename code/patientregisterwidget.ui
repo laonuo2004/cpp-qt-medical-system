@@ -15,27 +15,6 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>选择科室</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="DepartmentInput">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
     <widget class="QScrollArea" name="scrollArea">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -50,7 +29,7 @@
       <enum>QAbstractScrollArea::AdjustIgnored</enum>
      </property>
      <property name="widgetResizable">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <widget class="QWidget" name="scrollAreaWidgetContents">
       <property name="enabled">
@@ -60,34 +39,49 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>446</width>
-        <height>510</height>
+        <width>534</width>
+        <height>611</height>
        </rect>
       </property>
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <widget class="QWidget" name="gridLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>462</width>
-         <height>2</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="DoctorCardList">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetFixedSize</enum>
-        </property>
-        <property name="spacing">
-         <number>0</number>
-        </property>
-       </layout>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>选择科室</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="DepartmentInput">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="DoctorCardList">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMinAndMaxSize</enum>
+         </property>
+         <property name="spacing">
+          <number>0</number>
+         </property>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>

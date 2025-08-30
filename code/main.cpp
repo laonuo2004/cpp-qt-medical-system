@@ -27,7 +27,10 @@ int main(int argc, char *argv[])
                 NewWindow = new Manager;
                 break;
         }
-        NewWindow->show();
+        if (NewWindow)
+        {
+            NewWindow->show();
+        }
     }
     delete loginPanel;
     return a.exec();
