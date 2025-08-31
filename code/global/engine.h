@@ -2,6 +2,8 @@
 #define ENGINE_H
 
 #include <QObject>
+#include <QMainWindow>
+#include "uicontroller.h"
 
 /**
  * @class Engine
@@ -30,7 +32,7 @@ public:
     }
 
     /**
-     * @brief 登录流程处理
+     * @brief 应用程序启动流程
      *
      * 显示登录面板，等待用户输入并验证登录信息。
      * 根据登录后的选择，创建不同类型的主窗口（患者、医生或后台管理员窗口）。
@@ -39,11 +41,16 @@ public:
      * 如果登录面板返回接受（登录成功），将创建对应的客户端窗口。
      * 在主界面退出登录后会再次调用该函数，重启登录流程。
      */
-    void Login();
+    void startApplicationFlow();
 
+private slots:
+    // Engine 的槽函数：处理不同角色登录成功
+    void onLoginSuccessAdmin();
+    void onLoginSuccessDoctor();
+    void onLoginSuccessPatient();
 
 private:
-    class QMainWindow* m_mainWindow;
+    QMainWindow* m_mainWindow;
 };
 
 #endif // ENGINE_H
