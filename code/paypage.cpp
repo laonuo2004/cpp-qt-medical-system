@@ -10,6 +10,11 @@ PayPage::PayPage(QWidget *parent) :
     controller(new UiController(this))  // 初始化列表初始化controller
 {
     ui->setupUi(this);
+    ui->label_7->hide();
+    ui->label->hide();
+    ui->yes->hide();
+    ui->no->hide();
+
     setupConnections();
 }
 
@@ -21,10 +26,86 @@ PayPage::~PayPage()
 
 void PayPage::setupConnections()
 {
+    connect(ui->findBtn, &QPushButton::clicked, this, &PayPage::onPaymentSearch);
     // 连接支付确认按钮
     connect(ui->yes, &QPushButton::clicked, this, &PayPage::onPaymentConfirmed);
     // 连接支付取消按钮
     connect(ui->no, &QPushButton::clicked, this, &PayPage::onPaymentCancelled);
+}
+
+void PayPage::onPaymentSearch()
+{
+    QString patientIdText = ui->PatientId->text().trimmed();
+    if (patientIdText.isEmpty())
+    {
+        QMessageBox::warning(const_cast<PayPage*>(this),
+            tr("输入错误"),
+            tr("患者ID不能为空")
+        );
+        return ;
+    }
+
+    bool conversionOk = false;
+    const uint patientId = patientIdText.toUInt(&conversionOk);
+    if (!conversionOk || patientId <= 0)
+    {
+        QMessageBox::warning(const_cast<PayPage*>(this),
+            tr("输入错误"),
+            tr("请输入有效的患者ID（正整数）")
+        );
+        return ;
+    }
+
+    // 获取并验证日期
+    const QDate date = getSelectedDate(conversionOk);
+    if (!conversionOk)
+    {
+        // getSelectedDate内部已经显示了错误消息
+        return ;
+    }
+
+    // 检查控制器是否有效
+    if (!controller)
+    {
+        QMessageBox::critical(const_cast<PayPage*>(this),
+            tr("系统错误"),
+            tr("控制器未正确初始化")
+        );
+        return ;
+    }
+    try
+    {
+        // 获取预约列表
+        const QVariantList appointments = controller->getPatientAppointments(patientId, date);
+        if (appointments.isEmpty())
+        {
+            QMessageBox::information(const_cast<PayPage*>(this),
+                tr("查询结果"),
+                tr("未找到指定日期和患者的预约记录")
+            );
+            return ;
+        }
+        ui->label_7->show();
+        ui->label->show();
+        ui->yes->show();
+        ui->no->show();
+    }
+    catch (const std::exception& e)
+    {
+        QMessageBox::critical(const_cast<PayPage*>(this),
+            tr("系统错误"),
+            tr("获取预约记录时发生异常: %1").arg(e.what())
+        );
+        return ;
+    }
+    catch (...)
+    {
+        QMessageBox::critical(const_cast<PayPage*>(this),
+            tr("系统错误"),
+            tr("获取预约记录时发生未知异常")
+        );
+        return ;
+    }
 }
 
 void PayPage::onPaymentConfirmed()
@@ -84,6 +165,8 @@ void PayPage::updateAppointmentStatus(const QString& status)
             tr("未找到有效的预约记录。请检查输入数据。")
         );
     }
+
+
 }
 
 int PayPage::getFirstAppointmentId(bool& ok) const

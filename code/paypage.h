@@ -23,6 +23,8 @@ private:
 
     void PsetupConnections();
 
+    void onPaymentSearch();
+
     void onPaymentConfirmed();
 
     void onPaymentCancelled();
@@ -30,6 +32,7 @@ private:
     void updateAppointmentStatus(const QString& status);
 
     int getFirstAppointmentId(bool& ok) const ;
+
 
     QDate getSelectedDate(bool& ok) const ;
 
