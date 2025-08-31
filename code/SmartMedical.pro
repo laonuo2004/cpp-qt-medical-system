@@ -16,64 +16,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    databasemanager.cpp \
-    doctorattendancewidget.cpp \
-    doctorclient.cpp \
-    doctorinformationdetail.cpp \
-    doctorinformationwidget.cpp \
-    doctorpatientprofilewidget.cpp \
-    engine.cpp \
-    loginpanel.cpp \
-    main.cpp \
-    manager.cpp \
-    patientclient.cpp \
-    patienthistoryitem.cpp \
-    patientinformationdetail.cpp \
-    patientinformationwidget.cpp \
-    patientprescription.cpp \
-    patientregisterwidget.cpp \
-    patientreportwidget.cpp \
-    registerpanel.cpp \
-    uicontroller.cpp \
-    userinfocard.cpp
-HEADERS += \
-    databasemanager.h \
-    doctorattendancewidget.h \
-    doctorclient.h \
-    doctorinformationdetail.h \
-    doctorinformationwidget.h \
-    doctorpatientprofilewidget.h \
-    engine.h \
-    loginpanel.h \
-    manager.h \
-    patientclient.h \
-    patienthistoryitem.h \
-    patientinformationdetail.h \
-    patientinformationwidget.h \
-    patientprescription.h \
-    patientregisterwidget.h \
-    patientreportwidget.h \
-    registerpanel.h \
-    uicontroller.h \
-    userinfocard.h
+    main.cpp
 
-FORMS += \
-    doctorattendancewidget.ui \
-    doctorclient.ui \
-    doctorinformationdetail.ui \
-    doctorinformationwidget.ui \
-    doctorpatientprofilewidget.ui \
-    loginpanel.ui \
-    manager.ui \
-    patientclient.ui \
-    patienthistoryitem.ui \
-    patientinformationdetail.ui \
-    patientinformationwidget.ui \
-    patientprescription.ui \
-    patientregisterwidget.ui \
-    patientreportwidget.ui \
-    registerpanel.ui \
-    userinfocard.ui
+INCLUDEPATH += \
+    $$PWD/doctor \
+    $$PWD/patient \
+    $$PWD/backend \
+    $$PWD/global
+
+include ($$PWD/doctor/doctor.pri)
+include ($$PWD/patient/patient.pri)
+include ($$PWD/backend/backend.pri)
+include ($$PWD/global/global.pri)
 
 TRANSLATIONS += \
     SmartMedical_zh_CN.ts
