@@ -22,8 +22,11 @@ class DoctorInfo : public QDialog
     Q_OBJECT
 
 public:
-    explicit DoctorInfo(QDialog *parent = nullptr);
+    explicit DoctorInfo(QWidget *parent = nullptr);
     ~DoctorInfo();
+
+protected:
+    void patientRegister();
 
 private:
     Ui::DoctorInfo *ui;

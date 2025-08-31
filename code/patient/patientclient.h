@@ -31,6 +31,7 @@ private:
     class PatientInfoPage* m_patientInfoPage; /* 个人信息界面 */
     class RegisterPage* m_registerPage; /* 挂号界面 */
     class ReportPage* m_reportPage; /* 查看报告界面 */
+    class DrugSearchPage* m_drugSearchPage; /* 工具箱界面 */
 };
 
 #endif // PATIENTCLIENT_H

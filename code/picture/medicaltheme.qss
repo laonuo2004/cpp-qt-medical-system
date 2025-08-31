@@ -52,6 +52,33 @@ QPushButton:disabled {
     color: #e9ecef;
 }
 
+QPushButton.toolbox {
+    background-color: #007BFF;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 24px;
+    font-size: 14px;
+    min-width: 100px;
+    min-height: 40px;
+    outline: none;
+}
+
+QPushButton.toolbox:hover {
+    background-color: #66b3ff;
+    border: none;
+}
+
+QPushButton.toolbox:pressed {
+    background-color: #004085;
+}
+
+QPushButton.toolbox:disabled {
+    background-color: #a0c7ff;
+    border: 1px solid #a0c7ff;
+    color: #e9ecef;
+}
+
 QPushButton.sidebar-btn {
     background-color: #A0AAB2;
     color: #FFFFFF;
