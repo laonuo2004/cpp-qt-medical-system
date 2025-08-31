@@ -2,6 +2,7 @@
 #define REGISTERPANEL_H
 
 #include <QDialog>
+#include "uicontroller.h"
 
 namespace Ui {
 class RegisterPanel;
@@ -22,8 +23,12 @@ public:
     explicit RegisterPanel(QWidget *parent = nullptr);
     ~RegisterPanel();
 
-protected:
+private slots:
+    void on_buttonBox_accepted();
+    void handleRegistrationSuccess();
+    void handleRegistrationFailed(const QString &reason);
 
+protected:
     /**
      * @brief 判断注册是否成功
      *
@@ -34,6 +39,7 @@ protected:
 
 private:
     Ui::RegisterPanel *ui;
+    UiController& m_controller;
 };
 
 #endif // REGISTERPANEL_H

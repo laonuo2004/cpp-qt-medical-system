@@ -2,6 +2,7 @@
 #define RESETPWD_H
 
 #include <QDialog>
+#include "uicontroller.h"
 
 namespace Ui {
 class ResetPwd;
@@ -22,18 +23,14 @@ public:
     explicit ResetPwd(QWidget *parent = nullptr);
     ~ResetPwd();
 
-protected:
-
-    /**
-     * @brief 判断重置密码是否成功
-     *
-     * 获取用户输入新密码，并调用 UIController 进行重置密码。
-     * 重置成功后，QDialog发出accept信号，返回登录界面。
-     */
+private slots:
     void handleReset();
+    void onPasswordResetSuccess();
+    void onPasswordResetFailed(const QString &reason);
 
 private:
     Ui::ResetPwd *ui;
+    UiController& m_controller;
 };
 
 #endif // RESETPWD_H

@@ -13,7 +13,13 @@ LoginPanel::LoginPanel(QWidget *parent) :
     connect(ui->LoginBtn, &QPushButton::clicked, this, &LoginPanel::handleLogin);
     connect(ui->RegisterBtn, &QPushButton::clicked, this, &LoginPanel::userRegister);
     connect(ui->forgetPwdBtn, &QPushButton::clicked, this, &LoginPanel::forgetPwd);
-    connect(this, &LoginPanel::loginSuccessful, this, &LoginPanel::accept);
+    
+    // 连接UiController的登录信号
+    UiController& controller = UiController::get();
+    connect(&controller, &UiController::loginSuccessAdmin, this, &LoginPanel::accept);
+    connect(&controller, &UiController::loginSuccessDoctor, this, &LoginPanel::accept);
+    connect(&controller, &UiController::loginSuccessPatient, this, &LoginPanel::accept);
+    connect(&controller, &UiController::loginFailed, this, &LoginPanel::onLoginFailed);
 }
 
 LoginPanel::~LoginPanel()
@@ -43,22 +49,22 @@ void LoginPanel::forgetPwd()
 
 void LoginPanel::handleLogin()
 {
-    bool isLoginSuccessful = false;
-
-    /*
-     * 处理登录逻辑...
-     */
-
-    isLoginSuccessful = true; // 待删除，测试时使用
-
-    if (isLoginSuccessful)
-    {
-        emit accept();
+    QString email = ui->EmailEdit->text().trimmed();
+    QString password = ui->PasswordEdit->text();
+    
+    if (email.isEmpty() || password.isEmpty()) {
+        QMessageBox::warning(this, tr("登录错误"), tr("请输入邮箱和密码"));
+        return;
     }
-    else
-    {
-        emit reject();
-    }
+    
+    // 调用UiController进行登录验证
+    UiController::get().login(email, password);
+    // 不需要在这里处理结果，UiController会发出信号，信号已连接到accept()或onLoginFailed()
+}
+
+void LoginPanel::onLoginFailed(const QString &reason)
+{
+    QMessageBox::warning(this, tr("登录失败"), reason);
 }
 
 int LoginPanel::getMainWindowType()

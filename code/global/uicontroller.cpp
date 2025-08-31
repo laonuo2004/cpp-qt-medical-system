@@ -16,7 +16,7 @@ bool UiController::ensureDbConnected(const char* where)
 QVariantMap UiController::rowToMap(const DatabaseManager::DataRow& row)
 {
     QVariantMap map;
-    for (const auto& pair : row) 
+    for (const auto& pair : row)
     {
         map[pair.first] = pair.second;
     }
@@ -26,7 +26,7 @@ QVariantMap UiController::rowToMap(const DatabaseManager::DataRow& row)
 QVariantList UiController::resultToList(const DatabaseManager::ResultSet& rs)
 {
     QVariantList list;
-    for (const auto& row : rs) 
+    for (const auto& row : rs)
     {
         list.append(rowToMap(row));
     }
@@ -35,7 +35,7 @@ QVariantList UiController::resultToList(const DatabaseManager::ResultSet& rs)
 
 int UiController::getCountFromResult(const DatabaseManager::ResultSet& result)
 {
-    if (result.empty()) 
+    if (result.empty())
     {
         return 0;
     }
@@ -45,7 +45,7 @@ int UiController::getCountFromResult(const DatabaseManager::ResultSet& result)
 UiController::UiController(QObject *parent) : QObject(parent)
 {
     // 确保数据库连接已初始化并创建了表
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         qCritical() << "数据库连接失败！";
         // 可以发出一个全局错误信号或者在UI上显示错误
@@ -68,7 +68,7 @@ void UiController::login(const QString &email, const QString &password)
     QString sql = QString("SELECT username, password_hash, role FROM users WHERE email = '%1'").arg(email);
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
 
-    if (result.empty()) 
+    if (result.empty())
     {
         emit loginFailed("邮箱未注册，请先注册。");
         return;
@@ -79,28 +79,28 @@ void UiController::login(const QString &email, const QString &password)
     QString storedPasswordHash = userRow["password_hash"].toString();
     QString roleString = userRow["role"].toString(); // 从数据库获取角色字符串
 
-    if (storedPasswordHash == hashPassword(password)) 
+    if (storedPasswordHash == hashPassword(password))
     {
         // 登录成功
         qDebug() << "用户" << email << "登录成功，角色为" << roleString;
-        if (roleString == "admin") 
+        if (roleString == "admin")
         {
             emit loginSuccessAdmin();
-        } 
-        else if (roleString == "doctor") 
+        }
+        else if (roleString == "doctor")
         {
             emit loginSuccessDoctor();
-        } 
-        else if (roleString == "patient") 
+        }
+        else if (roleString == "patient")
         {
             emit loginSuccessPatient();
-        } 
-        else 
+        }
+        else
         {
             emit loginFailed("未知用户角色。");
         }
-    } 
-    else 
+    }
+    else
     {
         emit loginFailed("密码不正确。");
     }
@@ -133,10 +133,10 @@ void UiController::registerUser(const QString &username, const QString &email, c
     userData["username"] = username;
     userData["email"] = email;
     userData["password_hash"] = hashPassword(password);
-    
+
     // 将枚举转换为字符串存储
     QString roleString;
-    switch (role) 
+    switch (role)
     {
         case UserRole::Admin:
             roleString = "admin";
@@ -150,12 +150,12 @@ void UiController::registerUser(const QString &username, const QString &email, c
     }
     userData["role"] = roleString;
 
-    if (DatabaseManager::instance().insert("users", userData)) 
+    if (DatabaseManager::instance().insert("users", userData))
     {
         qDebug() << "用户" << email << "注册成功";
         emit registrationSuccess();
-    } 
-    else 
+    }
+    else
     {
         qCritical() << "用户注册失败：" << DatabaseManager::instance().lastError();
         emit registrationFailed("注册失败：" + DatabaseManager::instance().lastError());
@@ -165,7 +165,7 @@ void UiController::registerUser(const QString &username, const QString &email, c
 // 检查邮箱是否已注册
 bool UiController::isEmailRegistered(const QString &email)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         qWarning() << "邮箱检查时数据库未连接";
         return false; // 如果数据库未连接，暂时认为未注册
@@ -174,7 +174,7 @@ bool UiController::isEmailRegistered(const QString &email)
     QString sql = QString("SELECT COUNT(*) FROM users WHERE email = '%1'").arg(email);
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
 
-    if (result.empty()) 
+    if (result.empty())
     {
         qWarning() << "邮箱注册检查查询返回空结果";
         return false;
@@ -261,13 +261,13 @@ void UiController::resetPassword(const QString &email, const QString &verificati
     updateData["password_hash"] = hashPassword(newPassword);
     QString whereClause = QString("email = '%1'").arg(email);
 
-    if (DatabaseManager::instance().update("users", updateData, whereClause)) 
+    if (DatabaseManager::instance().update("users", updateData, whereClause))
     {
         m_verificationCodes.remove(email); // 移除已使用的验证码
         qDebug() << "用户" << email << "密码重置成功";
         emit passwordResetSuccess();
-    } 
-    else 
+    }
+    else
     {
         qCritical() << "密码重置失败：" << DatabaseManager::instance().lastError();
         emit passwordResetFailed("密码重置失败：" + DatabaseManager::instance().lastError());
@@ -297,7 +297,7 @@ QString UiController::generateVerificationCode()
 // --- 2. 个人信息后端 ---
 QVariantMap UiController::getPatientInfo(int userId)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         return {};
     }
@@ -312,7 +312,7 @@ QVariantMap UiController::getPatientInfo(int userId)
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
 
-    if (result.empty()) 
+    if (result.empty())
     {
         qWarning() << "未找到用户ID为" << userId << "的用户";
         return {}; // 没有找到用户
@@ -334,12 +334,12 @@ bool UiController::updatePatientInfo(int userId, const QVariantMap &details)
     }
 
     // 1. 更新 users 表中的姓名 (username)
-    if (details.contains("username")) 
+    if (details.contains("username"))
     {
         DatabaseManager::DataRow userData;
         userData["username"] = details["username"];
         QString userWhereClause = QString("user_id = %1").arg(userId);
-        if (!DatabaseManager::instance().update("users", userData, userWhereClause)) 
+        if (!DatabaseManager::instance().update("users", userData, userWhereClause))
         {
             qCritical() << "更新用户名失败:" << DatabaseManager::instance().lastError();
             DatabaseManager::instance().rollbackTransaction();
@@ -350,10 +350,10 @@ bool UiController::updatePatientInfo(int userId, const QVariantMap &details)
     // 2. 更新或插入 patients 表
     DatabaseManager::DataRow patientData;
     // 遍历传入的数据，填充到 DataRow 中
-    for(auto it = details.constBegin(); it != details.constEnd(); ++it) 
+    for(auto it = details.constBegin(); it != details.constEnd(); ++it)
     {
         // "username" 字段不属于 patients 表，跳过
-        if (it.key() != "username") 
+        if (it.key() != "username")
         {
             patientData[it.key()] = it.value();
         }
@@ -365,20 +365,20 @@ bool UiController::updatePatientInfo(int userId, const QVariantMap &details)
     bool detailsExist = !result.empty() && result.front()["count"].toInt() > 0;
 
     bool success;
-    if (detailsExist) 
+    if (detailsExist)
     {
         // 记录存在，执行 UPDATE
         QString patientWhereClause = QString("user_id = %1").arg(userId);
         success = DatabaseManager::instance().update("patients", patientData, patientWhereClause);
-    } 
-    else 
+    }
+    else
     {
         // 记录不存在，执行 INSERT
         patientData["user_id"] = userId; // 必须插入 user_id
         success = DatabaseManager::instance().insert("patients", patientData);
     }
 
-    if (!success) 
+    if (!success)
     {
         qCritical() << "更新患者信息失败:" << DatabaseManager::instance().lastError();
         DatabaseManager::instance().rollbackTransaction();
@@ -392,7 +392,7 @@ bool UiController::updatePatientInfo(int userId, const QVariantMap &details)
 
 QVariantMap UiController::getDoctorInfo(const QString &doctorId)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         return {};
     }
@@ -406,7 +406,7 @@ QVariantMap UiController::getDoctorInfo(const QString &doctorId)
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
 
-    if (result.empty()) 
+    if (result.empty())
     {
         qWarning() << "未找到医生工号为:" << doctorId;
         return {};
@@ -417,13 +417,13 @@ QVariantMap UiController::getDoctorInfo(const QString &doctorId)
 
 bool UiController::updateDoctorInfo(const QString &doctorId, const QVariantMap &details)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         return false;
     }
 
     // 开启事务
-    if (!DatabaseManager::instance().beginTransaction()) 
+    if (!DatabaseManager::instance().beginTransaction())
     {
         qCritical() << "开启事务失败:" << DatabaseManager::instance().lastError();
         return false;
@@ -432,23 +432,23 @@ bool UiController::updateDoctorInfo(const QString &doctorId, const QVariantMap &
     // 首先获取医生的 user_id
     QString getUserSql = QString("SELECT user_id FROM doctors WHERE doctor_id = '%1'").arg(doctorId);
     DatabaseManager::ResultSet userResult = DatabaseManager::instance().query(getUserSql);
-    
-    if (userResult.empty()) 
+
+    if (userResult.empty())
     {
         qCritical() << "Doctor not found:" << doctorId;
         DatabaseManager::instance().rollbackTransaction();
         return false;
     }
-    
+
     int userId = userResult.front()["user_id"].toInt();
 
     // 1. 更新 users 表中的姓名 (username)
-    if (details.contains("username")) 
+    if (details.contains("username"))
     {
         DatabaseManager::DataRow userData;
         userData["username"] = details["username"];
         QString userWhereClause = QString("user_id = %1").arg(userId);
-        if (!DatabaseManager::instance().update("users", userData, userWhereClause)) 
+        if (!DatabaseManager::instance().update("users", userData, userWhereClause))
         {
             qCritical() << "更新用户名失败:" << DatabaseManager::instance().lastError();
             DatabaseManager::instance().rollbackTransaction();
@@ -458,19 +458,19 @@ bool UiController::updateDoctorInfo(const QString &doctorId, const QVariantMap &
 
     // 2. 更新 doctors 表
     DatabaseManager::DataRow doctorData;
-    for(auto it = details.constBegin(); it != details.constEnd(); ++it) 
+    for(auto it = details.constBegin(); it != details.constEnd(); ++it)
     {
         // "username" 字段不属于 doctors 表，跳过
-        if (it.key() != "username") 
+        if (it.key() != "username")
         {
             doctorData[it.key()] = it.value();
         }
     }
 
-    if (!doctorData.empty()) 
+    if (!doctorData.empty())
     {
         QString doctorWhereClause = QString("doctor_id = '%1'").arg(doctorId);
-        if (!DatabaseManager::instance().update("doctors", doctorData, doctorWhereClause)) 
+        if (!DatabaseManager::instance().update("doctors", doctorData, doctorWhereClause))
         {
             qCritical() << "更新医生信息失败:" << DatabaseManager::instance().lastError();
             DatabaseManager::instance().rollbackTransaction();
@@ -487,59 +487,59 @@ bool UiController::updateDoctorInfo(const QString &doctorId, const QVariantMap &
 
 QVariantList UiController::getAvailableDoctors(const QString &department)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit doctorListReady(QVariantList());
         return QVariantList();
     }
-    
+
     auto result = DatabaseManager::instance().getDoctorsByDepartment(department);
     auto doctorList = resultToList(result);
-    
+
     emit doctorListReady(doctorList);
     return doctorList;
 }
 
 QVariantList UiController::getDoctorScheduleForDate(const QString &doctorId, const QDate &date)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit doctorScheduleReady(QVariantList());
         return QVariantList();
     }
-    
+
     auto result = DatabaseManager::instance().getDoctorSchedule(doctorId, date);
     auto scheduleList = resultToList(result);
-    
+
     emit doctorScheduleReady(scheduleList);
     return scheduleList;
 }
 
 /**
  * @brief 创建预约
- * 
+ *
  * @param patientId 患者ID
- * @param doctorId 医生ID  
+ * @param doctorId 医生ID
  * @param appointmentTime 预约时间
  * @return bool 是否创建成功
  */
 bool UiController::createAppointment(int patientId, const QString &doctorId, const QDateTime &appointmentTime)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit appointmentCreationFailed("数据库未连接");
         return false;
     }
 
     // 关键逻辑：预约前必须检查时间槽可用性，避免重复预约
-    if (!DatabaseManager::instance().isTimeSlotAvailable(doctorId, appointmentTime)) 
+    if (!DatabaseManager::instance().isTimeSlotAvailable(doctorId, appointmentTime))
     {
         emit appointmentCreationFailed("该时间段已被预约或医生不存在");
         return false;
     }
 
     // 使用事务确保预约创建的原子性，避免部分数据写入的情况
-    if (!DatabaseManager::instance().beginTransaction()) 
+    if (!DatabaseManager::instance().beginTransaction())
     {
         emit appointmentCreationFailed("事务开启失败");
         return false;
@@ -554,7 +554,7 @@ bool UiController::createAppointment(int patientId, const QString &doctorId, con
     appointmentData["status"] = "scheduled";
     appointmentData["payment_status"] = "unpaid";
 
-    if (!DatabaseManager::instance().insert("appointments", appointmentData)) 
+    if (!DatabaseManager::instance().insert("appointments", appointmentData))
     {
         DatabaseManager::instance().rollbackTransaction();
         emit appointmentCreationFailed("预约创建失败: " + DatabaseManager::instance().lastError());
@@ -564,8 +564,8 @@ bool UiController::createAppointment(int patientId, const QString &doctorId, con
     // 获取刚创建的预约ID
     QString getIdSql = "SELECT last_insert_rowid() as appointment_id";
     DatabaseManager::ResultSet idResult = DatabaseManager::instance().query(getIdSql);
-    
-    if (idResult.empty()) 
+
+    if (idResult.empty())
     {
         DatabaseManager::instance().rollbackTransaction();
         emit appointmentCreationFailed("无法获取预约ID");
@@ -575,13 +575,13 @@ bool UiController::createAppointment(int patientId, const QString &doctorId, con
     int appointmentId = idResult.front()["appointment_id"].toInt();
 
     // 提交事务
-    if (DatabaseManager::instance().commitTransaction()) 
+    if (DatabaseManager::instance().commitTransaction())
     {
         qInfo() << "预约创建成功，预约ID为:" << appointmentId;
         emit appointmentCreated(appointmentId);
         return true;
-    } 
-    else 
+    }
+    else
     {
         emit appointmentCreationFailed("事务提交失败");
         return false;
@@ -590,22 +590,22 @@ bool UiController::createAppointment(int patientId, const QString &doctorId, con
 
 QVariantList UiController::getPatientAppointments(int patientId, const QDate &date)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit appointmentListReady(QVariantList());
         return QVariantList();
     }
-    
+
     auto result = DatabaseManager::instance().getPatientAppointments(patientId, date);
     auto appointmentList = resultToList(result);
-    
+
     emit appointmentListReady(appointmentList);
     return appointmentList;
 }
 
 bool UiController::cancelAppointment(int appointmentId)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit appointmentOperationFailed("数据库未连接");
         return false;
@@ -615,13 +615,13 @@ bool UiController::cancelAppointment(int appointmentId)
     updateData["status"] = "cancelled";
     QString whereClause = QString("appointment_id = %1").arg(appointmentId);
 
-    if (DatabaseManager::instance().update("appointments", updateData, whereClause)) 
+    if (DatabaseManager::instance().update("appointments", updateData, whereClause))
     {
         qInfo() << "Appointment" << appointmentId << "取消成功";
         emit appointmentCancelled(appointmentId);
         return true;
-    } 
-    else 
+    }
+    else
     {
         emit appointmentOperationFailed("预约取消失败: " + DatabaseManager::instance().lastError());
         return false;
@@ -630,7 +630,7 @@ bool UiController::cancelAppointment(int appointmentId)
 
 bool UiController::updateAppointmentStatus(int appointmentId, const QString &status)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit appointmentOperationFailed("数据库未连接");
         return false;
@@ -638,7 +638,7 @@ bool UiController::updateAppointmentStatus(int appointmentId, const QString &sta
 
     // 验证状态值
     QStringList validStatuses = {"scheduled", "completed", "cancelled"};
-    if (!validStatuses.contains(status)) 
+    if (!validStatuses.contains(status))
     {
         emit appointmentOperationFailed("无效的预约状态");
         return false;
@@ -648,12 +648,12 @@ bool UiController::updateAppointmentStatus(int appointmentId, const QString &sta
     updateData["status"] = status;
     QString whereClause = QString("appointment_id = %1").arg(appointmentId);
 
-    if (DatabaseManager::instance().update("appointments", updateData, whereClause)) 
+    if (DatabaseManager::instance().update("appointments", updateData, whereClause))
     {
         qInfo() << "Appointment" << appointmentId << "状态已更新为:" << status;
         return true;
-    } 
-    else 
+    }
+    else
     {
         emit appointmentOperationFailed("预约状态更新失败: " + DatabaseManager::instance().lastError());
         return false;
@@ -664,29 +664,29 @@ bool UiController::updateAppointmentStatus(int appointmentId, const QString &sta
 
 QVariantList UiController::getPatientMedicalHistory(int patientId)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit medicalHistoryReady(QVariantList());
         return QVariantList();
     }
-    
+
     auto result = DatabaseManager::instance().getPatientMedicalRecords(patientId);
     auto recordList = resultToList(result);
-    
+
     emit medicalHistoryReady(recordList);
     return recordList;
 }
 
 /**
  * @brief 创建病历记录
- * 
+ *
  * @param appointmentId 预约ID
  * @param diagnosisNotes 诊断记录
  * @return bool 是否创建成功
  */
 bool UiController::createMedicalRecord(int appointmentId, const QString &diagnosisNotes)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit medicalOperationFailed("数据库未连接");
         return false;
@@ -695,8 +695,8 @@ bool UiController::createMedicalRecord(int appointmentId, const QString &diagnos
     // 关键验证：确保预约存在，防止为不存在的预约创建病历
     QString checkSql = QString("SELECT COUNT(*) FROM appointments WHERE appointment_id = %1").arg(appointmentId);
     DatabaseManager::ResultSet checkResult = DatabaseManager::instance().query(checkSql);
-    
-    if (getCountFromResult(checkResult) == 0) 
+
+    if (getCountFromResult(checkResult) == 0)
     {
         emit medicalOperationFailed("预约记录不存在");
         return false;
@@ -705,15 +705,15 @@ bool UiController::createMedicalRecord(int appointmentId, const QString &diagnos
     // 业务规则：一个预约只能有一个病历记录，防止重复创建
     QString existsSql = QString("SELECT COUNT(*) FROM medical_records WHERE appointment_id = %1").arg(appointmentId);
     DatabaseManager::ResultSet existsResult = DatabaseManager::instance().query(existsSql);
-    
-    if (getCountFromResult(existsResult) > 0) 
+
+    if (getCountFromResult(existsResult) > 0)
     {
         emit medicalOperationFailed("该预约已有病历记录");
         return false;
     }
 
     // 开启事务
-    if (!DatabaseManager::instance().beginTransaction()) 
+    if (!DatabaseManager::instance().beginTransaction())
     {
         emit medicalOperationFailed("事务开启失败");
         return false;
@@ -725,7 +725,7 @@ bool UiController::createMedicalRecord(int appointmentId, const QString &diagnos
     recordData["diagnosis_notes"] = diagnosisNotes;
     recordData["diagnosis_date"] = QDate::currentDate();
 
-    if (!DatabaseManager::instance().insert("medical_records", recordData)) 
+    if (!DatabaseManager::instance().insert("medical_records", recordData))
     {
         DatabaseManager::instance().rollbackTransaction();
         emit medicalOperationFailed("病历创建失败: " + DatabaseManager::instance().lastError());
@@ -735,8 +735,8 @@ bool UiController::createMedicalRecord(int appointmentId, const QString &diagnos
     // 获取刚创建的病历ID
     QString getIdSql = "SELECT last_insert_rowid() as record_id";
     DatabaseManager::ResultSet idResult = DatabaseManager::instance().query(getIdSql);
-    
-    if (idResult.empty()) 
+
+    if (idResult.empty())
     {
         DatabaseManager::instance().rollbackTransaction();
         emit medicalOperationFailed("无法获取病历ID");
@@ -749,8 +749,8 @@ bool UiController::createMedicalRecord(int appointmentId, const QString &diagnos
     DatabaseManager::DataRow appointmentUpdate;
     appointmentUpdate["status"] = "completed";
     QString whereClause = QString("appointment_id = %1").arg(appointmentId);
-    
-    if (!DatabaseManager::instance().update("appointments", appointmentUpdate, whereClause)) 
+
+    if (!DatabaseManager::instance().update("appointments", appointmentUpdate, whereClause))
     {
         DatabaseManager::instance().rollbackTransaction(); // 任何步骤失败都要回滚
         emit medicalOperationFailed("预约状态更新失败");
@@ -758,13 +758,13 @@ bool UiController::createMedicalRecord(int appointmentId, const QString &diagnos
     }
 
     // 提交事务
-    if (DatabaseManager::instance().commitTransaction()) 
+    if (DatabaseManager::instance().commitTransaction())
     {
         qInfo() << "病历创建成功，病历ID为:" << recordId;
         emit medicalRecordCreated(recordId);
         return true;
-    } 
-    else 
+    }
+    else
     {
         emit medicalOperationFailed("事务提交失败");
         return false;
@@ -773,7 +773,7 @@ bool UiController::createMedicalRecord(int appointmentId, const QString &diagnos
 
 bool UiController::addPrescription(int recordId, const QString &prescriptionDetails)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit medicalOperationFailed("数据库未连接");
         return false;
@@ -782,8 +782,8 @@ bool UiController::addPrescription(int recordId, const QString &prescriptionDeta
     // 检查病历记录是否存在
     QString checkSql = QString("SELECT COUNT(*) FROM medical_records WHERE record_id = %1").arg(recordId);
     DatabaseManager::ResultSet checkResult = DatabaseManager::instance().query(checkSql);
-    
-    if (getCountFromResult(checkResult) == 0) 
+
+    if (getCountFromResult(checkResult) == 0)
     {
         emit medicalOperationFailed("病历记录不存在");
         return false;
@@ -794,13 +794,13 @@ bool UiController::addPrescription(int recordId, const QString &prescriptionDeta
     prescriptionData["record_id"] = recordId;
     prescriptionData["details"] = prescriptionDetails;
 
-    if (DatabaseManager::instance().insert("prescriptions", prescriptionData)) 
+    if (DatabaseManager::instance().insert("prescriptions", prescriptionData))
     {
         // 获取刚创建的处方ID
         QString getIdSql = "SELECT last_insert_rowid() as prescription_id";
         DatabaseManager::ResultSet idResult = DatabaseManager::instance().query(getIdSql);
-        
-        if (!idResult.empty()) 
+
+        if (!idResult.empty())
         {
             int prescriptionId = idResult.front()["prescription_id"].toInt();
             qInfo() << "处方添加成功，处方ID为:" << prescriptionId;
@@ -815,7 +815,7 @@ bool UiController::addPrescription(int recordId, const QString &prescriptionDeta
 
 QVariantList UiController::getPatientPrescriptions(int patientId)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit medicalOperationFailed("数据库未连接");
         return {};
@@ -834,16 +834,16 @@ QVariantList UiController::getPatientPrescriptions(int patientId)
     )").arg(patientId);
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
-    
+
     auto prescriptionList = resultToList(result);
-    
+
     emit prescriptionListReady(prescriptionList);
     return prescriptionList;
 }
 
 bool UiController::createHospitalization(int recordId, const QString &doctorId, const QString &wardNo, const QString &bedNo)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit medicalOperationFailed("数据库未连接");
         return false;
@@ -852,8 +852,8 @@ bool UiController::createHospitalization(int recordId, const QString &doctorId, 
     // 检查病历记录是否存在
     QString checkSql = QString("SELECT COUNT(*) FROM medical_records WHERE record_id = %1").arg(recordId);
     DatabaseManager::ResultSet checkResult = DatabaseManager::instance().query(checkSql);
-    
-    if (getCountFromResult(checkResult) == 0) 
+
+    if (getCountFromResult(checkResult) == 0)
     {
         emit medicalOperationFailed("病历记录不存在");
         return false;
@@ -862,8 +862,8 @@ bool UiController::createHospitalization(int recordId, const QString &doctorId, 
     // 检查是否已有住院记录
     QString existsSql = QString("SELECT COUNT(*) FROM hospitalizations WHERE record_id = %1").arg(recordId);
     DatabaseManager::ResultSet existsResult = DatabaseManager::instance().query(existsSql);
-    
-    if (getCountFromResult(existsResult) > 0) 
+
+    if (getCountFromResult(existsResult) > 0)
     {
         emit medicalOperationFailed("该病历已有住院记录");
         return false;
@@ -877,13 +877,13 @@ bool UiController::createHospitalization(int recordId, const QString &doctorId, 
     hospitalizationData["bed_no"] = bedNo;
     hospitalizationData["admission_date"] = QDate::currentDate();
 
-    if (DatabaseManager::instance().insert("hospitalizations", hospitalizationData)) 
+    if (DatabaseManager::instance().insert("hospitalizations", hospitalizationData))
     {
         // 获取刚创建的住院ID
         QString getIdSql = "SELECT last_insert_rowid() as hospitalization_id";
         DatabaseManager::ResultSet idResult = DatabaseManager::instance().query(getIdSql);
-        
-        if (!idResult.empty()) 
+
+        if (!idResult.empty())
         {
             int hospitalizationId = idResult.front()["hospitalization_id"].toInt();
             qInfo() << "住院记录创建成功，住院ID为:" << hospitalizationId;
@@ -900,7 +900,7 @@ bool UiController::createHospitalization(int recordId, const QString &doctorId, 
 
 QVariantList UiController::getUpcomingAppointments(int userId)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         return {};
     }
@@ -926,9 +926,9 @@ QVariantList UiController::getUpcomingAppointments(int userId)
        .arg(tomorrowTime.toString("yyyy-MM-dd hh:mm:ss"));
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
-    
+
     auto appointmentList = resultToList(result);
-    
+
     emit upcomingAppointmentsReady(appointmentList);
     return appointmentList;
 }
@@ -937,14 +937,14 @@ QVariantList UiController::getUpcomingAppointments(int userId)
 
 bool UiController::sendMessage(int senderId, int receiverId, const QString &content)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit chatOperationFailed("数据库未连接");
         return false;
     }
 
     // 数据验证：自动去除前后空格，避免发送空消息
-    if (content.trimmed().isEmpty()) 
+    if (content.trimmed().isEmpty())
     {
         emit chatOperationFailed("消息内容不能为空");
         return false;
@@ -956,13 +956,13 @@ bool UiController::sendMessage(int senderId, int receiverId, const QString &cont
     messageData["receiver_id"] = receiverId;
     messageData["content"] = content.trimmed();
 
-    if (DatabaseManager::instance().insert("chat_messages", messageData)) 
+    if (DatabaseManager::instance().insert("chat_messages", messageData))
     {
         // 获取刚创建的消息ID
         QString getIdSql = "SELECT last_insert_rowid() as message_id";
         DatabaseManager::ResultSet idResult = DatabaseManager::instance().query(getIdSql);
-        
-        if (!idResult.empty()) 
+
+        if (!idResult.empty())
         {
             int messageId = idResult.front()["message_id"].toInt();
             qInfo() << "消息发送成功，消息ID为:" << messageId;
@@ -980,32 +980,32 @@ QVariantList UiController::getChatHistory(int user1Id, int user2Id)
 {
     auto result = DatabaseManager::instance().getChatHistory(user1Id, user2Id);
     auto messageList = resultToList(result);
-    
+
     emit chatHistoryReady(messageList);
     return messageList;
 }
 
 QVariantList UiController::getRecentContacts(int userId)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit chatOperationFailed("数据库未连接");
         return {};
     }
 
     QString sql = QString(R"(
-        SELECT DISTINCT 
-               CASE 
-                   WHEN cm.sender_id = %1 THEN cm.receiver_id 
-                   ELSE cm.sender_id 
+        SELECT DISTINCT
+               CASE
+                   WHEN cm.sender_id = %1 THEN cm.receiver_id
+                   ELSE cm.sender_id
                END as contact_id,
                u.username as contact_name,
                u.role as contact_role,
                MAX(cm.sent_at) as last_message_time
         FROM chat_messages cm
-        JOIN users u ON (CASE 
-                            WHEN cm.sender_id = %1 THEN cm.receiver_id 
-                            ELSE cm.sender_id 
+        JOIN users u ON (CASE
+                            WHEN cm.sender_id = %1 THEN cm.receiver_id
+                            ELSE cm.sender_id
                         END) = u.user_id
         WHERE cm.sender_id = %1 OR cm.receiver_id = %1
         GROUP BY contact_id
@@ -1014,9 +1014,9 @@ QVariantList UiController::getRecentContacts(int userId)
     )").arg(userId);
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
-    
+
     auto contactList = resultToList(result);
-    
+
     emit contactListReady(contactList);
     return contactList;
 }
@@ -1025,7 +1025,7 @@ QVariantList UiController::getRecentContacts(int userId)
 
 bool UiController::checkIn(const QString &doctorId)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit attendanceOperationFailed("数据库未连接");
         return false;
@@ -1036,27 +1036,27 @@ bool UiController::checkIn(const QString &doctorId)
 
     // 检查今天是否已经签到
     QString checkSql = QString(R"(
-        SELECT COUNT(*) FROM attendance 
+        SELECT COUNT(*) FROM attendance
         WHERE doctor_id = '%1' AND date = '%2'
     )").arg(doctorId).arg(today.toString("yyyy-MM-dd"));
 
     DatabaseManager::ResultSet checkResult = DatabaseManager::instance().query(checkSql);
-    
-    if (getCountFromResult(checkResult) > 0) 
+
+    if (getCountFromResult(checkResult) > 0)
     {
         // 智能处理：如果当天已有记录，则更新签到时间（支持重复签到）
         DatabaseManager::DataRow updateData;
         updateData["check_in_time"] = currentTime;
         QString whereClause = QString("doctor_id = '%1' AND date = '%2'").arg(doctorId).arg(today.toString("yyyy-MM-dd"));
-        
-        if (DatabaseManager::instance().update("attendance", updateData, whereClause)) 
+
+        if (DatabaseManager::instance().update("attendance", updateData, whereClause))
         {
             qInfo() << "医生" << doctorId << "签到成功，时间为" << currentTime.toString();
             emit checkInSuccess();
             return true;
         }
-    } 
-    else 
+    }
+    else
     {
         // 首次签到：创建新的考勤记录
         DatabaseManager::DataRow attendanceData;
@@ -1064,7 +1064,7 @@ bool UiController::checkIn(const QString &doctorId)
         attendanceData["date"] = today;
         attendanceData["check_in_time"] = currentTime;
 
-        if (DatabaseManager::instance().insert("attendance", attendanceData)) 
+        if (DatabaseManager::instance().insert("attendance", attendanceData))
         {
             qInfo() << "医生" << doctorId << "签到成功，时间为" << currentTime.toString();
             emit checkInSuccess();
@@ -1078,7 +1078,7 @@ bool UiController::checkIn(const QString &doctorId)
 
 bool UiController::checkOut(const QString &doctorId)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit attendanceOperationFailed("数据库未连接");
         return false;
@@ -1092,13 +1092,13 @@ bool UiController::checkOut(const QString &doctorId)
     updateData["check_out_time"] = currentTime;
     QString whereClause = QString("doctor_id = '%1' AND date = '%2'").arg(doctorId).arg(today.toString("yyyy-MM-dd"));
 
-    if (DatabaseManager::instance().update("attendance", updateData, whereClause)) 
+    if (DatabaseManager::instance().update("attendance", updateData, whereClause))
     {
         qInfo() << "医生" << doctorId << "签退成功，时间为" << currentTime.toString();
         emit checkOutSuccess();
         return true;
-    } 
-    else 
+    }
+    else
     {
         emit attendanceOperationFailed("签退失败: " + DatabaseManager::instance().lastError());
         return false;
@@ -1107,15 +1107,15 @@ bool UiController::checkOut(const QString &doctorId)
 
 QVariantList UiController::getAttendanceHistory(const QString &doctorId, const QDate &startDate, const QDate &endDate)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit attendanceOperationFailed("数据库未连接");
         return {};
     }
 
     QString sql = QString(R"(
-        SELECT * FROM attendance 
-        WHERE doctor_id = '%1' 
+        SELECT * FROM attendance
+        WHERE doctor_id = '%1'
         AND date BETWEEN '%2' AND '%3'
         ORDER BY date DESC
     )").arg(doctorId)
@@ -1123,30 +1123,30 @@ QVariantList UiController::getAttendanceHistory(const QString &doctorId, const Q
        .arg(endDate.toString("yyyy-MM-dd"));
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
-    
+
     auto attendanceList = resultToList(result);
-    
+
     emit attendanceHistoryReady(attendanceList);
     return attendanceList;
 }
 
 bool UiController::submitLeaveRequest(const QString &doctorId, const QString &requestType, const QDate &startDate, const QDate &endDate, const QString &reason)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit attendanceOperationFailed("数据库未连接");
         return false;
     }
 
     // 验证请假类型
-    if (requestType != "因公" && requestType != "因私") 
+    if (requestType != "因公" && requestType != "因私")
     {
         emit attendanceOperationFailed("无效的请假类型");
         return false;
     }
 
     // 验证日期
-    if (startDate > endDate) 
+    if (startDate > endDate)
     {
         emit attendanceOperationFailed("开始日期不能晚于结束日期");
         return false;
@@ -1164,13 +1164,13 @@ bool UiController::submitLeaveRequest(const QString &doctorId, const QString &re
     requestData["reason"] = QString::fromUcs4(ucs4.constData(), ucs4.size());
     requestData["status"] = "未销假";
 
-    if (DatabaseManager::instance().insert("leave_requests", requestData)) 
+    if (DatabaseManager::instance().insert("leave_requests", requestData))
     {
         // 获取刚创建的请假申请ID
         QString getIdSql = "SELECT last_insert_rowid() as request_id";
         DatabaseManager::ResultSet idResult = DatabaseManager::instance().query(getIdSql);
-        
-        if (!idResult.empty()) 
+
+        if (!idResult.empty())
         {
             int requestId = idResult.front()["request_id"].toInt();
             qInfo() << "请假申请提交成功，申请ID为:" << requestId;
@@ -1185,29 +1185,29 @@ bool UiController::submitLeaveRequest(const QString &doctorId, const QString &re
 
 QVariantList UiController::getLeaveRequests(const QString &doctorId)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit attendanceOperationFailed("数据库未连接");
         return {};
     }
 
     QString sql = QString(R"(
-        SELECT * FROM leave_requests 
+        SELECT * FROM leave_requests
         WHERE doctor_id = '%1'
         ORDER BY start_date DESC
     )").arg(doctorId);
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
-    
+
     auto requestList = resultToList(result);
-    
+
     emit leaveRequestsReady(requestList);
     return requestList;
 }
 
 bool UiController::cancelLeave(int requestId)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit attendanceOperationFailed("数据库未连接");
         return false;
@@ -1217,13 +1217,13 @@ bool UiController::cancelLeave(int requestId)
     updateData["status"] = "已销假";
     QString whereClause = QString("request_id = %1").arg(requestId);
 
-    if (DatabaseManager::instance().update("leave_requests", updateData, whereClause)) 
+    if (DatabaseManager::instance().update("leave_requests", updateData, whereClause))
     {
         qInfo() << "请假申请" << requestId << "取消成功";
         emit leaveCancelled(requestId);
         return true;
-    } 
-    else 
+    }
+    else
     {
         emit attendanceOperationFailed("销假失败: " + DatabaseManager::instance().lastError());
         return false;
@@ -1234,39 +1234,39 @@ bool UiController::cancelLeave(int requestId)
 
 QVariantList UiController::searchDrugs(const QString &keyword)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit drugOperationFailed("数据库未连接");
         return {};
     }
 
     QString sql;
-    if (keyword.isEmpty()) 
+    if (keyword.isEmpty())
     {
         sql = "SELECT * FROM drugs ORDER BY drug_name LIMIT 50";
-    } 
-    else 
+    }
+    else
     {
         sql = QString(R"(
-            SELECT * FROM drugs 
-            WHERE drug_name LIKE '%%1%' 
+            SELECT * FROM drugs
+            WHERE drug_name LIKE '%%1%'
                OR description LIKE '%%1%'
-            ORDER BY drug_name 
+            ORDER BY drug_name
             LIMIT 50
         )").arg(keyword);
     }
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
-    
+
     auto drugList = resultToList(result);
-    
+
     emit drugSearchResultReady(drugList);
     return drugList;
 }
 
 QVariantMap UiController::getDrugDetails(int drugId)
 {
-    if (!ensureDbConnected(__func__)) 
+    if (!ensureDbConnected(__func__))
     {
         emit drugOperationFailed("数据库未连接");
         return {};
@@ -1275,14 +1275,14 @@ QVariantMap UiController::getDrugDetails(int drugId)
     QString sql = QString("SELECT * FROM drugs WHERE drug_id = %1").arg(drugId);
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
 
-    if (result.empty()) 
+    if (result.empty())
     {
         emit drugOperationFailed("药品不存在");
         return {};
     }
 
     auto drugDetails = rowToMap(result.front());
-    
+
     emit drugDetailsReady(drugDetails);
     return drugDetails;
 }
