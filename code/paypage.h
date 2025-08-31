@@ -2,6 +2,7 @@
 #define PAYPAGE_H
 
 #include <QWidget>
+#include "uiController.h"
 
 namespace Ui {
 class PayPage;
@@ -17,6 +18,7 @@ public:
 
 private:
     Ui::PayPage *ui;
+    UiController* controller ;
 
 signals:
     void paymentConfirmed(); // 支付确认信号

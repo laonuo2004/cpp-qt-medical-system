@@ -7,6 +7,7 @@
 #include <QHostAddress>
 #include <QDebug>
 #include <QMessageBox>
+#include "uiController.h"
 
 namespace Ui {
 class PatientChatTool;
@@ -22,19 +23,12 @@ public:
 
 private:
     Ui::PatientChatTool *ui;
-    QTcpSocket * myTcpClient;//当前客户端
-    QTcpServer * myTcpServer;//对应的服务器
-    bool connectStatus;//当前客户端的连接状态
-    void init();//初始化函数
+    UiController* controller;
+    void displayMessage(int senderId, const QString &message);
 
 private slots:
-    void on_connectServerBtn_clicked();
-    void on_SendBtn_clicked();
+    void  sendMessage() ;
 
-    void slotConnected();
-    void slotReadyRead();
-    void slotDisconnected();
-    void slotError(QAbstractSocket::SocketError error);
 };
 
 #endif // PATIENTCHATTOOL_H
