@@ -32,6 +32,10 @@ void Engine::startEngine()
         delete m_mainWindow;
         m_mainWindow = nullptr;
     }
+    if (m_chooseRole != nullptr)
+    {
+        delete m_chooseRole;
+    }
     m_chooseRole = new ChooseRole;
     m_chooseRole->exec();
 }

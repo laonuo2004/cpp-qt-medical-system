@@ -25,9 +25,5 @@ void DoctorInfo::patientRegister()
     {
         QMessageBox::information(this, tr("挂号"), tr("挂号成功。"));
     }
-    else
-    {
-        // 处理具体失败的原因
-    }
     delete registerPanel;
 }

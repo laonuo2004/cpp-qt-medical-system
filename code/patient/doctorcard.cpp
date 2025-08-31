@@ -19,7 +19,7 @@ DoctorCard::~DoctorCard()
 
 void DoctorCard::openDetailPanel()
 {
-    QDialog* detailPanel = new DoctorInfo;
+    QDialog* detailPanel = new DoctorInfo(this);
     detailPanel->exec();
     delete detailPanel;
 }
