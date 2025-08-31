@@ -12,7 +12,7 @@ LoginPanel::LoginPanel(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    /*
+    /* // TODO:
      * 注意：此处的登录按钮被绑定到了接受对话框，以免除密码验证！仅供测试使用！
      * 后期应将accept替换为handleLogin。
      */
