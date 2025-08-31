@@ -6,79 +6,75 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>538</width>
-    <height>404</height>
+    <width>629</width>
+    <height>505</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QPushButton" name="SearchDrug">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>90</y>
-     <width>91</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>SearchDrug</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="GetDetail">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>240</y>
-     <width>111</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>GetDrugDetail</string>
-   </property>
-  </widget>
-  <widget class="QTextEdit" name="DrugBox">
-   <property name="geometry">
-    <rect>
-     <x>220</x>
-     <y>10</y>
-     <width>191</width>
-     <height>141</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QTextEdit" name="DetailBox">
-   <property name="geometry">
-    <rect>
-     <x>220</x>
-     <y>180</y>
-     <width>191</width>
-     <height>131</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="DrugName">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>40</y>
-     <width>113</width>
-     <height>26</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="DrugId">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>200</y>
-     <width>131</width>
-     <height>26</height>
-    </rect>
-   </property>
-  </widget>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>输入药品名称</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="DrugName"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="SearchDrug">
+           <property name="text">
+            <string>搜索药品</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="DrugBox"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>输入药品编号</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="DrugId"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="GetDetail">
+           <property name="text">
+            <string>查找药品详细信息</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="DetailBox"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
