@@ -63,7 +63,7 @@ QPushButton#SignInBtn {
     border-radius: 100px;
     padding: 0;
     outline: none;
-    font-size: 18px;
+    font-size: 24px;
     font-weight: bold;
 }
 
@@ -95,7 +95,7 @@ QPushButton#SignOutBtn {
     padding: 0;          
     outline: none;
     
-    font-size: 18px;
+    font-size: 24px;
     font-weight: bold;
 }
 
@@ -142,6 +142,11 @@ QPushButton.toolbox:disabled {
 }
 
 QPushButton.sidebar-btn {
+    min-width: 200px;
+    min-height: 100px;
+    max-width: 200px;
+    max-height: 100px;
+    font-size: 20px;
     background-color: #5A6C7D;   
     color: #FFFFFF;
     border-radius: 0px;
@@ -155,7 +160,20 @@ QPushButton.sidebar-btn:pressed {
     background-color: #3A4A58;   
 }
 
+QPushButton.sidebar-btn:checked {
+    background-color: #F7F9FC;
+    color: #3E4A59;
+    font-weight: bold;          
+    border-left: 10px solid #007BFF;  
+    padding-left: 12px;       
+}
+
 QPushButton.special-btn {
+    min-width: 200px;
+    min-height: 100px;
+    max-width: 200px;
+    max-height: 100px;
+    font-size: 20px;
     background-color: #D32F2F;
     color: #FFFFFF;
     border-radius: 0px;
@@ -481,8 +499,7 @@ QFrame#NoFrame {
 QListWidget,
 QScrollArea {
     background-color: #F0F4F7;
-    border-radius: 8px;
-    border: 1px solid #D4D8E1;
+    border: none
 }
 
 

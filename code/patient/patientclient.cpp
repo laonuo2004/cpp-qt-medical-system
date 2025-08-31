@@ -6,39 +6,59 @@
 #include "drugsearchpage.h"
 #include "engine.h"
 
+#include <QButtonGroup>
+
 PatientClient::PatientClient(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::PatientClient)
 {
     ui->setupUi(this);
-    // Build up stack widget.
-    m_patientInfoPage = new PatientInfoPage(this);
-    m_registerPage = new RegisterPage(this);
-    m_reportPage = new ReportPage(this);
-    m_drugSearchPage = new DrugSearchPage(this);
-    ui->stackedWidget->addWidget(m_patientInfoPage);
-    ui->stackedWidget->addWidget(m_registerPage);
-    ui->stackedWidget->addWidget(m_reportPage);
-    ui->stackedWidget->addWidget(m_drugSearchPage);
 
-    // Setup side bar button size.
-    ui->InfoBtn->setFixedSize(150, 50);
-    ui->RegisterBtn->setFixedSize(150, 50);
-    ui->ReportBtn->setFixedSize(150, 50);
-    ui->DrugSearchBtn->setFixedSize(150, 50);
+    QVector<QWidget*> pages =
+    {
+        new PatientInfoPage(this),
+        new RegisterPage(this),
+        new ReportPage(this),
+        new DrugSearchPage(this)
+    };
+
+    QVector<QPushButton*> navButtons =
+    {
+        ui->InfoBtn,
+        ui->RegisterBtn,
+        ui->ReportBtn,
+        ui->DrugSearchBtn
+    };
+
+    for (int i = 0; i < pages.size(); ++i)
+    {
+        ui->stackedWidget->addWidget(pages[i]);
+        navButtons[i]->setFixedSize(150, 50);
+        navButtons[i]->setProperty("class", "sidebar-btn");
+        navButtons[i]->setCheckable(true);
+    }
+
+    // 退出按钮单独设置
     ui->LogoutBtn->setFixedSize(150, 50);
-
-    ui->InfoBtn->setProperty("class", "sidebar-btn");
-    ui->RegisterBtn->setProperty("class", "sidebar-btn");
-    ui->ReportBtn->setProperty("class", "sidebar-btn");
-    ui->DrugSearchBtn->setProperty("class", "sidebar-btn");
     ui->LogoutBtn->setProperty("class", "special-btn");
 
-    connect(ui->InfoBtn, &QPushButton::clicked, [this](){ui->stackedWidget->setCurrentIndex(0);});
-    connect(ui->RegisterBtn, &QPushButton::clicked, [this](){ui->stackedWidget->setCurrentIndex(1);});
-    connect(ui->ReportBtn, &QPushButton::clicked, [this](){ui->stackedWidget->setCurrentIndex(2);});
-    connect(ui->DrugSearchBtn, &QPushButton::clicked, [this](){ui->stackedWidget->setCurrentIndex(3);});
+    m_navButtonGroup = new QButtonGroup(this);
+    for (int i = 0; i < navButtons.size(); ++i)
+    {
+        m_navButtonGroup->addButton(navButtons[i], i);
+    }
+
+    connect(m_navButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
+            [this](QAbstractButton *button) {
+                ui->stackedWidget->setCurrentIndex(m_navButtonGroup->id(button));
+            });
+
+    // 连接退出按钮
     connect(ui->LogoutBtn, &QPushButton::clicked, &Engine::get(), &Engine::startEngine);
+
+    // 设置初始状态
+    ui->InfoBtn->setChecked(true);
+    ui->stackedWidget->setCurrentIndex(0);
 }
 
 PatientClient::~PatientClient()

@@ -31,6 +31,7 @@ private:
     class DoctorInfoPage* m_doctorInfoPage; /* 医生信息页面指针 */
     class PatientCardsPage* m_patientCardsPage; /* 病人卡片页面指针 */
     class AttendancePage* m_AttendancePage; /* 考勤页面指针 */
+    class QButtonGroup* m_navButtonGroup;
 };
 
 #endif // DOCTORCLIENT_H
