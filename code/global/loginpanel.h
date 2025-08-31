@@ -53,6 +53,11 @@ protected:
      */
     void handleLogin();
 
+    /**
+     * @brief 处理登录失败
+     */
+    void onLoginFailed(const QString &reason);
+
 
 private:
     Ui::LoginPanel *ui;

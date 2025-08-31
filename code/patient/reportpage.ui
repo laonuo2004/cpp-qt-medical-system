@@ -30,7 +30,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QLabel" name="HeaderLabel">
+    <widget class="QLabel" name="fullHeaderLabel">
      <property name="font">
       <font>
        <pointsize>12</pointsize>
@@ -57,7 +57,7 @@
         <x>0</x>
         <y>0</y>
         <width>527</width>
-        <height>497</height>
+        <height>501</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">

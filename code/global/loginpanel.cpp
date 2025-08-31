@@ -11,11 +11,23 @@ LoginPanel::LoginPanel(QWidget *parent) :
     ui(new Ui::LoginPanel)
 {
     ui->setupUi(this);
-    connect(ui->LoginBtn, &QPushButton::clicked, this, &LoginPanel::handleLogin);
+
+    /*
+     * 注意：此处的登录按钮被绑定到了接受对话框，以免除密码验证！仅供测试使用！
+     * 后期应将accept替换为handleLogin。
+     */
+
+    connect(ui->LoginBtn, &QPushButton::clicked, this, &LoginPanel::accept);
     connect(ui->RegisterBtn, &QPushButton::clicked, this, &LoginPanel::userRegister);
     connect(ui->forgetPwdBtn, &QPushButton::clicked, this, &LoginPanel::forgetPwd);
-    connect(this, &LoginPanel::loginSuccessful, this, &LoginPanel::accept);
     connect(ui->chooseRoleBtn, &QPushButton::clicked, this, &LoginPanel::reject);
+    connect(this, &LoginPanel::loginSuccessful, this, &LoginPanel::accept);
+
+    UiController& controller = UiController::get();
+    connect(&controller, &UiController::loginSuccessAdmin, this, &LoginPanel::accept);
+    connect(&controller, &UiController::loginSuccessDoctor, this, &LoginPanel::accept);
+    connect(&controller, &UiController::loginSuccessPatient, this, &LoginPanel::accept);
+    connect(&controller, &UiController::loginFailed, this, &LoginPanel::onLoginFailed);
 }
 
 LoginPanel::~LoginPanel()
@@ -45,8 +57,8 @@ void LoginPanel::forgetPwd()
 
 void LoginPanel::handleLogin()
 {
-    QString email = ui->EmailEdit->text().trimmed();
-    QString password = ui->PasswordEdit->text();
+    QString email = ui->userInput->text().trimmed();
+    QString password = ui->pwdInput->text();
     
     if (email.isEmpty() || password.isEmpty()) {
         QMessageBox::warning(this, tr("登录错误"), tr("请输入邮箱和密码"));

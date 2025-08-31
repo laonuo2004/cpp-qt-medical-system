@@ -27,6 +27,6 @@ void DrugSearchPage::loadDrugInformation()
     for (int i = 0; i < 5; i++)
     {
         DrugCard* NewDrugCard = new DrugCard(this);
-        ui->DrugList->addWidget(NewDrugCard, i / 3, i % 3);
+        ui->DrugList->addWidget(NewDrugCard, i / 4, i % 4);
     }
 }

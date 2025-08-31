@@ -24,7 +24,6 @@ public:
     ~RegisterPanel();
 
 private slots:
-    void on_buttonBox_accepted();
     void handleRegistrationSuccess();
     void handleRegistrationFailed(const QString &reason);
 
