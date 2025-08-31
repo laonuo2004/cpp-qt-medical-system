@@ -824,11 +824,12 @@ QVariantList UiController::getPatientPrescriptions(int patientId)
     QString sql = QString(R"(
         SELECT pr.prescription_id, pr.details, pr.issued_at,
                mr.diagnosis_date, mr.diagnosis_notes,
-               d.doctor_id, d.full_name as doctor_name, d.department
+               d.doctor_id, d.full_name as doctor_name, dept.department_name as department
         FROM prescriptions pr
         JOIN medical_records mr ON pr.record_id = mr.record_id
         JOIN appointments a ON mr.appointment_id = a.appointment_id
         JOIN doctors d ON a.doctor_id = d.doctor_id
+        JOIN departments dept ON d.department_id = dept.department_id
         WHERE a.patient_id = %1
         ORDER BY pr.issued_at DESC
     )").arg(patientId);
@@ -911,10 +912,11 @@ QVariantList UiController::getUpcomingAppointments(int userId)
 
     QString sql = QString(R"(
         SELECT a.appointment_id, a.appointment_time, a.status,
-               d.doctor_id, d.full_name as doctor_name, d.department,
+               d.doctor_id, d.full_name as doctor_name, dept.department_name as department,
                p.full_name as patient_name
         FROM appointments a
         JOIN doctors d ON a.doctor_id = d.doctor_id
+        JOIN departments dept ON d.department_id = dept.department_id
         JOIN patients p ON a.patient_id = p.patient_id
         WHERE (a.patient_id = (SELECT patient_id FROM patients WHERE user_id = %1)
                OR a.doctor_id = (SELECT doctor_id FROM doctors WHERE user_id = %1))
@@ -1230,7 +1232,374 @@ bool UiController::cancelLeave(int requestId)
     }
 }
 
-    // --- 8. 药品管理后端 ---
+    // --- 8. 科室管理后端 ---
+
+QVariantList UiController::getAllDepartments()
+{
+    if (!ensureDbConnected(__func__))
+    {
+        emit departmentOperationFailed("数据库未连接");
+        return {};
+    }
+
+    QString sql = "SELECT * FROM departments ORDER BY department_name";
+    DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+    auto departmentList = resultToList(result);
+
+    emit departmentListReady(departmentList);
+    return departmentList;
+}
+
+QVariantMap UiController::getDepartmentInfo(int departmentId)
+{
+    if (!ensureDbConnected(__func__))
+    {
+        emit departmentOperationFailed("数据库未连接");
+        return {};
+    }
+
+    QString sql = QString("SELECT * FROM departments WHERE department_id = %1").arg(departmentId);
+    DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+    if (result.empty())
+    {
+        emit departmentOperationFailed("科室不存在");
+        return {};
+    }
+
+    auto departmentInfo = rowToMap(result.front());
+
+    emit departmentInfoReady(departmentInfo);
+    return departmentInfo;
+}
+
+QVariantList UiController::getDepartmentDoctorCount()
+{
+    if (!ensureDbConnected(__func__))
+    {
+        emit departmentOperationFailed("数据库未连接");
+        return {};
+    }
+
+    QString sql = R"(
+        SELECT d.department_id, d.department_name, d.description, d.location, 
+               COUNT(doc.doctor_id) as doctor_count
+        FROM departments d
+        LEFT JOIN doctors doc ON d.department_id = doc.department_id
+        GROUP BY d.department_id, d.department_name, d.description, d.location
+        ORDER BY d.department_name
+    )";
+
+    DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+    auto statsList = resultToList(result);
+
+    emit departmentStatsReady(statsList);
+    return statsList;
+}
+
+    // --- 9. 支付管理后端 ---
+
+bool UiController::createPayment(int appointmentId, double amount, const QString &paymentMethod)
+{
+    if (!ensureDbConnected(__func__))
+    {
+        emit paymentOperationFailed("数据库未连接");
+        return false;
+    }
+
+    // 验证支付方式
+    QStringList validMethods = {"wechat", "alipay", "cash"};
+    if (!validMethods.contains(paymentMethod))
+    {
+        emit paymentOperationFailed("无效的支付方式");
+        return false;
+    }
+
+    // 检查预约是否存在
+    QString checkSql = QString("SELECT COUNT(*) FROM appointments WHERE appointment_id = %1").arg(appointmentId);
+    DatabaseManager::ResultSet checkResult = DatabaseManager::instance().query(checkSql);
+
+    if (getCountFromResult(checkResult) == 0)
+    {
+        emit paymentOperationFailed("预约记录不存在");
+        return false;
+    }
+
+    // 检查是否已有支付记录
+    QString existsSql = QString("SELECT COUNT(*) FROM payments WHERE appointment_id = %1").arg(appointmentId);
+    DatabaseManager::ResultSet existsResult = DatabaseManager::instance().query(existsSql);
+
+    if (getCountFromResult(existsResult) > 0)
+    {
+        emit paymentOperationFailed("该预约已有支付记录");
+        return false;
+    }
+
+    // 创建支付记录
+    DatabaseManager::DataRow paymentData;
+    paymentData["appointment_id"] = appointmentId;
+    paymentData["amount"] = amount;
+    paymentData["payment_method"] = paymentMethod;
+    paymentData["payment_status"] = "pending";
+    // 生成简单的交易流水号
+    paymentData["transaction_id"] = QString("TXN_%1_%2").arg(appointmentId).arg(QDateTime::currentSecsSinceEpoch());
+
+    if (DatabaseManager::instance().insert("payments", paymentData))
+    {
+        // 获取刚创建的支付ID
+        QString getIdSql = "SELECT last_insert_rowid() as payment_id";
+        DatabaseManager::ResultSet idResult = DatabaseManager::instance().query(getIdSql);
+
+        if (!idResult.empty())
+        {
+            int paymentId = idResult.front()["payment_id"].toInt();
+            qInfo() << "支付记录创建成功，支付ID为:" << paymentId;
+            emit paymentCreated(paymentId);
+            return true;
+        }
+    }
+
+    emit paymentOperationFailed("支付记录创建失败: " + DatabaseManager::instance().lastError());
+    return false;
+}
+
+bool UiController::updatePaymentStatus(int paymentId, const QString &status, const QString &transactionId)
+{
+    if (!ensureDbConnected(__func__))
+    {
+        emit paymentOperationFailed("数据库未连接");
+        return false;
+    }
+
+    // 验证状态值
+    QStringList validStatuses = {"pending", "completed", "failed", "refunded"};
+    if (!validStatuses.contains(status))
+    {
+        emit paymentOperationFailed("无效的支付状态");
+        return false;
+    }
+
+    DatabaseManager::DataRow updateData;
+    updateData["payment_status"] = status;
+    
+    if (status == "completed" || status == "failed")
+    {
+        updateData["payment_time"] = QDateTime::currentDateTime();
+    }
+    
+    if (!transactionId.isEmpty())
+    {
+        updateData["transaction_id"] = transactionId;
+    }
+
+    QString whereClause = QString("payment_id = %1").arg(paymentId);
+
+    if (DatabaseManager::instance().update("payments", updateData, whereClause))
+    {
+        qInfo() << "支付状态更新成功，支付ID:" << paymentId << "状态:" << status;
+        emit paymentStatusUpdated(paymentId);
+        return true;
+    }
+    else
+    {
+        emit paymentOperationFailed("支付状态更新失败: " + DatabaseManager::instance().lastError());
+        return false;
+    }
+}
+
+QVariantMap UiController::getPaymentInfo(int appointmentId)
+{
+    if (!ensureDbConnected(__func__))
+    {
+        emit paymentOperationFailed("数据库未连接");
+        return {};
+    }
+
+    QString sql = QString("SELECT * FROM payments WHERE appointment_id = %1").arg(appointmentId);
+    DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+    if (result.empty())
+    {
+        emit paymentOperationFailed("支付记录不存在");
+        return {};
+    }
+
+    auto paymentInfo = rowToMap(result.front());
+
+    emit paymentInfoReady(paymentInfo);
+    return paymentInfo;
+}
+
+QVariantList UiController::getPatientPaymentHistory(int patientId)
+{
+    if (!ensureDbConnected(__func__))
+    {
+        emit paymentOperationFailed("数据库未连接");
+        return {};
+    }
+
+    QString sql = QString(R"(
+        SELECT p.payment_id, p.amount, p.payment_method, p.payment_status, 
+               p.transaction_id, p.payment_time, p.created_at,
+               a.appointment_date, a.appointment_time,
+               d.doctor_id, d.full_name as doctor_name, dept.department_name as department
+        FROM payments p
+        JOIN appointments a ON p.appointment_id = a.appointment_id
+        JOIN doctors d ON a.doctor_id = d.doctor_id
+        JOIN departments dept ON d.department_id = dept.department_id
+        WHERE a.patient_id = %1
+        ORDER BY p.created_at DESC
+    )").arg(patientId);
+
+    DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+    auto paymentList = resultToList(result);
+
+    emit paymentHistoryReady(paymentList);
+    return paymentList;
+}
+
+    // --- 10. 处方药品管理后端 ---
+
+bool UiController::addDrugToPrescription(int prescriptionId, int drugId, int quantity, 
+                                        const QString &dosage, const QString &frequency, int durationDays)
+{
+    if (!ensureDbConnected(__func__))
+    {
+        emit prescriptionDrugOperationFailed("数据库未连接");
+        return false;
+    }
+
+    // 验证处方是否存在
+    QString checkPrescriptionSql = QString("SELECT COUNT(*) FROM prescriptions WHERE prescription_id = %1").arg(prescriptionId);
+    DatabaseManager::ResultSet prescriptionResult = DatabaseManager::instance().query(checkPrescriptionSql);
+
+    if (getCountFromResult(prescriptionResult) == 0)
+    {
+        emit prescriptionDrugOperationFailed("处方记录不存在");
+        return false;
+    }
+
+    // 验证药品是否存在
+    QString checkDrugSql = QString("SELECT COUNT(*) FROM drugs WHERE drug_id = %1").arg(drugId);
+    DatabaseManager::ResultSet drugResult = DatabaseManager::instance().query(checkDrugSql);
+
+    if (getCountFromResult(drugResult) == 0)
+    {
+        emit prescriptionDrugOperationFailed("药品不存在");
+        return false;
+    }
+
+    // 创建处方药品关联记录
+    DatabaseManager::DataRow prescriptionDrugData;
+    prescriptionDrugData["prescription_id"] = prescriptionId;
+    prescriptionDrugData["drug_id"] = drugId;
+    prescriptionDrugData["quantity"] = quantity;
+    prescriptionDrugData["dosage"] = dosage;
+    prescriptionDrugData["frequency"] = frequency;
+    prescriptionDrugData["duration_days"] = durationDays;
+
+    if (DatabaseManager::instance().insert("prescription_drugs", prescriptionDrugData))
+    {
+        // 获取刚创建的记录ID
+        QString getIdSql = "SELECT last_insert_rowid() as prescription_drug_id";
+        DatabaseManager::ResultSet idResult = DatabaseManager::instance().query(getIdSql);
+
+        if (!idResult.empty())
+        {
+            int prescriptionDrugId = idResult.front()["prescription_drug_id"].toInt();
+            qInfo() << "处方药品添加成功，ID为:" << prescriptionDrugId;
+            emit drugAddedToPrescription(prescriptionDrugId);
+            return true;
+        }
+    }
+
+    emit prescriptionDrugOperationFailed("处方药品添加失败: " + DatabaseManager::instance().lastError());
+    return false;
+}
+
+QVariantList UiController::getPrescriptionDrugs(int prescriptionId)
+{
+    if (!ensureDbConnected(__func__))
+    {
+        emit prescriptionDrugOperationFailed("数据库未连接");
+        return {};
+    }
+
+    QString sql = QString(R"(
+        SELECT pd.prescription_drug_id, pd.quantity, pd.dosage, pd.frequency, pd.duration_days,
+               d.drug_id, d.drug_name, d.description, d.usage, d.precautions, 
+               d.drug_price, d.image_url, d.unit
+        FROM prescription_drugs pd
+        JOIN drugs d ON pd.drug_id = d.drug_id
+        WHERE pd.prescription_id = %1
+        ORDER BY d.drug_name
+    )").arg(prescriptionId);
+
+    DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+    auto drugList = resultToList(result);
+
+    emit prescriptionDrugsReady(drugList);
+    return drugList;
+}
+
+bool UiController::removeDrugFromPrescription(int prescriptionDrugId)
+{
+    if (!ensureDbConnected(__func__))
+    {
+        emit prescriptionDrugOperationFailed("数据库未连接");
+        return false;
+    }
+
+    QString whereClause = QString("prescription_drug_id = %1").arg(prescriptionDrugId);
+
+    if (DatabaseManager::instance().remove("prescription_drugs", whereClause))
+    {
+        qInfo() << "处方药品移除成功，ID:" << prescriptionDrugId;
+        emit drugRemovedFromPrescription(prescriptionDrugId);
+        return true;
+    }
+    else
+    {
+        emit prescriptionDrugOperationFailed("处方药品移除失败: " + DatabaseManager::instance().lastError());
+        return false;
+    }
+}
+
+bool UiController::updatePrescriptionDrug(int prescriptionDrugId, int quantity, 
+                                         const QString &dosage, const QString &frequency, int durationDays)
+{
+    if (!ensureDbConnected(__func__))
+    {
+        emit prescriptionDrugOperationFailed("数据库未连接");
+        return false;
+    }
+
+    DatabaseManager::DataRow updateData;
+    updateData["quantity"] = quantity;
+    updateData["dosage"] = dosage;
+    updateData["frequency"] = frequency;
+    updateData["duration_days"] = durationDays;
+
+    QString whereClause = QString("prescription_drug_id = %1").arg(prescriptionDrugId);
+
+    if (DatabaseManager::instance().update("prescription_drugs", updateData, whereClause))
+    {
+        qInfo() << "处方药品更新成功，ID:" << prescriptionDrugId;
+        emit prescriptionDrugUpdated(prescriptionDrugId);
+        return true;
+    }
+    else
+    {
+        emit prescriptionDrugOperationFailed("处方药品更新失败: " + DatabaseManager::instance().lastError());
+        return false;
+    }
+}
+
+    // --- 11. 药品管理后端 ---
 
 QVariantList UiController::searchDrugs(const QString &keyword)
 {

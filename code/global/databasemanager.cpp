@@ -333,30 +333,45 @@ DatabaseManager& DatabaseManager::instance()
             )");
         }
 
-        // 4. 医生表
+        // 4. 科室表
+        if (success)
+        {
+            success = execute(R"(
+                CREATE TABLE IF NOT EXISTS departments (
+                    department_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    department_name TEXT NOT NULL UNIQUE,
+                    description TEXT,
+                    location TEXT,
+                    contact_phone TEXT
+                )
+            )");
+        }
+
+        // 5. 医生表
         if (success)
         {
             success = execute(R"(
                 CREATE TABLE IF NOT EXISTS doctors (
                     doctor_id TEXT PRIMARY KEY,
                     user_id INTEGER NOT NULL UNIQUE,
+                    department_id INTEGER NOT NULL,
                     full_name TEXT,
                     sex TEXT CHECK(sex IN ('男', '女')),
                     age INTEGER,
-                    department TEXT,
                     title TEXT,
                     phone_no TEXT UNIQUE,
                     doc_start TIME,
                     doc_finish TIME,
-                    registration_fee TEXT,
+                    registration_fee REAL,
                     patient_limit INTEGER,
                     photo_url TEXT,
-                    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+                    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+                    FOREIGN KEY (department_id) REFERENCES departments(department_id) ON DELETE RESTRICT
                 )
             )");
         }
 
-        // 5. 预约表
+        // 6. 预约表
         if (success)
         {
             success = execute(R"(
@@ -368,13 +383,32 @@ DatabaseManager& DatabaseManager::instance()
                     appointment_time DATETIME NOT NULL,
                     status TEXT NOT NULL DEFAULT 'scheduled' CHECK(status IN ('scheduled', 'completed', 'cancelled')),
                     payment_status TEXT NOT NULL DEFAULT 'unpaid' CHECK(payment_status IN ('unpaid', 'paid')),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
                     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
                 )
             )");
         }
 
-        // 6. 病历表
+        // 7. 支付表
+        if (success)
+        {
+            success = execute(R"(
+                CREATE TABLE IF NOT EXISTS payments (
+                    payment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    appointment_id INTEGER NOT NULL,
+                    amount REAL NOT NULL,
+                    payment_method TEXT NOT NULL CHECK(payment_method IN ('wechat', 'alipay', 'cash')),
+                    payment_status TEXT NOT NULL DEFAULT 'pending' CHECK(payment_status IN ('pending', 'completed', 'failed', 'refunded')),
+                    transaction_id TEXT,
+                    payment_time TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id) ON DELETE CASCADE
+                )
+            )");
+        }
+
+        // 8. 病历表
         if (success)
         {
             success = execute(R"(
@@ -421,7 +455,7 @@ DatabaseManager& DatabaseManager::instance()
             )");
         }
 
-        // 9. 药品表
+        // 11. 药品表
         if (success)
         {
             success = execute(R"(
@@ -432,12 +466,31 @@ DatabaseManager& DatabaseManager::instance()
                     usage TEXT,
                     precautions TEXT,
                     drug_price REAL,
-                    image_url TEXT
+                    image_url TEXT,
+                    unit TEXT
                 )
             )");
         }
 
-        // 10. 聊天消息表
+        // 12. 处方药品关联表
+        if (success)
+        {
+            success = execute(R"(
+                CREATE TABLE IF NOT EXISTS prescription_drugs (
+                    prescription_drug_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    prescription_id INTEGER NOT NULL,
+                    drug_id INTEGER NOT NULL,
+                    quantity INTEGER NOT NULL,
+                    dosage TEXT,
+                    frequency TEXT,
+                    duration_days INTEGER,
+                    FOREIGN KEY (prescription_id) REFERENCES prescriptions(prescription_id) ON DELETE CASCADE,
+                    FOREIGN KEY (drug_id) REFERENCES drugs(drug_id) ON DELETE RESTRICT
+                )
+            )");
+        }
+
+        // 13. 聊天消息表
         if (success)
         {
             success = execute(R"(
@@ -453,7 +506,7 @@ DatabaseManager& DatabaseManager::instance()
             )");
         }
 
-        // 11. 病历模板表
+        // 14. 病历模板表
         if (success)
         {
             success = execute(R"(
@@ -468,7 +521,7 @@ DatabaseManager& DatabaseManager::instance()
             )");
         }
 
-        // 12. 考勤表
+        // 15. 考勤表
         if (success)
         {
             success = execute(R"(
@@ -484,7 +537,7 @@ DatabaseManager& DatabaseManager::instance()
             )");
         }
 
-        // 13. 请假申请表
+        // 16. 请假申请表
         if (success)
         {
             success = execute(R"(
@@ -532,23 +585,25 @@ DatabaseManager& DatabaseManager::instance()
         {
             // 查询所有医生
             sql = R"(
-                SELECT d.doctor_id, d.full_name, d.sex, d.age, d.department, d.title,
+                SELECT d.doctor_id, d.full_name, d.sex, d.age, dept.department_name as department, d.title,
                        d.phone_no, d.doc_start, d.doc_finish, d.registration_fee,
                        d.patient_limit, d.photo_url, u.email
                 FROM doctors d
                 JOIN users u ON d.user_id = u.user_id
-                ORDER BY d.department, d.full_name
+                JOIN departments dept ON d.department_id = dept.department_id
+                ORDER BY dept.department_name, d.full_name
             )";
         }
         else
         {
             sql = QString(R"(
-                SELECT d.doctor_id, d.full_name, d.sex, d.age, d.department, d.title,
+                SELECT d.doctor_id, d.full_name, d.sex, d.age, dept.department_name as department, d.title,
                        d.phone_no, d.doc_start, d.doc_finish, d.registration_fee,
                        d.patient_limit, d.photo_url, u.email
                 FROM doctors d
                 JOIN users u ON d.user_id = u.user_id
-                WHERE d.department = '%1'
+                JOIN departments dept ON d.department_id = dept.department_id
+                WHERE dept.department_name = '%1'
                 ORDER BY d.full_name
             )").arg(department);
         }
@@ -567,11 +622,12 @@ DatabaseManager& DatabaseManager::instance()
 
         QString sql = QString(R"(
             SELECT a.appointment_id, a.appointment_date, a.appointment_time,
-                   a.status, a.payment_status,
-                   d.doctor_id, d.full_name as doctor_name, d.department, d.title,
+                   a.status, a.payment_status, a.created_at,
+                   d.doctor_id, d.full_name as doctor_name, dept.department_name as department, d.title,
                    d.registration_fee
             FROM appointments a
             JOIN doctors d ON a.doctor_id = d.doctor_id
+            JOIN departments dept ON d.department_id = dept.department_id
             WHERE a.patient_id = %1
         )").arg(patientId);
 
@@ -654,11 +710,12 @@ DatabaseManager& DatabaseManager::instance()
         QString sql = QString(R"(
             SELECT mr.record_id, mr.diagnosis_notes, mr.diagnosis_date, mr.created_at,
                    a.appointment_time,
-                   d.doctor_id, d.full_name as doctor_name, d.department, d.title,
+                   d.doctor_id, d.full_name as doctor_name, dept.department_name as department, d.title,
                    GROUP_CONCAT(pr.details, '; ') as prescriptions
             FROM medical_records mr
             JOIN appointments a ON mr.appointment_id = a.appointment_id
             JOIN doctors d ON a.doctor_id = d.doctor_id
+            JOIN departments dept ON d.department_id = dept.department_id
             LEFT JOIN prescriptions pr ON mr.record_id = pr.record_id
             WHERE a.patient_id = %1
             GROUP BY mr.record_id
