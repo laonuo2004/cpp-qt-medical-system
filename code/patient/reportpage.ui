@@ -60,7 +60,7 @@
         <number>20</number>
        </property>
        <item>
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="HeaderLabel">
          <property name="font">
           <font>
            <pointsize>12</pointsize>

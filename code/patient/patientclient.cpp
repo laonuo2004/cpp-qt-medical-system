@@ -27,7 +27,7 @@ PatientClient::PatientClient(QWidget *parent) :
     ui->InfoBtn->setProperty("class", "sidebar-btn");
     ui->RegisterBtn->setProperty("class", "sidebar-btn");
     ui->ReportBtn->setProperty("class", "sidebar-btn");
-    ui->LogoutBtn->setProperty("class", "sidebar-btn");
+    ui->LogoutBtn->setProperty("class", "special-btn");
 
     connect(ui->InfoBtn, &QPushButton::clicked, [this](){ui->stackedWidget->setCurrentIndex(0);});
     connect(ui->RegisterBtn, &QPushButton::clicked, [this](){ui->stackedWidget->setCurrentIndex(1);});

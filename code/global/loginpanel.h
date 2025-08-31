@@ -30,21 +30,21 @@ public:
 
 protected:
 
-    /**
-     * @brief 用户注册操作
-     *
-     * 打开注册面板，用户可以在此输入注册信息并进行注册。
-     * 注册成功后，弹出提示框显示注册结果。
-     */
+    /* 打开用户注册界面 */
     void userRegister();
 
+    /* 打开忘记密码界面 */
+    void forgetPwd();
+
     /**
-     * @brief 用户登录操作
+     * @brief 判断登录是否成功
      *
      * 获取用户输入的用户名和密码，并调用 UIController 进行登录验证。
-     * 登录成功后，通过发射 loginSuccessful 信号，触发主窗口的创建。
+     * 登录成功后，QDialog发出accept信号，触发主窗口的创建。
      */
-    void userLogin();
+    void handleLogin();
+
+
 
 private:
     Ui::LoginPanel *ui;

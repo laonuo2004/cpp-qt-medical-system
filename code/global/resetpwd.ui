@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RegisterPanel</class>
- <widget class="QDialog" name="RegisterPanel">
+ <class>ResetPwd</class>
+ <widget class="QDialog" name="ResetPwd">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>500</height>
+    <width>600</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>用户注册</string>
+   <string>重置密码</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -21,7 +21,7 @@
     <number>20</number>
    </property>
    <property name="topMargin">
-    <number>20</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
     <number>20</number>
@@ -31,15 +31,8 @@
    </property>
    <item>
     <widget class="QLabel" name="HeaderLabel">
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
      <property name="text">
-      <string>注册</string>
+      <string>重置密码</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -48,61 +41,62 @@
    </item>
    <item>
     <layout class="QFormLayout" name="formLayout">
+     <property name="horizontalSpacing">
+      <number>20</number>
+     </property>
+     <property name="verticalSpacing">
+      <number>20</number>
+     </property>
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>邮箱</string>
+        <string>手机号</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="UserNameInput"/>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLineEdit" name="lineEdit"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="sendBtn">
+         <property name="text">
+          <string>发送验证码</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>密码</string>
+        <string>验证码</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="PwdInput"/>
+      <widget class="QLineEdit" name="lineEdit_2"/>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="label_4">
+      <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>确认密码</string>
+        <string>新密码</string>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="PwdInput_2"/>
+      <widget class="QLineEdit" name="lineEdit_4"/>
      </item>
      <item row="3" column="0">
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>用户身份</string>
+        <string>再次输入新密码</string>
        </property>
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QComboBox" name="RoleInput">
-       <item>
-        <property name="text">
-         <string>医生</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>病患</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>管理员</string>
-        </property>
-       </item>
-      </widget>
+      <widget class="QLineEdit" name="lineEdit_3"/>
      </item>
     </layout>
    </item>
