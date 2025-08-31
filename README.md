@@ -23,6 +23,14 @@
 1. [ ] 当前的项目中，数据库尚且存放在本地，无法实现数据共享，需要更改为 C/S 架构，将数据库转移到服务器端
 2. [ ] 黄奕晨的模块需要修改以集成到现有代码当中，当前还是独立的部分，在各方面与当前代码不兼容
 
+### 📅 8/31
+
+1. [ ] 更新了[架构图](#31-总体模块视图)，主要是添加了服务器端和网络通信层部分，尚待实现。实现思路：
+   - 将 databaseManager 迁移到服务器端，可以直接复用原有的代码
+   - 在 databaseManager 与 uiController 之间新增一个 networkManager 模块，用于处理网络通信。使用 TCP 通信，使用 JSON 数据格式。客户端与服务器端均需要添加相关模块来处理信息收发与处理
+   - 修改 databaseManager, uiController 与 networkManager 的接口，在此之前两者之间是直接调用，现在需要通过 networkManager 来调用
+2. [ ] 补充科室的表格，医生表的科室变成外键
+
 ---
 
 ## 1. 项目概述
@@ -74,102 +82,137 @@
 ### 3.1 总体模块视图
 
 ```mermaid
-graph TD
-    %% --- Actors ---
-    subgraph "Actors"
+graph TB
+    %% === 用户角色层 ===
+    subgraph "👥 Actors / 用户角色"
         direction LR
-        Doctor(fa:fa-user-doctor Doctor)
-        Patient(fa:fa-user Patient)
-        Admin(fa:fa-user-shield Admin)
+        Doctor["👨‍⚕️ Doctor<br/>医生"]
+        Patient["🤒 Patient<br/>患者"] 
+        Admin["👨‍💼 Admin<br/>管理员"]
     end
 
-    %% --- App Architecture ---
-    subgraph "Application Architecture"
+    %% === 客户端架构 ===
+    subgraph "💻 Client Side / 客户端"
         direction TB
-
-        %% 1. UI（客户端）
-        subgraph "1.UI (Client)"
+        
+        subgraph "🖼️ View Layer / 视图层"
+            direction TB
+            Engine["⚙️ Engine<br/>引擎管理器"]
+            LoginPanel["🔐 LoginPanel<br/>登录/注册界面"]
+            
+            subgraph "🏥 Main Windows / 主窗口"
+                direction LR
+                PatientClient["🤒 PatientClient<br/>患者端主窗口"]
+                DoctorClient["👨‍⚕️ DoctorClient<br/>医生端主窗口"] 
+                Backend["👨‍💼 Backend<br/>管理员端主窗口"]
+            end
+        end
+        
+        subgraph "🎮 Controller Layer / 控制器层"
+            UiController["🎯 UiController<br/>核心业务控制器<br/>"]
+            
+            subgraph "🧩 Feature Modules / 功能模块"
+                direction LR
+                ChatModule["💬 医患聊天模块"]
+                AnalysisModule["📊 数据分析模块"]
+                TemplateModule["📋 病历模板模块"]
+                PaymentModule["💳 支付模块"]
+            end
+        end
+        
+        subgraph "🗃️ Model Layer / 模型层"
             direction LR
-            LoginUI["登录/注册"]
-            PatientUI["患者端"]
-            DoctorUI["医生端"]
-            AdminUI["后台端"]
-        end
-
-        %% 2. 业务层（客户端）
-        subgraph "2.Biz (Client)"
-            direction TB
-            Controller{"UiController（核心控制）"}
-            subgraph "功能模块 (Features)"
-                direction TB
-                ChatModule["医患聊天"]
-                AnalysisModule["数据分析"]
-                TemplateModule["病历模板"]
-                OtherModule["......"]
-            end
-            subgraph "数据访问 (Data Access)"
-                direction TB
-                Manages["dataBaseManager"]
-            end
-        end
-
-        %% 3. 后端（仅数据访问）
-        subgraph "3.Backend (Server)"
-            direction TB
-            ServerAPI{"Server API(服务器)"}
-            subgraph "数据存储 (Data Storage)"
-                direction TB
-                DBModule["Database (SQLite)"]
-                UserInfo["用户信息"]
-                MedicalRecords["病历信息"]
-                Appointments["预约信息"]
-                OtherTable["......"]
-            end
+            NetworkManager-Client["🌐 NetworkManager-Client<br/>客户端网络通信管理器<br/>"]
         end
     end
 
-    %% --- Connections ---
-    Doctor & Patient & Admin --> LoginUI
-    LoginUI --> Controller
-    PatientUI <--> Controller
-    DoctorUI <--> Controller
-    AdminUI <--> Controller
+    %% === 网络通信层 ===
+    subgraph "🌐 Network / 网络通信"
+        direction TB
+        TcpComm["🔌 TCP Socket<br/>TCP通信"]
+        JsonProtocol["📦 JSON Protocol<br/>JSON协议"]
+    end
 
-    %% 功能模块仍与 UiController 直连（客户端内调用）
-    Controller --> ChatModule
-    Controller --> AnalysisModule
-    Controller --> TemplateModule
+    %% === 简化服务器端架构 ===
+    subgraph "🖥️ Server Side / 服务器端"
+        direction TB
+        
+        NetworkManager-Server["🚀 NetworkManager-Server<br/>服务器网络通信管理器<br/>(监听+分发)"]
+        
+        DatabaseManager["🗄️ DatabaseManager<br/>数据库管理器"]
+        
+        subgraph "🗃️ SQLite Database / 数据库"
+            direction LR
+            UsersTbl["👤 用户表"]
+            PatientsTbl["🤒 患者表"]
+            DoctorsTbl["👨‍⚕️ 医生表"]
+            AppointmentsTbl["📅 预约表"]
+            MedicalTbl["📋 病历表"]
+            ChatTbl["💬 聊天记录表"]
+        end
+    end
 
-    %% 数据访问链路：Controller -> Manages -> ServerAPI -> DB
-    Controller --> Manages
-    Manages <-->|TCPIP| ServerAPI
-    ServerAPI <--> DBModule
+    %% === 连接关系 ===
+    
+    %% 用户与界面
+    Doctor --> LoginPanel
+    Patient --> LoginPanel  
+    Admin --> LoginPanel
+    
+    %% 应用程序流程
+    Engine --> LoginPanel
+    Engine --> PatientClient
+    Engine --> DoctorClient
+    Engine --> Backend
+    
+    %% MVC 内部关系
+    LoginPanel -.-> UiController
+    PatientClient -.-> UiController
+    DoctorClient -.-> UiController
+    Backend -.-> UiController
+    
+    UiController --> ChatModule
+    UiController --> AnalysisModule
+    UiController --> TemplateModule
+    UiController --> PaymentModule
+    
+    %% 数据访问
+    UiController ==> NetworkManager-Client
+    
+    %% 客户端-服务器通信
+    NetworkManager-Client <-->|"📡 TCP请求/响应"| TcpComm
+    TcpComm <-->|"📦 JSON数据"| JsonProtocol
+    JsonProtocol <-->|"🔗 分发"| NetworkManager-Server
+    
+    %% 服务器内部
+    NetworkManager-Server ==> DatabaseManager
+    
+    %% 数据库关系
+    DatabaseManager --> UsersTbl
+    DatabaseManager --> PatientsTbl
+    DatabaseManager --> DoctorsTbl
+    DatabaseManager --> AppointmentsTbl
+    DatabaseManager --> MedicalTbl
+    DatabaseManager --> ChatTbl
 
-    %% 数据模型由数据库模块管理
-    DBModule --> UserInfo
-    DBModule --> MedicalRecords
-    DBModule --> Appointments
-    DBModule --> OtherTable
-
-    %% --- Styling（紧凑+深灰字+稍大字号）---
-    style Doctor fill:#d4edda,stroke:#155724
-    style Patient fill:#d1ecf1,stroke:#0c5460
-    style Admin fill:#f8d7da,stroke:#721c24
-
-    classDef actor color:#333,font-size:14px,stroke-width:1.2px
-    classDef ui fill:#cce5ff,stroke:#004085,color:#333,font-size:14px,stroke-width:1.2px
-    classDef logic fill:#fff3cd,stroke:#856404,color:#333,font-size:14px,stroke-width:1.2px
-    classDef feature fill:#e2e3e5,stroke:#383d41,color:#333,font-size:14px,stroke-width:1.2px
-    classDef data fill:#d4edda,stroke:#155724,color:#333,font-size:14px,stroke-width:1.2px
+    %% === 样式定义 ===
+    classDef actor fill:#e3f2fd,stroke:#1976d2,color:#000,stroke-width:2px
+    classDef view fill:#e8f5e8,stroke:#388e3c,color:#000,stroke-width:2px
+    classDef controller fill:#fff3e0,stroke:#f57c00,color:#000,stroke-width:2px
+    classDef model fill:#fce4ec,stroke:#c2185b,color:#000,stroke-width:2px
+    classDef network fill:#e0f2f1,stroke:#00796b,color:#000,stroke-width:2px
+    classDef server fill:#e3f2fd,stroke:#0d47a1,color:#000,stroke-width:2px
+    classDef database fill:#fff8e1,stroke:#ffa000,color:#000,stroke-width:2px
+    classDef reuse fill:#c8e6c9,stroke:#2e7d32,color:#000,stroke-width:3px
 
     class Doctor,Patient,Admin actor
-    class LoginUI,PatientUI,DoctorUI,AdminUI ui
-    class Controller logic
-    class ChatModule,AnalysisModule,TemplateModule,OtherModule feature
-    class ServerAPI,Manages,DBModule,UserInfo,MedicalRecords,Appointments,OtherTable data
-
-    linkStyle default stroke-width:1.1px
-
+    class Engine,LoginPanel,PatientClient,DoctorClient,Backend view
+    class UiController,ChatModule,AnalysisModule,TemplateModule,PaymentModule controller
+    class NetworkManager-Client model
+    class TcpComm,JsonProtocol network
+    class NetworkManager-Server server
+    class UsersTbl,PatientsTbl,DoctorsTbl,AppointmentsTbl,MedicalTbl,ChatTbl database
+    class DatabaseManager reuse
 ```
 
 ### 3.2 详细任务分配表
@@ -185,6 +228,7 @@ graph TD
 | **用户与账户** | 1. **注册后端:** 校验邮箱唯一性，密码加密存储，创建新用户。 <br> 2. **登录后端:** 验证用户凭据，返回登录状态和用户信息。 <br> 3. **密码策略:** 实现密码复杂度校验逻辑。 <br> 4. **找回密码后端:** 处理邮箱/验证码验证逻辑。 | 1 (后端), 2 (后端), 29, 30 (后端) |
 | **业务逻辑** | 1. **个人信息后端:** 提供接口以更新和获取用户（医/患）的详细信息。 <br> 2. **挂号预约后端:** 处理挂号请求，校验医生排班，原子化更新预约数。 <br> 3. **病历/医嘱后端:** 提供接口以创建、查询和更新病历、医嘱、处方。 <br> 4. **预约提醒后端:** 提供接口查询用户24小时内的预约。 | 3 (后端), 4 (后端), 5 (后端), 6, 7, 8, 9, 14, 15, 16 (后端), 32, 33 (后端), 34 |
 | **管理员模块** | 1. **后台接口:** 实现对所有用户的增、删、改、查管理接口。 | 45 (后端) |
+| **服务器模块 (新增)** | 参考 [TODO](#-831) 当中的说明 | 新增模块 |
 
 #### 🎨 **胡艺镭 (前端 & UI 主力)**
 
@@ -227,16 +271,45 @@ graph TD
 
 详情请参考[另外一个文档](./ER.md)
 
-### 4.2 核心架构与数据模型
+### 4.2 新架构核心设计
 
-- 我们将采用一个**单例**的 `UiController` 类作为前后端交互的唯一入口，以实现逻辑解耦。
-- 前后端之间的数据传递将使用通用的 `QVariantMap`, `QVariantList` 等完成。
+基于改进后的架构图，系统采用**三层架构**设计：
 
-### 4.3 前后端交互 (`UiController`)
+#### 🏗️ **C/S架构设计**
+- **客户端 (Client Side)**: 包含完整的MVC架构，负责用户界面和业务逻辑处理
+- **网络通信层 (Network Communication)**: 实现TCP/IP通信协议和数据传输
+- **服务器端 (Server Side)**: 独立的服务器应用，负责业务逻辑和数据存储
 
-- 我们使用 `UiController` 来完成前后端之间的交互。
-- 关于 `UiController` 当中函数功能的实现，请与 **周鑫** 商量讨论后，由 **周鑫** 负责具体实现，不用自己上手来完成。
-- 需要用到的 Qt 信号同理，由 **周鑫** 来具体实现，其他人只需要提需求即可。
+#### ⚙️ **核心组件**
+- **Engine引擎**: 单例模式的应用程序管理器，负责窗口生命周期和系统启动
+- **UiController**: 单例模式的业务控制器，客户端逻辑的唯一入口
+- **DatabaseManager**: 单例模式的数据访问层，适配C/S架构
+- **NetworkManager**: 网络通信管理器，处理客户端-服务器通信
+
+#### 🎯 **MVC架构实现**
+- **Model层**: DatabaseManager + NetworkManager，负责数据访问和网络通信
+- **View层**: 所有UI组件，包括主窗口、子页面和功能界面
+- **Controller层**: UiController + 各功能模块，处理业务逻辑和用户交互
+
+### 4.3 接口约定与通信协议
+
+#### 📡 **网络通信协议**
+- **传输协议**: TCP/IP Socket通信
+- **数据格式**: JSON格式的标准化数据包
+- **认证机制**: 基于Token的会话管理
+- **错误处理**: 标准化的错误码和异常处理机制
+
+#### 🔗 **接口设计原则**
+- **UiController接口**: 所有业务逻辑通过UiController单例访问
+- **异步通信**: 所有网络请求采用异步模式，避免UI阻塞
+- **信号槽机制**: 使用Qt信号槽实现组件间的松耦合通信
+- **数据传递**: 使用 `QVariantMap`, `QVariantList` 等通用数据结构
+
+#### 🛠️ **开发协作约定**
+- **后端接口**: **周鑫** 负责所有UiController接口的设计和实现
+- **UI集成**: **胡艺镭** 负责UI与控制器的信号槽连接
+- **功能模块**: **黄奕晨** 负责功能模块与UiController的接口对接
+- **测试规范**: 所有接口变更需要通过代码审查和集成测试
 
 ---
 
