@@ -24,6 +24,10 @@ public:
     explicit PatientInfoPage(QWidget *parent = nullptr);
     ~PatientInfoPage();
 
+protected:
+    /* 创建编辑个人信息弹窗 */
+    void editPatientInfo();
+
 private:
     Ui::PatientInfoPage *ui;
 };

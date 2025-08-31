@@ -18,9 +18,6 @@ int main(int argc, char *argv[])
     {
         qWarning("无法加载样式表文件");
     }
-    
-    // 启动应用程序流程
-    Engine::get().startApplicationFlow();
-    
+    Engine::get().startEngine();
     return a.exec();
 }

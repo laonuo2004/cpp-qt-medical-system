@@ -22,8 +22,17 @@ class DoctorInfo : public QDialog
     Q_OBJECT
 
 public:
-    explicit DoctorInfo(QDialog *parent = nullptr);
+    explicit DoctorInfo(QWidget *parent = nullptr);
     ~DoctorInfo();
+
+protected:
+
+    /**
+     * @brief 打开确认挂号界面，并处理挂号成功或失败逻辑
+     *
+     * 创建确认挂号对话框，处理对话框接受或拒绝时的逻辑。
+     */
+    void patientRegister();
 
 private:
     Ui::DoctorInfo *ui;

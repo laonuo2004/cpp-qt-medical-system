@@ -25,6 +25,9 @@ public:
     explicit PatientInfo(QWidget *parent = nullptr);
     ~PatientInfo();
 
+protected:
+    void diagnose();
+
 private:
     Ui::PatientInfo *ui;
 };

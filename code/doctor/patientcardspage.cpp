@@ -1,6 +1,6 @@
 #include "patientcardspage.h"
 #include "ui_patientcardspage.h"
-#include "userinfocard.h"
+#include "patientcard.h"
 
 PatientCardsPage::PatientCardsPage(QWidget *parent) :
     QWidget(parent),
@@ -20,7 +20,7 @@ void PatientCardsPage::loadPatientInformation()
     // Test
     for (int i = 0; i < 3; i++)
     {
-        UserInfoCard* NewPatientCard = new UserInfoCard(this, true);
+        PatientCard* NewPatientCard = new PatientCard(this);
         ui->PatientCards->addWidget(NewPatientCard, i / 2, i % 2);
     }
 }

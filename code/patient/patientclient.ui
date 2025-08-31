@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1600</width>
+    <height>1000</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -125,6 +125,13 @@
            </property>
            <property name="text">
             <string>报告</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="DrugSearchBtn">
+           <property name="text">
+            <string>药品搜索</string>
            </property>
           </widget>
          </item>

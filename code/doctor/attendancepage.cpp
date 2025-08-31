@@ -27,7 +27,7 @@ AttendancePage::~AttendancePage()
 void AttendancePage::signIn()
 {
     QListWidgetItem* signInRecord = new QListWidgetItem;
-    signInRecord->setText(QDateTime::currentDateTime().toString());
+    signInRecord->setText("[签到]：" + QDateTime::currentDateTime().toString());
     ui->SignInList->addItem(signInRecord);
     ui->SignInBtn->setDisabled(true);
 }
@@ -35,8 +35,8 @@ void AttendancePage::signIn()
 void AttendancePage::signOut()
 {
     QListWidgetItem* signOutRecord = new QListWidgetItem;
-    signOutRecord->setText(QDateTime::currentDateTime().toString());
-    ui->SignOutList->addItem(signOutRecord);
+    signOutRecord->setText("[签退]：" + QDateTime::currentDateTime().toString());
+    ui->SignInList->addItem(signOutRecord);
     ui->SignOutBtn->setDisabled(true);
 }
 
