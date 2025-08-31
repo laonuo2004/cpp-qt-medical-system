@@ -294,23 +294,33 @@ gantt
   - 统一使用四个空格的缩进长度，如果 `Tab` 缩进长度不同的可能需要调整一下
 - **注释要求**
   - **复杂的布局、逻辑部分**需要有注释进行适当解释
-  - **别人需要用到的函数与方法**需要给出清晰的注释说明，例如函数功能、需要怎样的参考、返回值是什么等等
+  - **别人需要用到的函数与方法**需要给出清晰的注释说明，例如函数功能、需要怎样的参数、返回值是什么等等
 - **其他的规范可以后续继续补充**
 
 ---
 
 ## 7. 可供参考的资料
 
-> 有的代码可以直接照抄过来，尤其是聊天相关的代码，前人有较多具体实现。
+> 有的代码可以直接照抄过来，前人有较多具体实现。
 
 - [一个同样也是 Qt + Cpp 开发的医院管理系统，推荐参考](https://github.com/OmerJauhar/Hospital-Management-System-HMS-QT-Software-OOP-C-)
 - [使用 Qt + Cpp 开发的实时聊天系统，推荐参考](https://github.com/vRFEducation/qtchatapplication)
 - 23级其他组正在进行当中的项目：
   - [同样也是医疗系统，流程图画得比较清晰，可以参考](https://github.com/xialinguo/hospital)
+  - [工业现场远程专家支持系统，代码写得很快，我们可以参考文档、编码流程等部分](https://github.com/wyyalhz/RemoteExpert)
+  - [软工专业的，看仓库命名也像是医疗系统，不知道具体要求有没有不同](https://github.com/wdyy20041223/smart_medical_care)
   - [目前为空，等待后续动作](https://github.com/Dingnuooo/bit2025xxq)
-- 往年学长学姐们的项目 (之前的项目有所区别，不过也可以参考)：
-  - [22级车载系统，含有聊天模块，可以参考其他文档攥写](https://github.com/YYT-0901/CS-BIT-INFORMATION/tree/master/5semester%20%E5%A4%A7%E4%B8%89%E4%B8%8A/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%93%E4%B8%9A%E5%9F%BA%E7%A1%80%E5%AE%9E%E4%B9%A0)
-  - [同样也是车载系统](https://github.com/xChang1021x/BIT/tree/main/Y3S1/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%93%E4%B8%9A%E5%9F%BA%E7%A1%80%E5%AE%9E%E4%B9%A0)
-  - 更早一些的时候，单纯只用做一个聊天软件，基本都采用 [Client](https://github.com/muxinyu1/q-chater-client) + [Server](https://github.com/muxinyu1/q-chater-server) 的架构
-  - 同样只做聊天软件：[Client](https://github.com/loujuch/client) + [Server](https://github.com/loujuch/server)
-  - 同样只做聊天软件：[Client+Server](https://github.com/zx1316/linpop-lan-im)
+- 往年学长学姐们的项目：
+  - 医疗系统 (**⚠️需要重点关注⚠️**)：
+    - [观察历史记录，可以看出开发了较长的时间，最终代码质量也较好，尤其是向聊天系统当中加入 AI 聊天的部分值得借鉴](https://github.com/BottleOfErie/SmartHospital)
+    - [在代码架构、 UI 设计等方面均可参考](https://github.com/danielpfeiffer123/Smart_Healthcare_System)
+    - [使用了 qml 来设计 UI，可以参考](https://github.com/Garryyangck/BIT-qt-medical)
+  - 车载系统 (22级)：
+    - [含有聊天模块，可以参考其他文档的攥写](https://github.com/YYT-0901/CS-BIT-INFORMATION/tree/master/5semester%20%E5%A4%A7%E4%B8%89%E4%B8%8A/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%93%E4%B8%9A%E5%9F%BA%E7%A1%80%E5%AE%9E%E4%B9%A0)
+    - [同样也是车载系统](https://github.com/xChang1021x/BIT/tree/main/Y3S1/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%93%E4%B8%9A%E5%9F%BA%E7%A1%80%E5%AE%9E%E4%B9%A0)
+    - [同样也是车载系统，文档写得比较详细](https://github.com/bit-angi/CarCentralSys)
+    - [同样也是车载系统](https://github.com/paomian2333/carControl)
+  - 通讯系统 (更早一些的)：
+    - [Client](https://github.com/muxinyu1/q-chater-client) + [Server](https://github.com/muxinyu1/q-chater-server) 的架构
+    - [Client](https://github.com/loujuch/client) + [Server](https://github.com/loujuch/server)
+    - [Client+Server](https://github.com/zx1316/linpop-lan-im)
