@@ -23,6 +23,10 @@ public:
     explicit DoctorInfoPage(QWidget *parent = nullptr);
     ~DoctorInfoPage();
 
+protected:
+    /* 创建编辑个人信息弹窗 */
+    void editDoctorInfo();
+
 private:
     Ui::DoctorInfoPage *ui;
 };

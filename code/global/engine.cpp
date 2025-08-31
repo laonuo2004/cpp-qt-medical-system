@@ -1,8 +1,9 @@
 #include "engine.h"
-#include "loginpanel.h"
+#include "chooserole.h"
 #include "patientclient.h"
 #include "doctorclient.h"
 #include "backend.h"
+#include "loginpanel.h"
 #include "uicontroller.h"
 
 #include <QApplication>
@@ -23,7 +24,7 @@ Engine::Engine(QObject *parent) : QObject(parent)
                      this, &Engine::onLoginSuccessPatient);
 }
 
-void Engine::startApplicationFlow()
+void Engine::startEngine()
 {
     if (m_mainWindow != nullptr)
     {
@@ -31,37 +32,33 @@ void Engine::startApplicationFlow()
         delete m_mainWindow;
         m_mainWindow = nullptr;
     }
+    m_chooseRole = new ChooseRole;
+    m_chooseRole->exec();
+}
 
+void Engine::runLoginPanel(int userType)
+{
     LoginPanel* loginPanel = new LoginPanel;
-
-    // 连接 LoginPanel 的 rejected 信号到退出应用程序
-    QObject::connect(loginPanel, &QDialog::rejected, &QApplication::quit);
-
-    // 显示登录对话框，并等待其结果。
-    // 如果 LoginPanel 接收到 UiController 的成功信号，它会调用 accept()。
-    // 如果用户点击取消，它会调用 reject()。
-    int result = loginPanel->exec();
-
-    delete loginPanel; // 登录对话框完成后即可删除
-
-    // 如果 m_mainWindow 在 onLoginSuccess* 槽中被成功设置，则显示它
-    if (m_mainWindow)
+    loginPanel->buildByRole(userType);
+    if (loginPanel->exec() == QDialog::Accepted)
     {
-        m_mainWindow->setAttribute(Qt::WA_DeleteOnClose);
-        m_mainWindow->show();
-    }
-    else
-    {
-        // 如果登录对话框被接受（即调用了 accept()），但 m_mainWindow 却没有被设置，
-        // 这通常表示一个内部错误或者逻辑不符预期。
-        // 或者用户拒绝了登录对话框，导致应用程序退出。
-        qDebug() << "Application flow ended without main window. Login failed or cancelled.";
-        // 如果 LoginPanel 被接受但没有主窗口（不应该发生），或者 LoginPanel 被拒绝
-        // 且 QApplication::quit() 没有被调用，则在这里强制退出。
-        // 实际上，如果 rejected，QApplication::quit() 已经连接并会执行。
-        // 这里的 else 分支主要捕获的是 LoginPanel 接受了但 Engine 没能创建主窗口的异常情况。
-        if (result == QDialog::Accepted) { // LoginPanel 被接受，但主窗口未创建
-             QApplication::quit();
+        m_chooseRole->accept();
+        switch(userType)
+        {
+            case 0:
+                m_mainWindow = new PatientClient;
+                break;
+            case 1:
+                m_mainWindow = new DoctorClient;
+                break;
+            case 2:
+                m_mainWindow = new Backend;
+                break;
+        }
+        if (m_mainWindow)
+        {
+            m_mainWindow->setAttribute(Qt::WA_DeleteOnClose);
+            m_mainWindow->show();
         }
     }
 }

@@ -88,32 +88,6 @@
      <item row="3" column="1">
       <widget class="QLineEdit" name="ConfirmPasswordEdit"/>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>用户身份</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QComboBox" name="RoleComboBox">
-       <item>
-        <property name="text">
-         <string>医生</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>病患</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>管理员</string>
-        </property>
-       </item>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>

@@ -3,6 +3,7 @@
 #include "registerpanel.h"
 #include "uicontroller.h"
 #include "resetpwd.h"
+#include "engine.h"
 #include <QMessageBox>
 
 LoginPanel::LoginPanel(QWidget *parent) :
@@ -13,13 +14,8 @@ LoginPanel::LoginPanel(QWidget *parent) :
     connect(ui->LoginBtn, &QPushButton::clicked, this, &LoginPanel::handleLogin);
     connect(ui->RegisterBtn, &QPushButton::clicked, this, &LoginPanel::userRegister);
     connect(ui->forgetPwdBtn, &QPushButton::clicked, this, &LoginPanel::forgetPwd);
-    
-    // 连接UiController的登录信号
-    UiController& controller = UiController::get();
-    connect(&controller, &UiController::loginSuccessAdmin, this, &LoginPanel::accept);
-    connect(&controller, &UiController::loginSuccessDoctor, this, &LoginPanel::accept);
-    connect(&controller, &UiController::loginSuccessPatient, this, &LoginPanel::accept);
-    connect(&controller, &UiController::loginFailed, this, &LoginPanel::onLoginFailed);
+    connect(this, &LoginPanel::loginSuccessful, this, &LoginPanel::accept);
+    connect(ui->chooseRoleBtn, &QPushButton::clicked, this, &LoginPanel::reject);
 }
 
 LoginPanel::~LoginPanel()
@@ -67,7 +63,29 @@ void LoginPanel::onLoginFailed(const QString &reason)
     QMessageBox::warning(this, tr("登录失败"), reason);
 }
 
-int LoginPanel::getMainWindowType()
+void LoginPanel::buildByRole(int userRole)
 {
-    return ui->roleInput->currentIndex();
+    switch (userRole)
+    {
+    case 0: // 患者身份登录
+    {
+        ui->HeaderLabel->setText("患者登录");
+        ui->userIdentity->setText("邮箱");
+        break;
+    }
+    case 1: // 医生身份登录
+    {
+        ui->HeaderLabel->setText("医生登录");
+        ui->userIdentity->setText("工号");
+        ui->RegisterBtn->hide();
+        break;
+    }
+    case 2: // 后端管理员身份登录
+    {
+        ui->HeaderLabel->setText("管理员登录");
+        ui->userIdentity->setText("管理员号");
+        ui->RegisterBtn->hide();
+        break;
+    }
+    }
 }

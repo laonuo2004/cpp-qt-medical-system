@@ -26,6 +26,15 @@ signals:
 public:
     explicit LoginPanel(QWidget *parent = nullptr);
     int getMainWindowType();
+
+    /**
+     * @brief 根据用户角色构建界面
+     *
+     * 根据用户选择的身份，动态调整界面中的文字提示。
+     * 如医生、管理员的界面没有注册按钮。
+     */
+    void buildByRole(int userRole);
+
     ~LoginPanel();
 
 protected:
@@ -44,10 +53,6 @@ protected:
      */
     void handleLogin();
 
-    /**
-     * @brief 处理登录失败
-     */
-    void onLoginFailed(const QString &reason);
 
 private:
     Ui::LoginPanel *ui;

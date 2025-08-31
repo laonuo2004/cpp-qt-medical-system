@@ -52,6 +52,68 @@ QPushButton:disabled {
     color: #e9ecef;
 }
 
+QPushButton#SignInBtn {
+    min-width: 200px;
+    min-height: 200px;
+    max-width: 200px;
+    max-height: 200px;
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 #1E90FF, stop:1 #00BFFF);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 100px;
+    padding: 0;
+    outline: none;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+QPushButton#SignInBtn:hover {
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 #187bcd, stop:1 #009acd);
+}
+
+QPushButton#SignInBtn:pressed {
+    background-color: #004085;
+}
+
+QPushButton#SignInBtn:disabled {
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 #B0E0E6, stop:1 #ADD8E6);
+    border: 1px solid #a0c7ff;
+    color: #6c757d;
+}
+
+QPushButton#SignOutBtn {
+    min-width: 200px;
+    min-height: 200px;
+    max-width: 200px;
+    max-height: 200px;
+    
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, 
+                                    stop:0 #FF4757, stop:1 #FF6B81);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 100px;  
+    padding: 0;          
+    outline: none;
+    
+    font-size: 18px;
+    font-weight: bold;
+}
+
+QPushButton#SignOutBtn:hover {
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, 
+                                    stop:0 #E84118, stop:1 #ED4C67);
+}
+
+QPushButton#SignOutBtn:pressed {
+    background-color: #C23616;
+}
+
+QPushButton#SignOutBtn:disabled {
+    background-color: #FFA8A8;
+    border: 1px solid #FFCECECE;
+    color: #FFFFFF;
+}
+
 QPushButton.toolbox {
     background-color: #007BFF;
     color: #FFFFFF;
@@ -80,17 +142,17 @@ QPushButton.toolbox:disabled {
 }
 
 QPushButton.sidebar-btn {
-    background-color: #A0AAB2;
+    background-color: #5A6C7D;   
     color: #FFFFFF;
     border-radius: 0px;
 }
 
 QPushButton.sidebar-btn:hover {
-    background-color: #8C99A3;
+    background-color: #4A5A6A;   
 }
 
 QPushButton.sidebar-btn:pressed {
-    background-color: #6D7A84;
+    background-color: #3A4A58;   
 }
 
 QPushButton.special-btn {

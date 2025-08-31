@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/img">
         <file>picture/DefaultPhoto.jpg</file>
+        <file>picture/patientAvatar.png</file>
+        <file>picture/doctorAvatar.png</file>
     </qresource>
     <qresource prefix="/style">
         <file>picture/medicaltheme.qss</file>
