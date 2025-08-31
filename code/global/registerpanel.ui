@@ -51,12 +51,12 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>邮箱</string>
+        <string>用户名</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="UserNameInput"/>
+      <widget class="QLineEdit" name="UserNameEdit"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
@@ -66,27 +66,37 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="PwdInput"/>
+      <widget class="QLineEdit" name="PasswordEdit"/>
      </item>
      <item row="2" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>邮箱</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="EmailEdit"/>
+     </item>
+     <item row="3" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
         <string>确认密码</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="PwdInput_2"/>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="ConfirmPasswordEdit"/>
      </item>
-     <item row="3" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>用户身份</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QComboBox" name="RoleInput">
+     <item row="4" column="1">
+      <widget class="QComboBox" name="RoleComboBox">
        <item>
         <property name="text">
          <string>医生</string>
@@ -103,16 +113,6 @@
         </property>
        </item>
       </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>邮箱</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="EmailInput"/>
      </item>
     </layout>
    </item>

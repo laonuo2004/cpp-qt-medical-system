@@ -17,12 +17,12 @@ RegisterPanel::RegisterPanel(QWidget *parent) :
                      this, &RegisterPanel::handleRegistrationFailed);
     
     // 清空现有项目 (可选)
-    ui->RoleInput->clear();
+    ui->RoleComboBox->clear();
     
     // 添加角色选项并设置自定义数据
-    ui->RoleInput->addItem("管理员", QVariant::fromValue(UserRole::Admin));
-    ui->RoleInput->addItem("医生", QVariant::fromValue(UserRole::Doctor));
-    ui->RoleInput->addItem("患者", QVariant::fromValue(UserRole::Patient));
+    ui->RoleComboBox->addItem("管理员", QVariant::fromValue(UserRole::Admin));
+    ui->RoleComboBox->addItem("医生", QVariant::fromValue(UserRole::Doctor));
+    ui->RoleComboBox->addItem("患者", QVariant::fromValue(UserRole::Patient));
 }
 
 RegisterPanel::~RegisterPanel()
@@ -38,11 +38,11 @@ void RegisterPanel::handleRegister()
 
 void RegisterPanel::on_buttonBox_accepted()
 {
-    QString username = ui->UserNameInput->text();
-    QString email = ui->EmailInput->text();
-    QString password = ui->PwdInput->text();
+    QString username = ui->UserNameEdit->text();
+    QString email = ui->EmailEdit->text();
+    QString password = ui->PasswordEdit->text();
     // 从 QComboBox 中获取当前选中项的自定义数据
-    QVariant selectedRoleData = ui->RoleInput->currentData();
+    QVariant selectedRoleData = ui->RoleComboBox->currentData();
 
     // 检查是否成功获取到数据，并尝试转换为 UserRole
     if (selectedRoleData.isValid() && selectedRoleData.canConvert<UserRole>())
