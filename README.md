@@ -10,8 +10,26 @@
 4. [架构设计与接口约定](#4-架构设计与接口约定)
 5. [初步时间计划](#5-初步时间计划)
 6. [开发规范](#6-开发规范)
-7. [尚待讨论的问题](#7-尚待讨论的问题)
-8. [可供参考的资料](#8-可供参考的资料)
+7. [可供参考的资料](#7-可供参考的资料)
+
+---
+
+## 0. TODO
+
+> 随时更新需要处理的事务
+
+### 📅 8/30
+
+1. [ ] 当前的项目中，数据库尚且存放在本地，无法实现数据共享，需要更改为 C/S 架构，将数据库转移到服务器端
+2. [ ] 黄奕晨的模块需要修改以集成到现有代码当中，当前还是独立的部分，在各方面与当前代码不兼容
+
+### 📅 8/31
+
+1. [ ] 更新了[架构图](#31-总体模块视图)，主要是添加了服务器端和网络通信层部分，尚待实现。实现思路：
+   - 将 databaseManager 迁移到服务器端，可以直接复用原有的代码
+   - 在 databaseManager 与 uiController 之间新增一个 networkManager 模块，用于处理网络通信。使用 TCP 通信，使用 JSON 数据格式。客户端与服务器端均需要添加相关模块来处理信息收发与处理
+   - 修改 databaseManager, uiController 与 networkManager 的接口，在此之前两者之间是直接调用，现在需要通过 networkManager 来调用
+2. [ ] 补充科室的表格，医生表的科室变成外键
 
 ---
 
@@ -64,89 +82,137 @@
 ### 3.1 总体模块视图
 
 ```mermaid
-graph TD
-    %% --- Actors: 定义用户角色 ---
-    subgraph "Actors"
+graph TB
+    %% === 用户角色层 ===
+    subgraph "👥 Actors / 用户角色"
         direction LR
-        Doctor(fa:fa-user-doctor Doctor)
-        Patient(fa:fa-user Patient)
-        Admin(fa:fa-user-shield Admin)
+        Doctor["👨‍⚕️ Doctor<br/>医生"]
+        Patient["🤒 Patient<br/>患者"] 
+        Admin["👨‍💼 Admin<br/>管理员"]
     end
 
-    %% --- Application Architecture: 整个应用的核心结构 ---
-    subgraph "Application Architecture"
+    %% === 客户端架构 ===
+    subgraph "💻 Client Side / 客户端"
         direction TB
-
-        %% 1. UI Layer: 更具体的界面划分
-        subgraph "1.用户界面 (UI Layer)"
-            direction LR
-            LoginUI["登录 / 注册 UI"]
-            PatientUI["患者主界面"]
-            DoctorUI["医生主界面"]
-            AdminUI["后台管理界面"]
-        end
-
-        %% 2. Business Logic Layer: 核心控制器，保持不变
-        subgraph "2.业务逻辑层 (Business Logic)"
-            Controller{"UiController (核心控制器)"}
-        end
-
-        %% 3. Backend Layers: 功能模块和数据访问
-        subgraph "3.后端服务 (Backend Services)"
-            direction LR
+        
+        subgraph "🖼️ View Layer / 视图层"
+            direction TB
+            Engine["⚙️ Engine<br/>引擎管理器"]
+            LoginPanel["🔐 LoginPanel<br/>登录/注册界面"]
             
-            subgraph "功能模块 (Feature Modules)"
-                direction TB
-                ChatModule["医患聊天模块"]
-                AnalysisModule["数据分析模块"]
-                TemplateModule["病历模板模块"]
-            end
-            
-            subgraph "数据访问层 (Data Access)"
-                direction TB
-                DBModule["Database Module (SQLite)"]
+            subgraph "🏥 Main Windows / 主窗口"
+                direction LR
+                PatientClient["🤒 PatientClient<br/>患者端主窗口"]
+                DoctorClient["👨‍⚕️ DoctorClient<br/>医生端主窗口"] 
+                Backend["👨‍💼 Backend<br/>管理员端主窗口"]
             end
         end
-
-        %% 4. Data Models: 体现数据库产出的信息
-        subgraph "4.数据模型 / 表 (Data Models / Tables)"
-            direction LR
-            UserInfo["用户信息"]
-            MedicalRecords["病历信息"]
-            Appointments["预约信息"]
+        
+        subgraph "🎮 Controller Layer / 控制器层"
+            UiController["🎯 UiController<br/>核心业务控制器<br/>"]
+            
+            subgraph "🧩 Feature Modules / 功能模块"
+                direction LR
+                ChatModule["💬 医患聊天模块"]
+                AnalysisModule["📊 数据分析模块"]
+                TemplateModule["📋 病历模板模块"]
+                PaymentModule["💳 支付模块"]
+            end
         end
-
+        
+        subgraph "🗃️ Model Layer / 模型层"
+            direction LR
+            NetworkManager-Client["🌐 NetworkManager-Client<br/>客户端网络通信管理器<br/>"]
+        end
     end
 
-    %% --- Connections: 定义流程和依赖关系 ---
-    Doctor & Patient & Admin --> LoginUI
-    LoginUI --> Controller
-    PatientUI --> Controller
-    DoctorUI --> Controller
-    AdminUI --> Controller
-    
-    Controller --> ChatModule
-    Controller --> AnalysisModule
-    Controller --> TemplateModule
-    
-    Controller <--> DBModule
-    
-    DBModule -- Manages --> UserInfo
-    DBModule -- Manages --> MedicalRecords
-    DBModule -- Manages --> Appointments
+    %% === 网络通信层 ===
+    subgraph "🌐 Network / 网络通信"
+        direction TB
+        TcpComm["🔌 TCP Socket<br/>TCP通信"]
+        JsonProtocol["📦 JSON Protocol<br/>JSON协议"]
+    end
 
-    %% --- Styling ---
-    style Doctor fill:#d4edda,stroke:#155724
-    style Patient fill:#d1ecf1,stroke:#0c5460
-    style Admin fill:#f8d7da,stroke:#721c24
-    classDef ui fill:#cce5ff,stroke:#004085
-    classDef logic fill:#fff3cd,stroke:#856404
-    classDef feature fill:#e2e3e5,stroke:#383d41
-    classDef data fill:#d4edda,stroke:#155724
-    class LoginUI,PatientUI,DoctorUI,AdminUI ui
-    class Controller logic
-    class ChatModule,AnalysisModule,TemplateModule feature
-    class DBModule,UserInfo,MedicalRecords,Appointments data
+    %% === 简化服务器端架构 ===
+    subgraph "🖥️ Server Side / 服务器端"
+        direction TB
+        
+        NetworkManager-Server["🚀 NetworkManager-Server<br/>服务器网络通信管理器<br/>(监听+分发)"]
+        
+        DatabaseManager["🗄️ DatabaseManager<br/>数据库管理器"]
+        
+        subgraph "🗃️ SQLite Database / 数据库"
+            direction LR
+            UsersTbl["👤 用户表"]
+            PatientsTbl["🤒 患者表"]
+            DoctorsTbl["👨‍⚕️ 医生表"]
+            AppointmentsTbl["📅 预约表"]
+            MedicalTbl["📋 病历表"]
+            ChatTbl["💬 聊天记录表"]
+        end
+    end
+
+    %% === 连接关系 ===
+    
+    %% 用户与界面
+    Doctor --> LoginPanel
+    Patient --> LoginPanel  
+    Admin --> LoginPanel
+    
+    %% 应用程序流程
+    Engine --> LoginPanel
+    Engine --> PatientClient
+    Engine --> DoctorClient
+    Engine --> Backend
+    
+    %% MVC 内部关系
+    LoginPanel -.-> UiController
+    PatientClient -.-> UiController
+    DoctorClient -.-> UiController
+    Backend -.-> UiController
+    
+    UiController --> ChatModule
+    UiController --> AnalysisModule
+    UiController --> TemplateModule
+    UiController --> PaymentModule
+    
+    %% 数据访问
+    UiController ==> NetworkManager-Client
+    
+    %% 客户端-服务器通信
+    NetworkManager-Client <-->|"📡 TCP请求/响应"| TcpComm
+    TcpComm <-->|"📦 JSON数据"| JsonProtocol
+    JsonProtocol <-->|"🔗 分发"| NetworkManager-Server
+    
+    %% 服务器内部
+    NetworkManager-Server ==> DatabaseManager
+    
+    %% 数据库关系
+    DatabaseManager --> UsersTbl
+    DatabaseManager --> PatientsTbl
+    DatabaseManager --> DoctorsTbl
+    DatabaseManager --> AppointmentsTbl
+    DatabaseManager --> MedicalTbl
+    DatabaseManager --> ChatTbl
+
+    %% === 样式定义 ===
+    classDef actor fill:#e3f2fd,stroke:#1976d2,color:#000,stroke-width:2px
+    classDef view fill:#e8f5e8,stroke:#388e3c,color:#000,stroke-width:2px
+    classDef controller fill:#fff3e0,stroke:#f57c00,color:#000,stroke-width:2px
+    classDef model fill:#fce4ec,stroke:#c2185b,color:#000,stroke-width:2px
+    classDef network fill:#e0f2f1,stroke:#00796b,color:#000,stroke-width:2px
+    classDef server fill:#e3f2fd,stroke:#0d47a1,color:#000,stroke-width:2px
+    classDef database fill:#fff8e1,stroke:#ffa000,color:#000,stroke-width:2px
+    classDef reuse fill:#c8e6c9,stroke:#2e7d32,color:#000,stroke-width:3px
+
+    class Doctor,Patient,Admin actor
+    class Engine,LoginPanel,PatientClient,DoctorClient,Backend view
+    class UiController,ChatModule,AnalysisModule,TemplateModule,PaymentModule controller
+    class NetworkManager-Client model
+    class TcpComm,JsonProtocol network
+    class NetworkManager-Server server
+    class UsersTbl,PatientsTbl,DoctorsTbl,AppointmentsTbl,MedicalTbl,ChatTbl database
+    class DatabaseManager reuse
 ```
 
 ### 3.2 详细任务分配表
@@ -162,6 +228,7 @@ graph TD
 | **用户与账户** | 1. **注册后端:** 校验邮箱唯一性，密码加密存储，创建新用户。 <br> 2. **登录后端:** 验证用户凭据，返回登录状态和用户信息。 <br> 3. **密码策略:** 实现密码复杂度校验逻辑。 <br> 4. **找回密码后端:** 处理邮箱/验证码验证逻辑。 | 1 (后端), 2 (后端), 29, 30 (后端) |
 | **业务逻辑** | 1. **个人信息后端:** 提供接口以更新和获取用户（医/患）的详细信息。 <br> 2. **挂号预约后端:** 处理挂号请求，校验医生排班，原子化更新预约数。 <br> 3. **病历/医嘱后端:** 提供接口以创建、查询和更新病历、医嘱、处方。 <br> 4. **预约提醒后端:** 提供接口查询用户24小时内的预约。 | 3 (后端), 4 (后端), 5 (后端), 6, 7, 8, 9, 14, 15, 16 (后端), 32, 33 (后端), 34 |
 | **管理员模块** | 1. **后台接口:** 实现对所有用户的增、删、改、查管理接口。 | 45 (后端) |
+| **服务器模块 (新增)** | 参考 [TODO](#-831) 当中的说明 | 新增模块 |
 
 #### 🎨 **胡艺镭 (前端 & UI 主力)**
 
@@ -178,7 +245,7 @@ graph TD
 
 | 职责分类 | 详细任务 | 相关需求 ID |
 | :--- | :--- | :--- |
-| **医患沟通** | 1. **聊天逻辑:** 实现`ChatMessage`数据结构，以及通过`UiController`发送和接收消息的逻辑。 <br> 2. **聊天UI集成:** 与周鑫协作，将聊天逻辑嵌入到聊天窗口UI中，实现消息的实时显示。 <br> 3. **语音识别:** 实现调用系统API或一个简单的模拟功能，将语音输入转换为文字并填入输入框。 | 10, 43, 44 |
+| **医患沟通** | 1. **聊天逻辑:** 实现`ChatMessage`数据结构，以及通过`UiController`发送和接收消息的逻辑。 <br> 2. **聊天UI集成:** 与胡艺镭协作，将聊天逻辑嵌入到聊天窗口UI中，实现消息的实时显示。 <br> 3. **语音识别:** 实现调用系统API或一个简单的模拟功能，将语音输入转换为文字并填入输入框。 | 10, 43, 44 |
 | **数据分析** | 1. **图表生成:** 使用Qt Charts或其他方式，获取`UiController`提供的数据，并动态生成基础数据分析图表（如折线图）。 <br> 2. **远端数据采集:** **模拟**一个智能心电仪API调用，获取预设的JSON或XML数据，并进行解析和分析。 | 35, 36 |
 | **效率功能** | 1. **药品搜索:** 实现一个本地药品搜索功能，根据用户输入在预设的药品列表中进行筛选并展示结果。 <br> 2. **病历模板:** 实现调用`UiController`接口获取病历模板，并将其内容填充到当前病历编辑界面的逻辑。 | 12, 42 |
 | **支付模块** | 1. **线上支付:** **模拟**微信支付流程。点击支付后，显示一个二维码图片，并提供一个“我已支付”按钮来模拟回调，以继续流程。 | 13 |
@@ -204,16 +271,45 @@ graph TD
 
 详情请参考[另外一个文档](./ER.md)
 
-### 4.2 核心架构与数据模型
+### 4.2 新架构核心设计
 
-- 我们将采用一个**单例**的 `UiController` 类作为前后端交互的唯一入口，以实现逻辑解耦。
-- 前后端之间的数据传递将通过**自定义的C++类/结构体**完成（例如 `PatientInfo`, `AppointmentDetails`），而不是通用的 `QVariantMap`。
-- **【待讨论】** 我们需要定义这些数据模型类的具体成员。
+基于改进后的架构图，系统采用**三层架构**设计：
 
-### 4.3 前后端接口约定 (`UiController.h`)
+#### 🏗️ **C/S架构设计**
+- **客户端 (Client Side)**: 包含完整的MVC架构，负责用户界面和业务逻辑处理
+- **网络通信层 (Network Communication)**: 实现TCP/IP通信协议和数据传输
+- **服务器端 (Server Side)**: 独立的服务器应用，负责业务逻辑和数据存储
 
-- **【待讨论】** 我们需要定义 `UiController` 类的**所有公开接口**，包括函数签名、参数和返回值。
-- **【待讨论】** 我们需要确定需要哪些 **Qt信号** 来实现从后端到前端的异步通知（例如，新消息提醒）。
+#### ⚙️ **核心组件**
+- **Engine引擎**: 单例模式的应用程序管理器，负责窗口生命周期和系统启动
+- **UiController**: 单例模式的业务控制器，客户端逻辑的唯一入口
+- **DatabaseManager**: 单例模式的数据访问层，适配C/S架构
+- **NetworkManager**: 网络通信管理器，处理客户端-服务器通信
+
+#### 🎯 **MVC架构实现**
+- **Model层**: DatabaseManager + NetworkManager，负责数据访问和网络通信
+- **View层**: 所有UI组件，包括主窗口、子页面和功能界面
+- **Controller层**: UiController + 各功能模块，处理业务逻辑和用户交互
+
+### 4.3 接口约定与通信协议
+
+#### 📡 **网络通信协议**
+- **传输协议**: TCP/IP Socket通信
+- **数据格式**: JSON格式的标准化数据包
+- **认证机制**: 基于Token的会话管理
+- **错误处理**: 标准化的错误码和异常处理机制
+
+#### 🔗 **接口设计原则**
+- **UiController接口**: 所有业务逻辑通过UiController单例访问
+- **异步通信**: 所有网络请求采用异步模式，避免UI阻塞
+- **信号槽机制**: 使用Qt信号槽实现组件间的松耦合通信
+- **数据传递**: 使用 `QVariantMap`, `QVariantList` 等通用数据结构
+
+#### 🛠️ **开发协作约定**
+- **后端接口**: **周鑫** 负责所有UiController接口的设计和实现
+- **UI集成**: **胡艺镭** 负责UI与控制器的信号槽连接
+- **功能模块**: **黄奕晨** 负责功能模块与UiController的接口对接
+- **测试规范**: 所有接口变更需要通过代码审查和集成测试
 
 ---
 
@@ -252,11 +348,12 @@ gantt
 - **分支命名:**
   - 功能开发: `feature/user-login` 或 `feat/chat-module`
   - Bug修复: `fix/login-crash`
+  - ......
 - **提交信息:**
   - 尽量遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范。格式: `<type>: <subject>`
 - **合并流程:**
   - 禁止直接 `push` 到 `main` 分支，容易导致代码冲突。
-  - 所有代码通过 **Pull Request (PR)** 合并，需要 **左逸龙** 或 **胡艺镭** 进行 **Code Review**。
+  - 所有代码通过 **Pull Request (PR)** 合并，需要至少一人进行 **Code Review**。
 
 ### 6.2 代码风格
 
@@ -264,39 +361,39 @@ gantt
   - 类名: `UpperCamelCase` (e.g., `PatientModel`)
   - 函数/变量名: `lowerCamelCase` (e.g., `getUserName`)
   - 私有成员变量: 加 `m_` 前缀 (e.g., `m_userName`)
-- 其他规范可以后续补充
+  - 命名规范，含义清晰
+- **缩进规范**
+  - 统一采用 `Allman Style`，主要是左大括号需要下放到下一行
+  - 统一使用四个空格的缩进长度，如果 `Tab` 缩进长度不同的可能需要调整一下
+- **注释要求**
+  - **复杂的布局、逻辑部分**需要有注释进行适当解释
+  - **别人需要用到的函数与方法**需要给出清晰的注释说明，例如函数功能、需要怎样的参数、返回值是什么等等
+- **其他的规范可以后续继续补充**
 
 ---
 
-## 7. 尚待讨论的问题
+## 7. 可供参考的资料
 
-1.  **数据库设计:**
-    - 需要哪些数据表？（可能的表：`Users`, `Patients`, `Doctors`, `Appointments`, `MedicalRecords`, `Prescriptions`, `ChatMessages`, `CaseTemplates`, `Attendance`）
-    - 每张表的具体字段、数据类型和约束是什么？
-    - 表之间的主外键关系如何建立？
-
-2.  **数据模型设计:**
-    - 需要定义哪些C++类/结构体来在前后端传递数据？(e.g., `UserInfo`, `AppointmentInfo`, `MessageData`)
-    - 每个类的成员变量有哪些？
-
-3.  **核心接口 `UiController.h` 设计:**
-    - 需要哪些公开函数（槽）来响应前端请求？
-    - 需要哪些信号来通知前端后台状态变化？
-
-4.  **三方库依赖:**
-    - 除了Qt自带模块，是否需要引入任何第三方库？
-
----
-
-## 8. 可供参考的资料
-
-> 有的代码可以直接照抄过来，尤其是聊天相关的代码，前人有较多具体实现。
+> 有的代码可以直接照抄过来，前人有较多具体实现。
 
 - [一个同样也是 Qt + Cpp 开发的医院管理系统，推荐参考](https://github.com/OmerJauhar/Hospital-Management-System-HMS-QT-Software-OOP-C-)
 - [使用 Qt + Cpp 开发的实时聊天系统，推荐参考](https://github.com/vRFEducation/qtchatapplication)
-- 往年学长学姐们的项目 (之前的项目有所区别，不过也可以参考)：
-  - [22级车载系统，含有聊天模块，可以参考其他文档攥写](https://github.com/YYT-0901/CS-BIT-INFORMATION/tree/master/5semester%20%E5%A4%A7%E4%B8%89%E4%B8%8A/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%93%E4%B8%9A%E5%9F%BA%E7%A1%80%E5%AE%9E%E4%B9%A0)
-  - [同样也是车载系统](https://github.com/xChang1021x/BIT/tree/main/Y3S1/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%93%E4%B8%9A%E5%9F%BA%E7%A1%80%E5%AE%9E%E4%B9%A0)
-  - 更早一些的时候，单纯只用做一个聊天软件，基本都采用 [Client](https://github.com/muxinyu1/q-chater-client) + [Server](https://github.com/muxinyu1/q-chater-server) 的架构
-  - 同样只做聊天软件：[Client](https://github.com/loujuch/client) + [Server](https://github.com/loujuch/server)
-  - 同样只做聊天软件：[Client+Server](https://github.com/zx1316/linpop-lan-im)
+- 23级其他组正在进行当中的项目：
+  - [同样也是医疗系统，流程图画得比较清晰，可以参考](https://github.com/xialinguo/hospital)
+  - [工业现场远程专家支持系统，代码写得很快，我们可以参考文档、编码流程等部分](https://github.com/wyyalhz/RemoteExpert)
+  - [软工专业的，看仓库命名也像是医疗系统，不知道具体要求有没有不同](https://github.com/wdyy20041223/smart_medical_care)
+  - [目前为空，等待后续动作](https://github.com/Dingnuooo/bit2025xxq)
+- 往年学长学姐们的项目：
+  - 医疗系统 (**⚠️需要重点关注⚠️**)：
+    - [观察历史记录，可以看出开发了较长的时间，最终代码质量也较好，尤其是向聊天系统当中加入 AI 聊天的部分值得借鉴](https://github.com/BottleOfErie/SmartHospital)
+    - [在代码架构、 UI 设计等方面均可参考](https://github.com/danielpfeiffer123/Smart_Healthcare_System)
+    - [使用了 qml 来设计 UI，可以参考](https://github.com/Garryyangck/BIT-qt-medical)
+  - 车载系统 (22级)：
+    - [含有聊天模块，可以参考其他文档的攥写](https://github.com/YYT-0901/CS-BIT-INFORMATION/tree/master/5semester%20%E5%A4%A7%E4%B8%89%E4%B8%8A/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%93%E4%B8%9A%E5%9F%BA%E7%A1%80%E5%AE%9E%E4%B9%A0)
+    - [同样也是车载系统](https://github.com/xChang1021x/BIT/tree/main/Y3S1/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%93%E4%B8%9A%E5%9F%BA%E7%A1%80%E5%AE%9E%E4%B9%A0)
+    - [同样也是车载系统，文档写得比较详细](https://github.com/bit-angi/CarCentralSys)
+    - [同样也是车载系统](https://github.com/paomian2333/carControl)
+  - 通讯系统 (更早一些的)：
+    - [Client](https://github.com/muxinyu1/q-chater-client) + [Server](https://github.com/muxinyu1/q-chater-server) 的架构
+    - [Client](https://github.com/loujuch/client) + [Server](https://github.com/loujuch/server)
+    - [Client+Server](https://github.com/zx1316/linpop-lan-im)

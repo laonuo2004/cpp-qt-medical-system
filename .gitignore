@@ -40,6 +40,10 @@
 # debug information files
 *.dwo
 
+# Qt related
+build*/
+*.pro.user
+
 # other
 .specstory
 .cursorindexingignore

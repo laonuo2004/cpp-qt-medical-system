@@ -3,6 +3,8 @@
 #include <QDateTime> // 用于验证码的过期时间（可选，但推荐）
 
 // --- 辅助函数实现 ---
+bool UiController::ensureDbConnected(const char* where)
+{
     if (!DatabaseManager::instance().isConnected())
     {
         qCritical() << "数据库未连接，位置：" << where;

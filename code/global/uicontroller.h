@@ -21,6 +21,12 @@ class UiController : public QObject
 public:
     explicit UiController(QObject *parent = nullptr);
 
+    static UiController& get()
+    {
+        static UiController instance;
+        return instance;
+    }
+
     // --- 1. 认证和用户管理后端 ---
     
     /**
@@ -561,7 +567,6 @@ signals:
     void drugSearchResultReady(const QVariantList &drugs);
     void drugDetailsReady(const QVariantMap &details);
     void drugOperationFailed(const QString &reason);
-
 };
 
 #endif // UICONTROLLER_H

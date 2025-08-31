@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlError>
+#include <QDate>
 #include <QString>
 #include <map>
 #include <vector>

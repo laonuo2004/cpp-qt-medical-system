@@ -16,56 +16,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    apiget.cpp \
-    basicfunc.cpp \
-    chatfunc.cpp \
-    chattool.cpp \
-    doctorchattool.cpp \
-    linechartwidget.cpp \
-    main.cpp \
-    medicinesearch.cpp \
-    patientchattool.cpp \
-    payfail.cpp \
-    payfunc.cpp \
-    payonline.cpp \
-    paypage.cpp \
-    paysuccess.cpp \
-    uicontroller.cpp \
-    widget.cpp
+    main.cpp
 
-HEADERS += \
-    apiget.h \
-    basicfunc.h \
-    chatfunc.h \
-    chattool.h \
-    doctorchattool.h \
-    linechartwidget.h \
-    medicinesearch.h \
-    patientchattool.h \
-    payfail.h \
-    payfunc.h \
-    payonline.h \
-    paypage.h \
-    paysuccess.h \
-    uicontroller.h \
-    widget.h
+INCLUDEPATH += \
+    $$PWD/doctor \
+    $$PWD/patient \
+    $$PWD/backend \
+    $$PWD/global
 
-FORMS += \
-    apiget.ui \
-    basicfunc.ui \
-    chatfunc.ui \
-    chattool.ui \
-    doctorchattool.ui \
-    linechartwidget.ui \
-    medicinesearch.ui \
-    patientchattool.ui \
-    payfail.ui \
-    payfunc.ui \
-    payonline.ui \
-    paypage.ui \
-    paysuccess.ui \
-    uicontroller.ui \
-    widget.ui
+include ($$PWD/doctor/doctor.pri)
+include ($$PWD/patient/patient.pri)
+include ($$PWD/backend/backend.pri)
+include ($$PWD/global/global.pri)
 
 TRANSLATIONS += \
     SmartMedical_zh_CN.ts
@@ -77,3 +39,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     QRcode.qrc
+    res.qrc
+
