@@ -21,7 +21,7 @@ class LeaveForm : public QDialog
     Q_OBJECT
 
 public:
-    explicit LeaveForm(QWidget *parent = nullptr);
+    explicit LeaveForm(QWidget *parent = nullptr, int doctorId = 0);
 
     /**
      * @brief 返回表单中填写的请假信息
@@ -33,10 +33,15 @@ public:
      * @param leaveMsg 请假信息的输出参数，保存格式化后的请假信息。
      */
     void getLeaveMsg(QString& leaveMsg);
+
     ~LeaveForm();
+
+protected:
+    void submit();
 
 private:
     Ui::LeaveForm *ui;
+    int m_doctorId;
 };
 
 #endif // LEAVEFORM_H

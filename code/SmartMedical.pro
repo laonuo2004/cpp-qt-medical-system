@@ -22,12 +22,14 @@ INCLUDEPATH += \
     $$PWD/doctor \
     $$PWD/patient \
     $$PWD/backend \
-    $$PWD/global
+    $$PWD/global \
+    $$PWD/module
 
 include ($$PWD/doctor/doctor.pri)
 include ($$PWD/patient/patient.pri)
 include ($$PWD/backend/backend.pri)
 include ($$PWD/global/global.pri)
+include ($$PWD/module/module.pri)
 
 TRANSLATIONS += \
     SmartMedical_zh_CN.ts

@@ -2,6 +2,7 @@
 #define DOCTORCARD_H
 
 #include <QWidget>
+#include <QVariant>
 
 namespace Ui {
 class DoctorCard;
@@ -23,6 +24,8 @@ public:
     explicit DoctorCard(QWidget *parent = nullptr);
     ~DoctorCard();
 
+    void buildUpDoctorCard(QVariantMap& doctorInfo);
+
 protected:
     /**
      * @brief 打开细节面板
@@ -34,6 +37,7 @@ protected:
 
 private:
     Ui::DoctorCard *ui;
+    QVariantMap m_doctorInfo;
 };
 
 #endif // DOCTORCARD_H

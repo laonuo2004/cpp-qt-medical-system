@@ -27,7 +27,7 @@ void RegisterPanel::handleRegister()
     QString email = ui->EmailEdit->text();
     QString password = ui->PasswordEdit->text();
     // 从 QComboBox 中获取当前选中项的自定义数据
-    m_controller.registerUser(username, email, password, UserRole::Patient);
+    m_controller.registerUser(email, password, UserRole::Patient);
 }
 
 // 槽函数：处理注册成功

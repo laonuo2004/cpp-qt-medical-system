@@ -1,5 +1,6 @@
 #include "editpatientinfo.h"
 #include "ui_editpatientinfo.h"
+#include "uicontroller.h"
 
 #include <QFileDialog>
 

@@ -44,6 +44,7 @@ public:
 
 private:
     Ui::LeaveRecord *ui;
+    int m_requestId;
 };
 
 #endif // LEAVERECORD_H

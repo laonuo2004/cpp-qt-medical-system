@@ -23,6 +23,10 @@ public:
     explicit Prescription(QWidget *parent = nullptr);
     ~Prescription();
 
+    void startChat();
+
+    void buildUpPrescription(const QVariantMap& prescription);
+
 private:
     Ui::Prescription *ui;
 };

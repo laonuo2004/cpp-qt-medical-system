@@ -2,6 +2,7 @@
 #define MEDICALRECORD_H
 
 #include <QWidget>
+#include <QVariant>
 
 namespace Ui {
 class MedicalRecord;
@@ -25,6 +26,13 @@ public:
     explicit MedicalRecord(QWidget *parent = nullptr);
     ~MedicalRecord();
 
+    /**
+     * @brief 设置控件显示的信息
+     *
+     * 由报告页面调用，在创建控件后，传入数据，设置处方信息。
+     */
+    void buildUpMedicalRecord(int patientId, QVariantMap& prescription);
+
 protected:
 
     /**
@@ -34,8 +42,19 @@ protected:
      */
     void showPrescription();
 
+    /**
+     * @brief 显示支付界面
+     *
+     * 在在线支付按钮触发后，打开新界面，显示二维码。
+     */
+    void showPayPanel();
+
+    void updateAppointmentStatus(const QString& status);
+
 private:
     Ui::MedicalRecord *ui;
+    QVariantMap m_appointmentInfo;
+    QVariantMap m_prescription;
 };
 
 #endif // MEDICALRECORD_H

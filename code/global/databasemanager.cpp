@@ -518,7 +518,7 @@ DatabaseManager& DatabaseManager::instance()
 
     // --- 高级查询接口实现 ---
 
-    DatabaseManager::ResultSet DatabaseManager::getDoctorsByDepartment(const QString& department)
+    DatabaseManager::ResultSet DatabaseManager::getDoctorsByDepartment(const QString& departmentName)
     {
         if (!isConnected())
         {
@@ -528,33 +528,41 @@ DatabaseManager& DatabaseManager::instance()
         }
 
         QString sql;
-        if (department.isEmpty())
+        if (departmentName.isEmpty())
         {
-            // 查询所有医生
+            // 查询所有医生，附带科室名称
             sql = R"(
-                SELECT d.doctor_id, d.full_name, d.sex, d.age, d.department, d.title,
-                       d.phone_no, d.doc_start, d.doc_finish, d.registration_fee,
-                       d.patient_limit, d.photo_url, u.email
+                SELECT d.doctor_id, d.full_name, d.sex, d.age,
+                       dep.department_name AS department, d.title,
+                       d.phone_no, d.doc_start, d.doc_finish,
+                       d.registration_fee, d.patient_limit, d.photo_url,
+                       u.email
                 FROM doctors d
                 JOIN users u ON d.user_id = u.user_id
-                ORDER BY d.department, d.full_name
+                JOIN departments dep ON d.department_id = dep.department_id
+                ORDER BY dep.department_name, d.full_name
             )";
         }
         else
         {
+            // 查询指定科室的医生
             sql = QString(R"(
-                SELECT d.doctor_id, d.full_name, d.sex, d.age, d.department, d.title,
-                       d.phone_no, d.doc_start, d.doc_finish, d.registration_fee,
-                       d.patient_limit, d.photo_url, u.email
+                SELECT d.doctor_id, d.full_name, d.sex, d.age,
+                       dep.department_name AS department, d.title,
+                       d.phone_no, d.doc_start, d.doc_finish,
+                       d.registration_fee, d.patient_limit, d.photo_url,
+                       u.email
                 FROM doctors d
                 JOIN users u ON d.user_id = u.user_id
-                WHERE d.department = '%1'
+                JOIN departments dep ON d.department_id = dep.department_id
+                WHERE dep.department_name = '%1'
                 ORDER BY d.full_name
-            )").arg(department);
+            )").arg(departmentName);
         }
 
         return query(sql);
     }
+
 
     DatabaseManager::ResultSet DatabaseManager::getPatientAppointments(int patientId, const QDate& date)
     {
@@ -566,15 +574,22 @@ DatabaseManager& DatabaseManager::instance()
         }
 
         QString sql = QString(R"(
-            SELECT a.appointment_id, a.appointment_date, a.appointment_time,
-                   a.status, a.payment_status,
-                   d.doctor_id, d.full_name as doctor_name, d.department, d.title,
-                   d.registration_fee
+            SELECT
+                a.appointment_id,
+                a.appointment_date,
+                a.appointment_time,
+                a.status,
+                a.payment_status,
+                d.doctor_id,
+                d.full_name AS doctor_name,
+                dept.department_name AS department,   -- ✅ 改成从 departments 表取
+                d.title,
+                d.registration_fee
             FROM appointments a
             JOIN doctors d ON a.doctor_id = d.doctor_id
+            JOIN departments dept ON d.department_id = dept.department_id   -- ✅ 多加一张表
             WHERE a.patient_id = %1
         )").arg(patientId);
-
         if (date.isValid())
         {
             sql += QString(" AND a.appointment_date = '%1'").arg(date.toString("yyyy-MM-dd"));
@@ -584,6 +599,7 @@ DatabaseManager& DatabaseManager::instance()
 
         return query(sql);
     }
+
 
     DatabaseManager::ResultSet DatabaseManager::getDoctorSchedule(const QString& doctorId, const QDate& date)
     {
@@ -595,8 +611,10 @@ DatabaseManager& DatabaseManager::instance()
         }
 
         QString sql = QString(R"(
-            SELECT a.appointment_time, a.status,
-                   p.full_name as patient_name, p.phone_no as patient_phone
+            SELECT a.appointment_time, a.status, a.appointment_id,
+                   p.patient_id,
+                   p.full_name as patient_name,
+                   p.phone_no as patient_phone
             FROM appointments a
             JOIN patients p ON a.patient_id = p.patient_id
             WHERE a.doctor_id = '%1' AND a.appointment_date = '%2'
@@ -605,6 +623,7 @@ DatabaseManager& DatabaseManager::instance()
 
         return query(sql);
     }
+
 
     bool DatabaseManager::isTimeSlotAvailable(const QString& doctorId, const QDateTime& dateTime)
     {

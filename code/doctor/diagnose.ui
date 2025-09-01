@@ -83,7 +83,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QTextEdit" name="textEdit"/>
+         <widget class="QTextEdit" name="patientInfoInput"/>
         </item>
        </layout>
       </widget>
@@ -98,7 +98,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QTextEdit" name="textEdit_2"/>
+        <widget class="QTextEdit" name="prescriptionInput"/>
        </item>
        <item>
         <widget class="QLabel" name="label_3">
@@ -108,7 +108,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QTextEdit" name="textEdit_3"/>
+        <widget class="QTextEdit" name="medicalOrderInput"/>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">

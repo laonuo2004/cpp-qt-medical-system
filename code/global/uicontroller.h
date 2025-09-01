@@ -18,7 +18,7 @@ enum class UserRole {
 };
 Q_DECLARE_METATYPE(UserRole) // 这一行非常重要，允许QVariant存储UserRole
 
-class UiController : public QObject
+class   UiController : public QObject
 {
     Q_OBJECT
 public:
@@ -62,7 +62,7 @@ public:
      *         registrationSuccess() - 注册成功
      *         registrationFailed(QString reason) - 注册失败，包含具体原因
      */
-    Q_INVOKABLE void registerUser(const QString &username, const QString &email, const QString &password, UserRole role);
+    Q_INVOKABLE void registerUser(const QString &email, const QString &password, UserRole role);
 
     /**
      * @brief 忘记密码申请
@@ -202,6 +202,8 @@ public:
      *         成功时发出appointmentCreated(int appointmentId)信号
      *         失败时发出appointmentCreationFailed(QString reason)信号
      */
+
+
     Q_INVOKABLE bool createAppointment(int patientId, const QString &doctorId, const QDateTime &appointmentTime);
 
     /**
@@ -306,6 +308,7 @@ public:
      * @return bool 创建是否成功
      */
     Q_INVOKABLE bool createHospitalization(int recordId, const QString &doctorId, const QString &wardNo, const QString &bedNo);
+    QVariantMap getAppointmentsByPrescriptionId(int patientId, int prescriptionId);
 
     // --- 5. 预约提醒后端 ---
 
@@ -430,7 +433,140 @@ public:
      */
     Q_INVOKABLE bool cancelLeave(int requestId);
 
-    // --- 8. 药品管理后端 ---
+    // --- 8. 科室管理后端 ---
+
+    /**
+     * @brief 获取所有科室列表
+     *
+     * 功能：获取系统中的所有科室信息
+     * 简化操作：按科室名称排序，便于前端展示
+     *
+     * @return QVariantList 科室列表，包含department_id, department_name, description, location, contact_phone
+     */
+    Q_INVOKABLE QVariantList getAllDepartments();
+
+    /**
+     * @brief 获取科室详细信息
+     *
+     * 功能：根据科室ID获取科室的详细信息
+     *
+     * @param departmentId 科室ID
+     * @return QVariantMap 科室详细信息
+     */
+    Q_INVOKABLE QVariantMap getDepartmentInfo(int departmentId);
+
+    /**
+     * @brief 获取科室医生数量统计
+     *
+     * 功能：统计各科室的医生数量，用于管理端展示
+     *
+     * @return QVariantList 科室统计信息，包含科室名称和医生数量
+     */
+    Q_INVOKABLE QVariantList getDepartmentDoctorCount();
+    Q_INVOKABLE bool insertDepartment(const QString& department);
+
+    // --- 9. 支付管理后端 ---
+
+    /**
+     * @brief 创建支付记录
+     *
+     * 功能：为预约创建支付记录
+     * 简化操作：自动设置支付状态为pending，生成交易流水号
+     *
+     * @param appointmentId 预约ID
+     * @param amount 支付金额
+     * @param paymentMethod 支付方式(wechat/alipay/cash)
+     * @return bool 创建是否成功，成功时发出paymentCreated信号
+     */
+    Q_INVOKABLE bool createPayment(int appointmentId, double amount, const QString &paymentMethod);
+
+    /**
+     * @brief 更新支付状态
+     *
+     * 功能：更新支付记录的状态和支付时间
+     *
+     * @param paymentId 支付ID
+     * @param status 新状态(pending/completed/failed/refunded)
+     * @param transactionId 交易流水号(可选)
+     * @return bool 更新是否成功
+     */
+    Q_INVOKABLE bool updatePaymentStatus(int paymentId, const QString &status, const QString &transactionId = QString());
+
+    /**
+     * @brief 获取预约的支付信息
+     *
+     * 功能：根据预约ID获取对应的支付记录
+     *
+     * @param appointmentId 预约ID
+     * @return QVariantMap 支付信息，包括金额、状态、支付方式等
+     */
+    Q_INVOKABLE QVariantMap getPaymentInfo(int appointmentId);
+
+    /**
+     * @brief 获取患者支付历史
+     *
+     * 功能：查询患者的所有支付记录
+     *
+     * @param patientId 患者ID
+     * @return QVariantList 支付历史列表，按时间倒序排列
+     */
+    Q_INVOKABLE QVariantList getPatientPaymentHistory(int patientId);
+
+    // --- 10. 处方药品管理后端 ---
+
+    /**
+     * @brief 为处方添加药品
+     *
+     * 功能：向现有处方中添加具体的药品信息
+     * 简化操作：自动验证处方和药品的存在性
+     *
+     * @param prescriptionId 处方ID
+     * @param drugId 药品ID
+     * @param quantity 数量
+     * @param dosage 用法用量
+     * @param frequency 服用频率
+     * @param durationDays 服用天数
+     * @return bool 添加是否成功
+     */
+    Q_INVOKABLE bool addDrugToPrescription(int prescriptionId, int drugId, int quantity, 
+                                          const QString &dosage, const QString &frequency, int durationDays);
+
+    /**
+     * @brief 获取处方的药品详情
+     *
+     * 功能：获取指定处方的所有药品信息
+     *
+     * @param prescriptionId 处方ID
+     * @return QVariantList 处方药品列表，包含药品信息和用药说明
+     */
+    Q_INVOKABLE QVariantList getPrescriptionDrugs(int prescriptionId);
+
+    /**
+     * @brief 移除处方中的药品
+     *
+     * 功能：从处方中移除指定的药品
+     *
+     * @param prescriptionDrugId 处方药品关联ID
+     * @return bool 移除是否成功
+     */
+    Q_INVOKABLE bool removeDrugFromPrescription(int prescriptionDrugId);
+
+    /**
+     * @brief 更新处方药品信息
+     *
+     * 功能：更新处方中药品的用药信息（数量、用法等）
+     *
+     * @param prescriptionDrugId 处方药品关联ID
+     * @param quantity 新数量
+     * @param dosage 新用法用量
+     * @param frequency 新服用频率
+     * @param durationDays 新服用天数
+     * @return bool 更新是否成功
+     */
+    Q_INVOKABLE bool updatePrescriptionDrug(int prescriptionDrugId, int quantity, 
+                                           const QString &dosage, const QString &frequency, int durationDays);
+
+    // --- 11. 药品管理后端 ---
 
     /**
      * @brief 搜索药品
@@ -449,9 +585,10 @@ public:
      * 功能：根据药品ID获取完整的药品信息
      *
      * @param drugId 药品ID
-     * @return QVariantMap 药品详细信息，包括名称、描述、用法、注意事项、价格、图片等
+     * @return QVariantMap 药品详细信息，包括名称、描述、用法、注意事项、价格、图片、单位等
      */
     Q_INVOKABLE QVariantMap getDrugDetails(int drugId);
+    Q_INVOKABLE bool registerDrug(const QString &drug_name,const QString &drug_price,const QString &description,const QString &image_url);
 
 private:
     // 用于生成和验证密码哈希
@@ -566,6 +703,26 @@ signals:
     void leaveRequestsReady(const QVariantList &requests);
     void leaveCancelled(int requestId);
     void attendanceOperationFailed(const QString &reason);
+
+    // 科室管理信号
+    void departmentListReady(const QVariantList &departments);
+    void departmentInfoReady(const QVariantMap &info);
+    void departmentStatsReady(const QVariantList &stats);
+    void departmentOperationFailed(const QString &reason);
+
+    // 支付管理信号
+    void paymentCreated(int paymentId);
+    void paymentStatusUpdated(int paymentId);
+    void paymentInfoReady(const QVariantMap &info);
+    void paymentHistoryReady(const QVariantList &payments);
+    void paymentOperationFailed(const QString &reason);
+
+    // 处方药品管理信号
+    void drugAddedToPrescription(int prescriptionDrugId);
+    void prescriptionDrugsReady(const QVariantList &drugs);
+    void drugRemovedFromPrescription(int prescriptionDrugId);
+    void prescriptionDrugUpdated(int prescriptionDrugId);
+    void prescriptionDrugOperationFailed(const QString &reason);
 
     // 药品管理信号
     void drugSearchResultReady(const QVariantList &drugs);

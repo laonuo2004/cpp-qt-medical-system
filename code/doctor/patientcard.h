@@ -2,6 +2,7 @@
 #define PATIENTCARD_H
 
 #include <QWidget>
+#include <QVariant>
 
 namespace Ui {
 class PatientCard;
@@ -23,6 +24,8 @@ public:
     explicit PatientCard(QWidget *parent = nullptr);
     ~PatientCard();
 
+    void buildUpPatientCard(int doctorId, QVariantMap& scheduleMap);
+
 protected:
 
     /**
@@ -35,6 +38,8 @@ protected:
 
 private:
     Ui::PatientCard *ui;
+    QVariantMap m_scheduleInfo;
+    int m_doctorId;
 };
 
 #endif // PATIENTCARD_H

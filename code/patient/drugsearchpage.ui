@@ -50,7 +50,7 @@
         <x>0</x>
         <y>0</y>
         <width>398</width>
-        <height>283</height>
+        <height>286</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -79,7 +79,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit">
+          <widget class="QLineEdit" name="drugName">
            <property name="text">
             <string/>
            </property>

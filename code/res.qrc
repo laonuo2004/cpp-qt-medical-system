@@ -4,6 +4,7 @@
         <file>picture/patientAvatar.png</file>
         <file>picture/doctorAvatar.png</file>
         <file>picture/drugDefaultPhoto.png</file>
+        <file>picture/QRCode.jpg</file>
     </qresource>
     <qresource prefix="/style">
         <file>picture/medicaltheme.qss</file>

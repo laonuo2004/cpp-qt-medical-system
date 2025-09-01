@@ -22,6 +22,10 @@ public:
     explicit Diagnose(QWidget *parent = nullptr);
     ~Diagnose();
 
+    void buildUpDiagnose(int doctorId, const QVariantMap& patientInfo);
+
+    void submitPrescription();
+
 private:
     Ui::Diagnose *ui;
 };

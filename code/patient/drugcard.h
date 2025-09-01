@@ -2,6 +2,7 @@
 #define DRUGCARD_H
 
 #include <QWidget>
+#include <QVariant>
 
 namespace Ui {
 class DrugCard;
@@ -24,6 +25,8 @@ public:
     explicit DrugCard(QWidget *parent = nullptr);
     ~DrugCard();
 
+    void buildUpDrugCard(QVariantMap& drugInfo);
+
 protected:
     /**
      * @brief 打开药品详细信息界面
@@ -34,6 +37,7 @@ protected:
 
 private:
     Ui::DrugCard *ui;
+    QVariantMap m_drugInfo;
 };
 
 #endif // DRUGCARD_H

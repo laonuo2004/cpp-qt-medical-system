@@ -21,7 +21,7 @@ class PatientInfoPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit PatientInfoPage(QWidget *parent = nullptr);
+    explicit PatientInfoPage(QWidget *parent = nullptr, int patientId = 0);
     ~PatientInfoPage();
 
 protected:
@@ -30,6 +30,8 @@ protected:
 
 private:
     Ui::PatientInfoPage *ui;
+
+    int m_patientId;
 };
 
 #endif // PATIENTINFOPAGE_H
