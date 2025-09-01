@@ -19,6 +19,8 @@ AddUser::~AddUser()
 void AddUser::buildByRole(int userRole)
 {
     usersRole=userRole;
+    ui->lineEdit_2->setPlaceholderText("至少包含8位，大小写字母，数字和特殊字符");
+    ui->lineEdit_2->setEchoMode(QLineEdit::Password);
     switch (userRole)
     {
     case 0: // 患者身份登录
@@ -58,6 +60,7 @@ void AddUser::handleregister()
 
         QString username = ui->lineEdit->text();
         QString password = ui->lineEdit_2->text();
+
         UiController::get().registerUser(username,password,UserRole::Doctor);
         break;
     }
