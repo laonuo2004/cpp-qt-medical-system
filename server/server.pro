@@ -1,3 +1,4 @@
+QT += core sql network
 QT -= gui
 
 CONFIG += c++11 console
@@ -15,7 +16,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp
+    main.cpp \
+    networkmanager_server.cpp \
+    databasemanager.cpp
+
+HEADERS += \
+    networkmanager_server.h \
+    databasemanager.h
+
+# 添加从原代码目录复制的数据库管理器
+# 注意：我们需要将databasemanager从原代码复制到服务器端
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
