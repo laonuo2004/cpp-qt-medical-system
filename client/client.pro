@@ -1,4 +1,4 @@
-QT       += core gui sql network
+QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,11 +17,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    remotedatabasemanager.cpp \
     widget.cpp
 
 HEADERS += \
-    remotedatabasemanager.h \
     widget.h
 
 FORMS += \
