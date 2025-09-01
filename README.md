@@ -29,7 +29,12 @@
    - 将 databaseManager 迁移到服务器端，可以直接复用原有的代码
    - 在 databaseManager 与 uiController 之间新增一个 networkManager 模块，用于处理网络通信。使用 TCP 通信，使用 JSON 数据格式。客户端与服务器端均需要添加相关模块来处理信息收发与处理
    - 修改 databaseManager, uiController 与 networkManager 的接口，在此之前两者之间是直接调用，现在需要通过 networkManager 来调用
-2. [ ] 补充科室的表格，医生表的科室变成外键
+2. [x] 补充科室的表格，医生表的科室变成外键
+
+### 📅 9/1
+
+1. [x] 在数据库的 `Doctors` 表中添加了 `description` 字段，用于存储医生的个人简介
+2. [ ] 进行初步测试，填写 Issue
 
 ---
 

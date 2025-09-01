@@ -52,6 +52,7 @@ erDiagram
         real registration_fee "挂号费用"
         int patient_limit "单日患者上限"
         string photo_url "照片URL"
+        string description "医生个人简介"
     }
 
     APPOINTMENTS {
@@ -194,5 +195,3 @@ erDiagram
     
     %% 药品搜索关系
     PATIENTS ||--o{ DRUGS : "搜索查看"
-
-```
