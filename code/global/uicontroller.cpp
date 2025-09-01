@@ -107,10 +107,10 @@ void UiController::login(const QString &email, const QString &password)
 }
 
 // 注册方法
-void UiController::registerUser(const QString &username, const QString &email, const QString &password, UserRole role)
+void UiController::registerUser(const QString &email, const QString &password, UserRole role)
 {
-    if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
-        emit registrationFailed("用户名、邮箱或密码不能为空。");
+    if (email.isEmpty() || password.isEmpty()) {
+        emit registrationFailed("邮箱或密码不能为空。");
         return;
     }
 
@@ -130,7 +130,6 @@ void UiController::registerUser(const QString &username, const QString &email, c
     }
 
     DatabaseManager::DataRow userData;
-    userData["username"] = username;
     userData["email"] = email;
     userData["password_hash"] = hashPassword(password);
 
@@ -149,6 +148,10 @@ void UiController::registerUser(const QString &username, const QString &email, c
             break;
     }
     userData["role"] = roleString;
+    for (const auto& pair : userData) {
+        // 假设值是 QVariant
+        qDebug() << "Key: " << pair.first << ", Value: " << pair.second;
+    }
 
     if (DatabaseManager::instance().insert("users", userData))
     {
@@ -1545,7 +1548,43 @@ QVariantList UiController::getPrescriptionDrugs(int prescriptionId)
     emit prescriptionDrugsReady(drugList);
     return drugList;
 }
+bool UiController::registerDrug(const QString &drug_name,const QString &drug_price_str,const QString &description,const QString &image_url)
+{
+    // 1. 准备数据
+        DatabaseManager::DataRow drugData;
 
+        // 必填字段
+        drugData["drug_name"] = drug_name;
+        drugData["description"] = description;
+        drugData["image_url"] = image_url;
+
+        // 2. 转换 drug_price
+        bool conversionOk;
+        double drug_price_real = drug_price_str.toDouble(&conversionOk);
+        if (!conversionOk) {
+            qWarning() << "Error: Failed to convert drug price string to double:" << drug_price_str;
+            // 可以返回 false 或抛出异常，取决于错误处理策略
+            return false;
+        }
+        drugData["drug_price"] = drug_price_real; // 存储为 double 类型
+
+        // 3. 处理可选字段 (这里暂时为空字符串或 NULL，如果需要可修改函数签名传入)
+        drugData["usage"] = ""; // 或者 QVariant(); 表示 NULL
+        drugData["precautions"] = ""; // 或者 QVariant(); 表示 NULL
+        drugData["unit"] = ""; // 或者 QVariant(); 表示 NULL
+
+
+        // 4. 调用数据库管理器进行插入
+        bool success =DatabaseManager::instance().insert("drugs", drugData);
+
+        if (success) {
+            qDebug() << "Drug registered successfully:" << drug_name;
+        } else {
+            qWarning() << "Failed to register drug" ;
+        }
+
+        return success;
+}
 bool UiController::removeDrugFromPrescription(int prescriptionDrugId)
 {
     if (!ensureDbConnected(__func__))

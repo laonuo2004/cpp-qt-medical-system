@@ -1,6 +1,7 @@
 #include "adduser.h"
 #include "ui_adduser.h"
 
+
 AddUser::AddUser(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AddUser)
@@ -21,20 +22,54 @@ void AddUser::buildByRole(int userRole)
     case 0: // 患者身份登录
     {
         setWindowTitle("添加患者用户");
-        ui->userIdentity->setText("邮箱");
+        ui->userIdentity->setText("手机号");
         break;
     }
     case 1: // 医生身份登录
     {
         setWindowTitle("添加医生用户");
-        ui->userIdentity->setText("工号");
+        ui->userIdentity->setText("手机号");
         break;
     }
     case 2: // 后端管理员身份登录
     {
         setWindowTitle("添加管理员用户");
-        ui->userIdentity->setText("管理员号");
+        ui->userIdentity->setText("手机号");
         break;
     }
     }
+}
+void AddUser::handleregister()
+{
+    switch (userRole)
+    {
+    case 0: // 患者身份登录
+    {
+
+        QString username = ui->lineEdit->text();
+        QString password = ui->lineEdit_2->text();
+        UiController::get().registerUser(username,password,UserRole::Patient );
+        break;
+    }
+    case 1: // 医生身份登录
+    {
+
+        QString username = ui->lineEdit->text();
+        QString password = ui->lineEdit_2->text();
+        UiController::get().registerUser(username,password,UserRole::Doctor);
+        break;
+    }
+    case 2: // 后端管理员身份登录
+    {
+
+        QString username = ui->lineEdit->text();
+        QString password = ui->lineEdit_2->text();
+        UiController::get().registerUser(username,password,UserRole::Admin);
+        break;
+    }
+    }
+}
+void AddUser::on_confirmBtn_clicked()
+{
+    handleregister();
 }

@@ -22,3 +22,12 @@ void AddDrug::addPhoto()
     QString fileName = QFileDialog::getOpenFileName(this, "选择一张图片", "", "Images(*.png *.jpg *.jpeg *.bmp *.gif)");
     ui->photoPath->setText(fileName);
 }
+
+void AddDrug::on_confirmBtn_clicked()
+{
+    QString drug_name=ui->lineEdit->text();
+    QString drug_price=ui->lineEdit_2->text();
+    QString description=ui->textEdit_2->toPlainText();
+    QString image_url="123";
+    UiController::get().registerDrug(drug_name,drug_price,description,image_url);
+}

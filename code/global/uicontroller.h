@@ -62,7 +62,7 @@ public:
      *         registrationSuccess() - 注册成功
      *         registrationFailed(QString reason) - 注册失败，包含具体原因
      */
-    Q_INVOKABLE void registerUser(const QString &username, const QString &email, const QString &password, UserRole role);
+    Q_INVOKABLE void registerUser(const QString &email, const QString &password, UserRole role);
 
     /**
      * @brief 忘记密码申请
@@ -584,6 +584,7 @@ public:
      * @return QVariantMap 药品详细信息，包括名称、描述、用法、注意事项、价格、图片、单位等
      */
     Q_INVOKABLE QVariantMap getDrugDetails(int drugId);
+    Q_INVOKABLE bool registerDrug(const QString &drug_name,const QString &drug_price,const QString &description,const QString &image_url);
 
 private:
     // 用于生成和验证密码哈希
