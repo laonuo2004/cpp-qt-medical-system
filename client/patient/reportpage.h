@@ -22,7 +22,7 @@ class ReportPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit ReportPage(QWidget *parent = nullptr);
+    explicit ReportPage(QWidget *parent = nullptr, int patientId = 0);
     ~ReportPage();
 
 protected:
@@ -36,6 +36,7 @@ protected:
 
 private:
     Ui::ReportPage *ui;
+    int m_patientId;
 };
 
 #endif // REPORTPAGE_H

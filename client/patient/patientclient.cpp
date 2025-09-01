@@ -5,6 +5,7 @@
 #include "reportpage.h"
 #include "drugsearchpage.h"
 #include "engine.h"
+#include "apiget.h"
 
 #include <QButtonGroup>
 
@@ -14,12 +15,15 @@ PatientClient::PatientClient(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    m_patientId = 22; // 测试使用（默认登录为测试数据库中22号患者），必须删除
+
     QVector<QWidget*> pages =
     {
-        new PatientInfoPage(this),
-        new RegisterPage(this),
-        new ReportPage(this),
-        new DrugSearchPage(this)
+        new PatientInfoPage(this, m_patientId),
+        new RegisterPage(this, m_patientId),
+        new ReportPage(this, m_patientId),
+        new DrugSearchPage(this),
+        new APIGet(this)
     };
 
     QVector<QPushButton*> navButtons =
@@ -27,7 +31,8 @@ PatientClient::PatientClient(QWidget *parent) :
         ui->InfoBtn,
         ui->RegisterBtn,
         ui->ReportBtn,
-        ui->DrugSearchBtn
+        ui->DrugSearchBtn,
+        ui->ChartBtn
     };
 
     for (int i = 0; i < pages.size(); ++i)

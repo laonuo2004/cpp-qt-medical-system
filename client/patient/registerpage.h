@@ -22,7 +22,7 @@ class RegisterPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit RegisterPage(QWidget *parent = nullptr);
+    explicit RegisterPage(QWidget *parent = nullptr, int patientId = 0);
     ~RegisterPage();
 
 protected:
@@ -34,8 +34,14 @@ protected:
      */
     void loadDoctorInformation();
 
+    void loadDepartments();
+
+    void setPatientId(int id);
+
 private:
     Ui::RegisterPage *ui;
+
+    int m_patientId;
 };
 
 #endif // REGISTERPAGE_H

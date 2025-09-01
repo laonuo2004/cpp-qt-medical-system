@@ -21,7 +21,7 @@ class PatientCardsPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit PatientCardsPage(QWidget *parent = nullptr);
+    explicit PatientCardsPage(QWidget *parent = nullptr, int doctorId = 0);
     ~PatientCardsPage();
 
 protected:
@@ -36,6 +36,7 @@ protected:
 
 private:
     Ui::PatientCardsPage *ui;
+    int m_doctorId;
 };
 
 #endif // PATIENTCARDSPAGE_H

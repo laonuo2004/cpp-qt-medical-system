@@ -20,7 +20,7 @@ class DoctorInfoPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit DoctorInfoPage(QWidget *parent = nullptr);
+    explicit DoctorInfoPage(QWidget *parent = nullptr, int doctorId = 0);
     ~DoctorInfoPage();
 
 protected:
@@ -29,6 +29,8 @@ protected:
 
 private:
     Ui::DoctorInfoPage *ui;
+
+    int m_doctorId;
 };
 
 #endif // DOCTORINFOPAGE_H

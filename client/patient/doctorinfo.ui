@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>645</width>
-    <height>805</height>
+    <height>814</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,7 +62,7 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLabel" name="label_8">
+        <widget class="QLabel" name="nameInput">
          <property name="font">
           <font>
            <pointsize>11</pointsize>
@@ -86,7 +86,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLabel" name="label_9">
+        <widget class="QLabel" name="idInput">
          <property name="font">
           <font>
            <pointsize>11</pointsize>
@@ -110,7 +110,7 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QLabel" name="label_10">
+        <widget class="QLabel" name="ageInput">
          <property name="font">
           <font>
            <pointsize>11</pointsize>
@@ -134,7 +134,7 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLabel" name="label_11">
+        <widget class="QLabel" name="departmentInput">
          <property name="font">
           <font>
            <pointsize>11</pointsize>
@@ -158,7 +158,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QLabel" name="label_12">
+        <widget class="QLabel" name="titleInput">
          <property name="font">
           <font>
            <pointsize>11</pointsize>
@@ -182,7 +182,7 @@
         </widget>
        </item>
        <item row="5" column="1">
-        <widget class="QLabel" name="label_13">
+        <widget class="QLabel" name="workTimeInput">
          <property name="font">
           <font>
            <pointsize>11</pointsize>
@@ -206,7 +206,7 @@
         </widget>
        </item>
        <item row="6" column="1">
-        <widget class="QLabel" name="label_16">
+        <widget class="QLabel" name="priceInput">
          <property name="font">
           <font>
            <pointsize>11</pointsize>
@@ -230,7 +230,7 @@
         </widget>
        </item>
        <item row="7" column="1">
-        <widget class="QLabel" name="label_18">
+        <widget class="QLabel" name="maxPatientInput">
          <property name="font">
           <font>
            <pointsize>11</pointsize>
@@ -271,7 +271,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBox_2"/>
+      <widget class="QComboBox" name="availableDate"/>
      </item>
      <item>
       <widget class="QLabel" name="label_7">
@@ -281,7 +281,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBox"/>
+      <widget class="QComboBox" name="availableTime"/>
      </item>
     </layout>
    </item>

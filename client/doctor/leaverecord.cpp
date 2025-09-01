@@ -1,5 +1,6 @@
 #include "leaverecord.h"
 #include "ui_leaverecord.h"
+#include "uicontroller.h"
 
 LeaveRecord::LeaveRecord(QWidget *parent) :
     QWidget(parent),
@@ -18,7 +19,8 @@ void LeaveRecord::cancelLeaveRequest()
 {
     ui->CancelBtn->setDisabled(true);
     ui->LeaveMsg->setText("[已销假] " + ui->LeaveMsg->text());
-    // 数据库操作，标记请假已经消除
+    ui->LeaveMsg->setStyleSheet("color: gray;");
+    UiController::get().cancelLeave(m_requestId);
 }
 
 LeaveRecord::~LeaveRecord()

@@ -1,13 +1,15 @@
 #include "leaveform.h"
 #include "ui_leaveform.h"
+#include "uicontroller.h"
 
-LeaveForm::LeaveForm(QWidget *parent) :
+LeaveForm::LeaveForm(QWidget *parent, int doctorId) :
     QDialog(parent),
-    ui(new Ui::LeaveForm)
+    ui(new Ui::LeaveForm),
+    m_doctorId(doctorId)
 {
     ui->setupUi(this);
     setFixedWidth(500);
-    connect(ui->SubmitBtn, &QPushButton::clicked, this, &QDialog::accept);
+    connect(ui->SubmitBtn, &QPushButton::clicked, this, &LeaveForm::submit);
 }
 
 void LeaveForm::getLeaveMsg(QString& leaveMsg)
@@ -21,4 +23,23 @@ void LeaveForm::getLeaveMsg(QString& leaveMsg)
 LeaveForm::~LeaveForm()
 {
     delete ui;
+}
+
+void LeaveForm::submit()
+{
+    if (UiController::get().submitLeaveRequest
+    (
+        QString::number(m_doctorId),
+        ui->LeaveTypeInput->currentText(),
+        ui->StartDateInput->date(),
+        ui->EndDateInput->date(),
+        ui->LeaveReasonInput->toPlainText()
+    ))
+    {
+        emit accept();
+    }
+    else
+    {
+        emit reject();
+    }
 }

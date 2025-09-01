@@ -22,7 +22,7 @@ class AttendancePage : public QWidget
     Q_OBJECT
 
 public:
-    explicit AttendancePage(QWidget *parent = nullptr);
+    explicit AttendancePage(QWidget *parent = nullptr, int doctorId = 0);
     ~AttendancePage();
 
 protected:
@@ -53,8 +53,11 @@ protected:
      */
     void RequestLeave();
 
+    void checkHistory();
+
 private:
     Ui::AttendancePage *ui;
+    int m_doctorId;
 };
 
 #endif // ATTENDANCEPAGE_H

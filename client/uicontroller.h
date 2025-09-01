@@ -18,7 +18,7 @@ enum class UserRole {
 };
 Q_DECLARE_METATYPE(UserRole) // 这一行非常重要，允许QVariant存储UserRole
 
-class UiController : public QObject
+class   UiController : public QObject
 {
     Q_OBJECT
 public:
@@ -62,7 +62,7 @@ public:
      *         registrationSuccess() - 注册成功
      *         registrationFailed(QString reason) - 注册失败，包含具体原因
      */
-    Q_INVOKABLE void registerUser(const QString &username, const QString &email, const QString &password, UserRole role);
+    Q_INVOKABLE void registerUser(const QString &email, const QString &password, UserRole role);
 
     /**
      * @brief 忘记密码申请
@@ -202,6 +202,8 @@ public:
      *         成功时发出appointmentCreated(int appointmentId)信号
      *         失败时发出appointmentCreationFailed(QString reason)信号
      */
+
+
     Q_INVOKABLE bool createAppointment(int patientId, const QString &doctorId, const QDateTime &appointmentTime);
 
     /**
@@ -306,6 +308,7 @@ public:
      * @return bool 创建是否成功
      */
     Q_INVOKABLE bool createHospitalization(int recordId, const QString &doctorId, const QString &wardNo, const QString &bedNo);
+    QVariantMap getAppointmentsByPrescriptionId(int patientId, int prescriptionId);
 
     // --- 5. 预约提醒后端 ---
 
@@ -460,6 +463,7 @@ public:
      * @return QVariantList 科室统计信息，包含科室名称和医生数量
      */
     Q_INVOKABLE QVariantList getDepartmentDoctorCount();
+    Q_INVOKABLE bool insertDepartment(const QString& department);
 
     // --- 9. 支付管理后端 ---
 
@@ -584,6 +588,7 @@ public:
      * @return QVariantMap 药品详细信息，包括名称、描述、用法、注意事项、价格、图片、单位等
      */
     Q_INVOKABLE QVariantMap getDrugDetails(int drugId);
+    Q_INVOKABLE bool registerDrug(const QString &drug_name,const QString &drug_price,const QString &description,const QString &image_url);
 
 private:
     // 用于生成和验证密码哈希

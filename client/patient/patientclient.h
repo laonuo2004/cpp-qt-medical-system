@@ -33,6 +33,8 @@ private:
     class ReportPage* m_reportPage; /* 查看报告界面 */
     class DrugSearchPage* m_drugSearchPage; /* 工具箱界面 */
     class QButtonGroup* m_navButtonGroup;
+
+    int m_patientId = 0;
 };
 
 #endif // PATIENTCLIENT_H

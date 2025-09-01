@@ -107,10 +107,10 @@ void UiController::login(const QString &email, const QString &password)
 }
 
 // 注册方法
-void UiController::registerUser(const QString &username, const QString &email, const QString &password, UserRole role)
+void UiController::registerUser(const QString &email, const QString &password, UserRole role)
 {
-    if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
-        emit registrationFailed("用户名、邮箱或密码不能为空。");
+    if (email.isEmpty() || password.isEmpty()) {
+        emit registrationFailed("邮箱或密码不能为空。");
         return;
     }
 
@@ -130,7 +130,7 @@ void UiController::registerUser(const QString &username, const QString &email, c
     }
 
     DatabaseManager::DataRow userData;
-    userData["username"] = username;
+    userData["user_name"] = "";
     userData["email"] = email;
     userData["password_hash"] = hashPassword(password);
 
@@ -149,7 +149,6 @@ void UiController::registerUser(const QString &username, const QString &email, c
             break;
     }
     userData["role"] = roleString;
-
     if (DatabaseManager::instance().insert("users", userData))
     {
         qDebug() << "用户" << email << "注册成功";
@@ -398,11 +397,16 @@ QVariantMap UiController::getDoctorInfo(const QString &doctorId)
     }
 
     QString sql = QString(
-        "SELECT u.username, u.email, d.* "
+        "SELECT u.username, u.email, "
+        "d.doctor_id, d.user_id, d.full_name, d.sex, d.age, "
+        "dept.department_name, d.title, d.phone_no, d.doc_start, d.doc_finish, "
+        "d.registration_fee, d.patient_limit, d.photo_url "
         "FROM users u "
         "JOIN doctors d ON u.user_id = d.user_id "
+        "JOIN departments dept ON d.department_id = dept.department_id "
         "WHERE d.doctor_id = '%1'"
     ).arg(doctorId);
+
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
 
@@ -822,16 +826,22 @@ QVariantList UiController::getPatientPrescriptions(int patientId)
     }
 
     QString sql = QString(R"(
-        SELECT pr.prescription_id, pr.details, pr.issued_at,
-               mr.diagnosis_date, mr.diagnosis_notes,
-               d.doctor_id, d.full_name as doctor_name, dept.department_name as department
+        SELECT
+          pr.prescription_id,
+          pr.details,
+          pr.issued_at,
+          mr.diagnosis_date,
+          mr.diagnosis_notes,
+          d.doctor_id,
+          d.full_name AS doctor_name,
+          dept.department_name AS department
         FROM prescriptions pr
         JOIN medical_records mr ON pr.record_id = mr.record_id
         JOIN appointments a ON mr.appointment_id = a.appointment_id
         JOIN doctors d ON a.doctor_id = d.doctor_id
         JOIN departments dept ON d.department_id = dept.department_id
         WHERE a.patient_id = %1
-        ORDER BY pr.issued_at DESC
+        ORDER BY pr.issued_at DESC;
     )").arg(patientId);
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
@@ -841,6 +851,53 @@ QVariantList UiController::getPatientPrescriptions(int patientId)
     emit prescriptionListReady(prescriptionList);
     return prescriptionList;
 }
+
+QVariantMap UiController::getAppointmentsByPrescriptionId(int patientId, int prescriptionId)
+{
+    if (!ensureDbConnected(__func__))
+    {
+        emit appointmentListReady(QVariantList());
+        return {};
+    }
+
+    // 构建 SQL 查询
+    QString sql = QString(R"(
+        SELECT
+            a.appointment_id,
+            a.appointment_date,
+            a.appointment_time,
+            a.status,
+            a.payment_status,
+            d.doctor_id,
+            d.full_name AS doctor_name,
+            dept.department_name AS department,
+            d.title,
+            d.registration_fee
+        FROM prescriptions pr
+        JOIN medical_records mr ON pr.record_id = mr.record_id
+        JOIN appointments a ON mr.appointment_id = a.appointment_id
+        JOIN doctors d ON a.doctor_id = d.doctor_id
+        JOIN departments dept ON d.department_id = dept.department_id
+        WHERE pr.prescription_id = %1 AND a.patient_id = %2
+        LIMIT 1
+    )").arg(prescriptionId).arg(patientId);
+
+    // 执行查询
+    auto result = DatabaseManager::instance().query(sql);
+
+    // 如果没有数据，返回空
+    if (result.empty())
+    {
+        emit appointmentListReady(QVariantList());
+        return {};
+    }
+
+    // 返回第一行结果
+    QVariantMap appointment = rowToMap(result.front());
+    emit appointmentListReady({ appointment });
+    return appointment;
+}
+
 
 bool UiController::createHospitalization(int recordId, const QString &doctorId, const QString &wardNo, const QString &bedNo)
 {
@@ -1299,6 +1356,25 @@ QVariantList UiController::getDepartmentDoctorCount()
     return statsList;
 }
 
+bool UiController::insertDepartment(const QString& department)
+{
+    // 创建一个用于存储科室数据的DataRow
+    DatabaseManager::DataRow departmentData;
+    departmentData["department_name"] = department;
+    departmentData["description"] = "";
+    departmentData["location"] = "";
+    departmentData["contact_phone"] = "";
+    if (DatabaseManager::instance().insert("departments", departmentData))
+        {
+            qDebug() << "科室" << department << "插入成功";
+            return true;
+        }
+    else
+        {
+            qCritical() << "科室插入失败：" << DatabaseManager::instance().lastError();
+            return false;
+        }
+}
     // --- 9. 支付管理后端 ---
 
 bool UiController::createPayment(int appointmentId, double amount, const QString &paymentMethod)
@@ -1545,7 +1621,43 @@ QVariantList UiController::getPrescriptionDrugs(int prescriptionId)
     emit prescriptionDrugsReady(drugList);
     return drugList;
 }
+bool UiController::registerDrug(const QString &drug_name,const QString &drug_price_str,const QString &description,const QString &image_url)
+{
+    // 1. 准备数据
+        DatabaseManager::DataRow drugData;
 
+        // 必填字段
+        drugData["drug_name"] = drug_name;
+        drugData["description"] = description;
+        drugData["image_url"] = image_url;
+
+        // 2. 转换 drug_price
+        bool conversionOk;
+        double drug_price_real = drug_price_str.toDouble(&conversionOk);
+        if (!conversionOk) {
+            qWarning() << "Error: Failed to convert drug price string to double:" << drug_price_str;
+            // 可以返回 false 或抛出异常，取决于错误处理策略
+            return false;
+        }
+        drugData["drug_price"] = drug_price_real; // 存储为 double 类型
+
+        // 3. 处理可选字段 (这里暂时为空字符串或 NULL，如果需要可修改函数签名传入)
+        drugData["usage"] = ""; // 或者 QVariant(); 表示 NULL
+        drugData["precautions"] = ""; // 或者 QVariant(); 表示 NULL
+        drugData["unit"] = ""; // 或者 QVariant(); 表示 NULL
+
+
+        // 4. 调用数据库管理器进行插入
+        bool success =DatabaseManager::instance().insert("drugs", drugData);
+
+        if (success) {
+            qDebug() << "Drug registered successfully:" << drug_name;
+        } else {
+            qWarning() << "Failed to register drug" ;
+        }
+
+        return success;
+}
 bool UiController::removeDrugFromPrescription(int prescriptionDrugId)
 {
     if (!ensureDbConnected(__func__))

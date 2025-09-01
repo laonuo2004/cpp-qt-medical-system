@@ -23,6 +23,8 @@ public:
     explicit DrugInfo(QWidget *parent = nullptr);
     ~DrugInfo();
 
+    void buildUpDrugInfo(const QVariantMap& drugInfo);
+
 private:
     Ui::DrugInfo *ui;
 };

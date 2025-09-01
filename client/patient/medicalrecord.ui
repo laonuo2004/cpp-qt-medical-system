@@ -54,7 +54,7 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="prescriptionLabel">
         <property name="text">
          <string>[就诊信息]</string>
         </property>

@@ -25,6 +25,13 @@ public:
     explicit DoctorInfo(QWidget *parent = nullptr);
     ~DoctorInfo();
 
+    /**
+     * @brief 根据传入数据设置显示的医生信息。
+     *
+     * 该函数由DoctorCard在创建此窗口时调用。
+     */
+    void buildUpDoctorInfo(QVariantMap doctorInfo);
+
 protected:
 
     /**
@@ -33,6 +40,8 @@ protected:
      * 创建确认挂号对话框，处理对话框接受或拒绝时的逻辑。
      */
     void patientRegister();
+
+    void startChat();
 
 private:
     Ui::DoctorInfo *ui;
