@@ -293,7 +293,7 @@ bool DatabaseManager::createTables()
         R"(CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, email TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL, role TEXT NOT NULL CHECK(role IN ('admin', 'doctor', 'patient')), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP))",
         R"(CREATE TABLE IF NOT EXISTS admins (admin_id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL UNIQUE, FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE))",
         R"(CREATE TABLE IF NOT EXISTS patients (patient_id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL UNIQUE, full_name TEXT, sex TEXT CHECK(sex IN ('男', '女')), id_card_no TEXT UNIQUE, birth_date DATE, age INTEGER, phone_no TEXT UNIQUE, address TEXT, sos_name TEXT, sos_phone_no TEXT UNIQUE, FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE))",
-        R"(CREATE TABLE IF NOT EXISTS doctors (doctor_id TEXT PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, full_name TEXT, sex TEXT CHECK(sex IN ('男', '女')), age INTEGER, department TEXT, title TEXT, phone_no TEXT UNIQUE, doc_start TIME, doc_finish TIME, registration_fee REAL, patient_limit INTEGER, photo_url TEXT, FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE))",
+        R"(CREATE TABLE IF NOT EXISTS doctors (doctor_id TEXT PRIMARY KEY, user_id INTEGER NOT NULL UNIQUE, full_name TEXT, sex TEXT CHECK(sex IN ('男', '女')), age INTEGER, department TEXT, title TEXT, phone_no TEXT UNIQUE, doc_start TIME, doc_finish TIME, registration_fee REAL, patient_limit INTEGER, photo_url TEXT, description TEXT, FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE))",
         R"(CREATE TABLE IF NOT EXISTS appointments (appointment_id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id INTEGER NOT NULL, doctor_id TEXT NOT NULL, appointment_date DATE NOT NULL, appointment_time DATETIME NOT NULL, status TEXT NOT NULL DEFAULT 'scheduled' CHECK(status IN ('scheduled', 'completed', 'cancelled')), payment_status TEXT NOT NULL DEFAULT 'unpaid' CHECK(payment_status IN ('unpaid', 'paid')), FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE, FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE))",
         R"(CREATE TABLE IF NOT EXISTS medical_records (record_id INTEGER PRIMARY KEY AUTOINCREMENT, appointment_id INTEGER NOT NULL UNIQUE, diagnosis_notes TEXT, diagnosis_date DATE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id) ON DELETE CASCADE))",
         R"(CREATE TABLE IF NOT EXISTS hospitalizations (hospitalization_id INTEGER PRIMARY KEY AUTOINCREMENT, record_id INTEGER NOT NULL UNIQUE, doctor_id TEXT NOT NULL, ward_no TEXT, bed_no TEXT, admission_date DATE, discharge_date DATE, FOREIGN KEY (record_id) REFERENCES medical_records(record_id) ON DELETE CASCADE, FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE))",
@@ -341,7 +341,7 @@ DatabaseManager::ResultSet DatabaseManager::getDoctorsByDepartment(const QString
     QString sql = R"(
         SELECT d.doctor_id, d.full_name, d.sex, d.age, d.department, d.title,
                d.phone_no, d.doc_start, d.doc_finish, d.registration_fee,
-               d.patient_limit, d.photo_url, u.email
+               d.patient_limit, d.photo_url, d.description, u.email
         FROM doctors d JOIN users u ON d.user_id = u.user_id
     )";
     if (!department.isEmpty()) {

@@ -366,6 +366,7 @@ DatabaseManager& DatabaseManager::instance()
                     registration_fee REAL,
                     patient_limit INTEGER,
                     photo_url TEXT,
+                    description TEXT,
                     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
                     FOREIGN KEY (department_id) REFERENCES departments(department_id) ON DELETE RESTRICT
                 )
@@ -589,7 +590,7 @@ DatabaseManager& DatabaseManager::instance()
             sql = R"(
                 SELECT d.doctor_id, d.full_name, d.sex, d.age, dept.department_name as department, d.title,
                        d.phone_no, d.doc_start, d.doc_finish, d.registration_fee,
-                       d.patient_limit, d.photo_url, u.email
+                       d.patient_limit, d.photo_url, d.description, u.email
                 FROM doctors d
                 JOIN users u ON d.user_id = u.user_id
                 JOIN departments dept ON d.department_id = dept.department_id
@@ -601,7 +602,7 @@ DatabaseManager& DatabaseManager::instance()
             sql = QString(R"(
                 SELECT d.doctor_id, d.full_name, d.sex, d.age, dept.department_name as department, d.title,
                        d.phone_no, d.doc_start, d.doc_finish, d.registration_fee,
-                       d.patient_limit, d.photo_url, u.email
+                       d.patient_limit, d.photo_url, d.description, u.email
                 FROM doctors d
                 JOIN users u ON d.user_id = u.user_id
                 JOIN departments dept ON d.department_id = dept.department_id
