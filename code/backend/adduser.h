@@ -36,10 +36,11 @@ public:
 private slots:
     void on_confirmBtn_clicked();
     void handleregister();
+    void handlefail(const QString &reason);
 
 private:
     Ui::AddUser *ui;
-    int userRole;
+    int usersRole;
 };
 
 #endif // ADDUSER_H

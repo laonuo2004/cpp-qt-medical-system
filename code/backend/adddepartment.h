@@ -2,6 +2,8 @@
 #define ADDDEPARTMENT_H
 
 #include <QDialog>
+#include "global/uicontroller.h"
+#include "databasemanager.h"
 
 namespace Ui {
 class AddDepartment;
@@ -22,6 +24,9 @@ class AddDepartment : public QDialog
 public:
     explicit AddDepartment(QWidget *parent = nullptr);
     ~AddDepartment();
+
+private slots:
+    void on_confirmBtn_clicked();
 
 private:
     Ui::AddDepartment *ui;

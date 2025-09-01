@@ -13,3 +13,9 @@ AddDepartment::~AddDepartment()
 {
     delete ui;
 }
+
+void AddDepartment::on_confirmBtn_clicked()
+{
+    QString department=ui->lineEdit->text();
+    UiController::get().insertDepartment(department);
+}

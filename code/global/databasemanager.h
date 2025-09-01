@@ -87,6 +87,9 @@ public:
      */
     ResultSet getDoctorSchedule(const QString& doctorId, const QDate& date);
 
+    ResultSet getTimeByDoctorId(const QString& doctorId);
+
+
     /**
      * @brief 检查医生在指定时间是否可预约
      *

@@ -1,6 +1,6 @@
 #include "adduser.h"
 #include "ui_adduser.h"
-
+#include<QDebug>
 
 AddUser::AddUser(QWidget *parent) :
     QDialog(parent),
@@ -8,6 +8,7 @@ AddUser::AddUser(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->confirmBtn, &QPushButton::clicked, this, &QDialog::accept);
+    connect(&UiController::get(),&UiController::registrationFailed,this,&AddUser::handlefail);
 }
 
 AddUser::~AddUser()
@@ -17,6 +18,7 @@ AddUser::~AddUser()
 
 void AddUser::buildByRole(int userRole)
 {
+    usersRole=userRole;
     switch (userRole)
     {
     case 0: // 患者身份登录
@@ -41,7 +43,7 @@ void AddUser::buildByRole(int userRole)
 }
 void AddUser::handleregister()
 {
-    switch (userRole)
+    switch (usersRole)
     {
     case 0: // 患者身份登录
     {
@@ -72,4 +74,10 @@ void AddUser::handleregister()
 void AddUser::on_confirmBtn_clicked()
 {
     handleregister();
+}
+void AddUser::handlefail(const QString &reason)
+{
+    qDebug()<<reason;
+
+    return;
 }

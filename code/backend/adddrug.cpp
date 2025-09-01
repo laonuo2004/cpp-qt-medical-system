@@ -28,6 +28,7 @@ void AddDrug::on_confirmBtn_clicked()
     QString drug_name=ui->lineEdit->text();
     QString drug_price=ui->lineEdit_2->text();
     QString description=ui->textEdit_2->toPlainText();
-    QString image_url="123";
-    UiController::get().registerDrug(drug_name,drug_price,description,image_url);
+    QString precaution=ui->textEdit->toPlainText();
+    QString image_url=ui->photoPath->text();
+    UiController::get().registerDrug(drug_name,drug_price,description,precaution,image_url);
 }

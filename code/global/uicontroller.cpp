@@ -130,6 +130,7 @@ void UiController::registerUser(const QString &email, const QString &password, U
     }
 
     DatabaseManager::DataRow userData;
+    userData["user_name"] = "";
     userData["email"] = email;
     userData["password_hash"] = hashPassword(password);
 
@@ -148,11 +149,6 @@ void UiController::registerUser(const QString &email, const QString &password, U
             break;
     }
     userData["role"] = roleString;
-    for (const auto& pair : userData) {
-        // 假设值是 QVariant
-        qDebug() << "Key: " << pair.first << ", Value: " << pair.second;
-    }
-
     if (DatabaseManager::instance().insert("users", userData))
     {
         qDebug() << "用户" << email << "注册成功";
@@ -322,6 +318,89 @@ QVariantMap UiController::getPatientInfo(int userId)
     }
 
     return rowToMap(result.front());
+}
+
+DatabaseManager::ResultSet UiController::getAllPatientInfo()
+{
+    if (!ensureDbConnected(__func__))
+        {
+            qCritical() << "Database not connected for getAllPatientInfo.";
+            return {}; // 返回空的 ResultSet
+        }
+
+        QString sql = QString(
+            "SELECT u.user_id, u.user_name, u.email, u.role "
+            "FROM users u "
+            "WHERE u.role = 'patient'"
+        );
+
+        DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+        if (result.empty())
+        {
+            qDebug() << "No patient information found in the database.";
+        }
+        else
+        {
+            qDebug() << "Successfully retrieved patient information. Rows:" << result.size();
+        }
+
+        return result; // 直接返回 ResultSet
+}
+
+DatabaseManager::ResultSet UiController::getAllDoctorInfo()
+{
+    if (!ensureDbConnected(__func__))
+        {
+            qCritical() << "Database not connected for getAllPatientInfo.";
+            return {}; // 返回空的 ResultSet
+        }
+
+        QString sql = QString(
+            "SELECT u.user_id, u.user_name, u.email, u.role "
+            "FROM users u "
+            "WHERE u.role = 'doctor'"
+        );
+
+        DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+        if (result.empty())
+        {
+            qDebug() << "No patient information found in the database.";
+        }
+        else
+        {
+            qDebug() << "Successfully retrieved patient information. Rows:" << result.size();
+        }
+
+        return result; // 直接返回 ResultSet
+}
+
+DatabaseManager::ResultSet UiController::getAllInfo()
+{
+    if (!ensureDbConnected(__func__))
+        {
+            qCritical() << "Database not connected for getAllPatientInfo.";
+            return {}; // 返回空的 ResultSet
+        }
+
+        QString sql = QString(
+            "SELECT u.user_id, u.user_name, u.email, u.role "
+            "FROM users u "
+        );
+
+        DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+        if (result.empty())
+        {
+            qDebug() << "No patient information found in the database.";
+        }
+        else
+        {
+            qDebug() << "Successfully retrieved patient information. Rows:" << result.size();
+        }
+
+        return result; // 直接返回 ResultSet
 }
 
 bool UiController::updatePatientInfo(int userId, const QVariantMap &details)
@@ -1302,6 +1381,25 @@ QVariantList UiController::getDepartmentDoctorCount()
     return statsList;
 }
 
+bool UiController::insertDepartment(const QString& department)
+{
+    // 创建一个用于存储科室数据的DataRow
+    DatabaseManager::DataRow departmentData;
+    departmentData["department_name"] = department;
+    departmentData["description"] = "";
+    departmentData["location"] = "";
+    departmentData["contact_phone"] = "";
+    if (DatabaseManager::instance().insert("departments", departmentData))
+        {
+            qDebug() << "科室" << department << "插入成功";
+            return true;
+        }
+    else
+        {
+            qCritical() << "科室插入失败：" << DatabaseManager::instance().lastError();
+            return false;
+        }
+}
     // --- 9. 支付管理后端 ---
 
 bool UiController::createPayment(int appointmentId, double amount, const QString &paymentMethod)
@@ -1548,15 +1646,14 @@ QVariantList UiController::getPrescriptionDrugs(int prescriptionId)
     emit prescriptionDrugsReady(drugList);
     return drugList;
 }
-bool UiController::registerDrug(const QString &drug_name,const QString &drug_price_str,const QString &description,const QString &image_url)
+bool UiController::registerDrug(const QString &drug_name,const QString &drug_price_str,const QString &description,const QString &precaution,const QString &image_url)
 {
     // 1. 准备数据
         DatabaseManager::DataRow drugData;
 
         // 必填字段
         drugData["drug_name"] = drug_name;
-        drugData["description"] = description;
-        drugData["image_url"] = image_url;
+
 
         // 2. 转换 drug_price
         bool conversionOk;
@@ -1567,10 +1664,12 @@ bool UiController::registerDrug(const QString &drug_name,const QString &drug_pri
             return false;
         }
         drugData["drug_price"] = drug_price_real; // 存储为 double 类型
+        drugData["description"] = description;
+        drugData["precautions"] = precaution;
+        drugData["image_url"] = image_url;
 
         // 3. 处理可选字段 (这里暂时为空字符串或 NULL，如果需要可修改函数签名传入)
         drugData["usage"] = ""; // 或者 QVariant(); 表示 NULL
-        drugData["precautions"] = ""; // 或者 QVariant(); 表示 NULL
         drugData["unit"] = ""; // 或者 QVariant(); 表示 NULL
 
 
@@ -1693,4 +1792,34 @@ QVariantMap UiController::getDrugDetails(int drugId)
 
     emit drugDetailsReady(drugDetails);
     return drugDetails;
+}
+
+DatabaseManager::ResultSet UiController::getAllDrugInfo()
+{
+     if (!ensureDbConnected(__func__))
+     {
+         qCritical() << "Database not connected for getAllDrugInfo.";
+     }
+
+     QString sql = QString(R"(
+         SELECT drug_id, drug_name, description, usage, precautions, drug_price, image_url, unit
+         FROM drugs
+     )");
+
+     // 3. 通过 DatabaseManager 单例执行查询
+     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+
+     if (result.empty()) // 或 !result.isValid() 如果您的 ResultSet 有此方法来表示无结果或查询失败
+     {
+         qDebug() << "No drug information found in the database or query failed.";
+     }
+     else
+     {
+
+         qDebug() << "Successfully initiated retrieval of drug information.";
+     }
+
+     // 4. 直接返回 ResultSet
+     return result;
 }
