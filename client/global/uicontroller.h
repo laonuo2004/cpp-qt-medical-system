@@ -62,7 +62,7 @@ public:
      *         registrationSuccess() - 注册成功
      *         registrationFailed(QString reason) - 注册失败，包含具体原因
      */
-    Q_INVOKABLE void registerUser(const QString &email, const QString &password, UserRole role);
+    Q_INVOKABLE void registerUser(const QString &username, const QString &email, const QString &password, UserRole role);
 
     /**
      * @brief 忘记密码申请
@@ -654,9 +654,9 @@ private:
 
 signals:
     // 认证信号
-    void loginSuccessAdmin(const QString &id);
-    void loginSuccessDoctor(const QString &id);
-    void loginSuccessPatient(const QString &id);
+    void loginSuccessAdmin();
+    void loginSuccessDoctor();
+    void loginSuccessPatient();
     void loginFailed(const QString &reason);
     void registrationSuccess();
     void registrationFailed(const QString &reason);

@@ -12,13 +12,13 @@ DoctorInfoPage::DoctorInfoPage(QWidget *parent, int doctorId) :
     ui->DoctorPhoto->setFixedSize(200, 250);
     connect(ui->SaveBtn, &QPushButton::clicked, this, &DoctorInfoPage::editDoctorInfo);
 
-    QVariantMap patientInfo = UiController::get().getDoctorInfo(QString::number(m_doctorId));
-    ui->nameLabel->setText(patientInfo.value("full_name").toString());
-    ui->idLabel->setText(patientInfo.value("doctor_id").toString());
-    ui->departmentLabel->setText(patientInfo.value("department_name").toString());
-    ui->birthdayLabel->setText(patientInfo.value("age").toString());
-    ui->contactLabel->setText(patientInfo.value("phone_no").toString());
-    // ui->addressLabel->setText(patientInfo.value("address").toString()); 地址， 在数据库中没有对应条目
+    QVariantMap doctorInfo = UiController::get().getDoctorInfo(QString::number(m_doctorId));
+    ui->nameLabel->setText(doctorInfo.value("full_name").toString());
+    ui->idLabel->setText(doctorInfo.value("doctor_id").toString());
+    ui->departmentLabel->setText(doctorInfo.value("department_name").toString());
+    ui->birthdayLabel->setText(doctorInfo.value("age").toString());
+    ui->contactLabel->setText(doctorInfo.value("phone_no").toString());
+    ui->introInput->setText(doctorInfo.value("description").toString());
 }
 
 DoctorInfoPage::~DoctorInfoPage()
@@ -38,17 +38,17 @@ void DoctorInfoPage::editDoctorInfo()
         ui->departmentLabel->setText(InfoSet[2]);
         ui->birthdayLabel->setText(InfoSet[3]);
         ui->contactLabel->setText(InfoSet[4]);
-        ui->addressLabel->setText(InfoSet[5]);
+        ui->introInput->setText(InfoSet[5]);
         ui->DoctorPhoto->setPixmap(editPanel->getImage());
 
-        QVariantMap patientInfo;
-        patientInfo["full_name"] = InfoSet[0];
-        patientInfo["doctor_id"] = InfoSet[1];
-        patientInfo["department_name"] = InfoSet[2];
-        patientInfo["age"] = InfoSet[3];
-        patientInfo["phone_no"] = InfoSet[4];
-        // patientInfo["address"] = InfoSet[5]; 地址， 在数据库中没有对应条目
-        UiController::get().updateDoctorInfo(QString::number(m_doctorId), patientInfo);
+        QVariantMap doctorInfo;
+        doctorInfo["full_name"] = InfoSet[0];
+        doctorInfo["doctor_id"] = InfoSet[1];
+        doctorInfo["department_name"] = InfoSet[2];
+        doctorInfo["age"] = InfoSet[3];
+        doctorInfo["phone_no"] = InfoSet[4];
+        doctorInfo["description"] = InfoSet[5];
+        UiController::get().updateDoctorInfo(QString::number(m_doctorId), doctorInfo);
     }
     delete editPanel;
 }

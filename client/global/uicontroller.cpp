@@ -65,7 +65,7 @@ void UiController::login(const QString &email, const QString &password)
         return;
     }
 
-    QString sql = QString("SELECT user_name, password_hash, role FROM users WHERE email = '%1'").arg(email);
+    QString sql = QString("SELECT username, password_hash, role FROM users WHERE email = '%1'").arg(email);
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
 
     if (result.empty())
@@ -78,7 +78,6 @@ void UiController::login(const QString &email, const QString &password)
     DatabaseManager::DataRow userRow = result[0];
     QString storedPasswordHash = userRow["password_hash"].toString();
     QString roleString = userRow["role"].toString(); // 从数据库获取角色字符串
-    QString id=userRow["user_id"].toString();
 
     if (storedPasswordHash == hashPassword(password))
     {
@@ -86,15 +85,15 @@ void UiController::login(const QString &email, const QString &password)
         qDebug() << "用户" << email << "登录成功，角色为" << roleString;
         if (roleString == "admin")
         {
-            emit loginSuccessAdmin(id);
+            emit loginSuccessAdmin();
         }
         else if (roleString == "doctor")
         {
-            emit loginSuccessDoctor(id);
+            emit loginSuccessDoctor();
         }
         else if (roleString == "patient")
         {
-            emit loginSuccessPatient(id);
+            emit loginSuccessPatient();
         }
         else
         {
@@ -108,7 +107,7 @@ void UiController::login(const QString &email, const QString &password)
 }
 
 // 注册方法
-void UiController::registerUser(const QString &email, const QString &password, UserRole role)
+void UiController::registerUser(const QString &username, const QString &email, const QString &password, UserRole role)
 {
     if (email.isEmpty() || password.isEmpty()) {
         emit registrationFailed("邮箱或密码不能为空。");
@@ -131,7 +130,7 @@ void UiController::registerUser(const QString &email, const QString &password, U
     }
 
     DatabaseManager::DataRow userData;
-    userData["user_name"] = "";
+    userData["user_name"] = username;
     userData["email"] = email;
     userData["password_hash"] = hashPassword(password);
 
@@ -141,7 +140,6 @@ void UiController::registerUser(const QString &email, const QString &password, U
     {
         case UserRole::Admin:
             roleString = "admin";
-
             break;
         case UserRole::Doctor:
             roleString = "doctor";
@@ -153,16 +151,7 @@ void UiController::registerUser(const QString &email, const QString &password, U
     userData["role"] = roleString;
     if (DatabaseManager::instance().insert("users", userData))
     {
-        qDebug() << "用户" << email << "注册成功";
-//        switch(role)
-//        {
-//            case UserRole::Admin:
-//                DatabaseManager::DataRow adminData;
-//                adminData["user_id"] = ;
-//                DatabaseManager::instance().insert("admins", userData);
-//        }
-
-
+        qDebug() << "用户" << username << "注册成功";
         emit registrationSuccess();
     }
     else
@@ -340,7 +329,7 @@ DatabaseManager::ResultSet UiController::getAllPatientInfo()
         }
 
         QString sql = QString(
-            "SELECT u.user_id, u.user_name, u.email, u.role "
+            "SELECT u.user_id, u.username, u.email, u.role "
             "FROM users u "
             "WHERE u.role = 'patient'"
         );
@@ -368,7 +357,7 @@ DatabaseManager::ResultSet UiController::getAllDoctorInfo()
         }
 
         QString sql = QString(
-            "SELECT u.user_id, u.user_name, u.email, u.role "
+            "SELECT u.user_id, u.username, u.email, u.role "
             "FROM users u "
             "WHERE u.role = 'doctor'"
         );
@@ -396,7 +385,7 @@ DatabaseManager::ResultSet UiController::getAllInfo()
         }
 
         QString sql = QString(
-            "SELECT u.user_id, u.user_name, u.email, u.role "
+            "SELECT u.user_id, u.username, u.email, u.role "
             "FROM users u "
         );
 
@@ -494,7 +483,7 @@ QVariantMap UiController::getDoctorInfo(const QString &doctorId)
         "SELECT u.username, u.email, "
         "d.doctor_id, d.user_id, d.full_name, d.sex, d.age, "
         "dept.department_name, d.title, d.phone_no, d.doc_start, d.doc_finish, "
-        "d.registration_fee, d.patient_limit, d.photo_url "
+        "d.registration_fee, d.patient_limit, d.photo_url, d.description "
         "FROM users u "
         "JOIN doctors d ON u.user_id = d.user_id "
         "JOIN departments dept ON d.department_id = dept.department_id "

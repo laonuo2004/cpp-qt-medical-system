@@ -259,13 +259,14 @@ QPushButton.special-btn:disabled {
     background-color: #EF9A9A; 
 }
 
+/* 通用输入控件样式 */
 QLineEdit,
 QTextEdit,
 QPlainTextEdit,
 QSpinBox,
 QDateEdit,
 QComboBox {
-    background-color: #FFFFFF;
+    background: #FFFFFF;
     border: 1px solid #D4D8E1;
     border-radius: 5px;
     padding: 9px;
@@ -274,6 +275,7 @@ QComboBox {
     selection-color: #FFFFFF;
 }
 
+/* 焦点高亮 */
 QLineEdit:focus,
 QTextEdit:focus,
 QPlainTextEdit:focus,
@@ -283,59 +285,65 @@ QComboBox:focus {
     border-color: #4A90E2;
 }
 
+/* 禁用状态 */
 QLineEdit:disabled,
 QTextEdit:disabled,
 QPlainTextEdit:disabled,
 QSpinBox:disabled,
 QDateEdit:disabled,
 QComboBox:disabled {
-    background-color: #F0F4F7;
+    background: #F0F4F7;
     color: #B0BEC5;
 }
 
+/* SpinBox & DateEdit 右侧预留空间 */
 QSpinBox,
 QDateEdit {
-    padding-right: 29px;
+    padding-right: 28px;
 }
 
+/* 上下按钮统一样式 */
 QSpinBox::up-button,
-QDateEdit::up-button,
 QSpinBox::down-button,
+QDateEdit::up-button,
 QDateEdit::down-button {
     subcontrol-origin: border;
-    background-color: #FFFFFF;
     width: 28px;
+    background: #FFFFFF;
+    border-left: 1px solid #D4D8E1;
 }
 
 QSpinBox::up-button,
 QDateEdit::up-button {
     subcontrol-position: top right;
     border-top-right-radius: 5px;
-    border-left: 1px solid #D4D8E1;
+    image: url(:/icon/picture/up_arrow.svg); 
 }
 
 QSpinBox::down-button,
 QDateEdit::down-button {
     subcontrol-position: bottom right;
     border-bottom-right-radius: 5px;
-    border-left: 1px solid #D4D8E1;
     border-top: 1px solid #D4D8E1;
+    image: url(:/icon/picture/down_arrow.svg); 
 }
 
+/* 按钮 hover/pressed */
 QSpinBox::up-button:hover,
 QSpinBox::down-button:hover,
 QDateEdit::up-button:hover,
 QDateEdit::down-button:hover {
-    background-color: #F0F4F7;
+    background: #F0F4F7;
 }
 
 QSpinBox::up-button:pressed,
 QSpinBox::down-button:pressed,
 QDateEdit::up-button:pressed,
 QDateEdit::down-button:pressed {
-    background-color: #E4E7F0;
+    background: #E4E7F0;
 }
 
+/* 下拉框按钮 */
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -343,23 +351,21 @@ QComboBox::drop-down {
     border-left: 1px solid #D4D8E1;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
+    image: url(:/icon/picture/down_arrow.svg); 
 }
 
-QComboBox::drop-down:hover {
-    background-color: #F0F4F7;
-}
+QComboBox::drop-down:hover { background: #F0F4F7; }
+QComboBox::drop-down:pressed { background: #E4E7F0; }
 
-QComboBox::drop-down:pressed {
-    background-color: #E4E7F0;
-}
-
+/* 下拉列表 */
 QComboBox QAbstractItemView {
     border: 1px solid #D4D8E1;
-    background-color: #FFFFFF;
+    background: #FFFFFF;
     selection-background-color: #E6F2FF;
     selection-color: #357ABD;
     padding: 5px 0;
 }
+
 
 QTableView {
     border: 1px solid #D4D8E1;

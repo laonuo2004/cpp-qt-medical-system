@@ -27,8 +27,6 @@ private slots:
     void handleRegistrationSuccess();
     void handleRegistrationFailed(const QString &reason);
 
-    void on_confirmBtn_clicked();
-
 protected:
     /**
      * @brief 判断注册是否成功

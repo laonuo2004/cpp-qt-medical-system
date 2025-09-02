@@ -9,9 +9,6 @@ ResetPwd::ResetPwd(QWidget *parent) :
     m_controller(UiController::get())
 {
     ui->setupUi(this);
-    ui->NewPasswordEdit->setPlaceholderText("至少包含8位，大小写字母，数字和特殊字符");
-    ui->NewPasswordEdit->setEchoMode(QLineEdit::Password);
-    ui->lineEdit_3->setEchoMode(QLineEdit::Password);
     connect(ui->confirmBtn, &QPushButton::clicked, this, &ResetPwd::handleReset);
     
     // 连接UiController的密码重置信号
@@ -51,24 +48,4 @@ void ResetPwd::onPasswordResetFailed(const QString &reason)
 {
     qDebug() << "Password reset failed:" << reason;
     QMessageBox::warning(this, tr("重置失败"), tr("密码重置失败：") + reason);
-}
-
-void ResetPwd::on_sendBtn_clicked()
-{
-    QString email=ui->EmailEdit->text();
-    UiController::get().forgotPassword(email);
-
-}
-
-void ResetPwd::on_confirmBtn_clicked()
-{
-    QString email=ui->EmailEdit->text();
-    QString veri=ui->VerificationCodeEdit->text();
-    QString pass=ui->NewPasswordEdit->text();
-    QString confirm=ui->lineEdit_3->text();
-    if(pass!=confirm)
-    {
-        QMessageBox::warning(this, tr("注册错误"), tr("密码设置不一致"));
-    }
-    UiController::get().resetPassword(email,veri,pass);
 }

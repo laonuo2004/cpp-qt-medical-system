@@ -2,6 +2,7 @@
 #define PATIENTCARDSPAGE_H
 
 #include <QWidget>
+#include <QGridLayout>
 
 namespace Ui {
 class PatientCardsPage;
@@ -33,6 +34,8 @@ protected:
      * 目前加载的是测试数据，通过循环控制卡片的排列。
      */
     void loadPatientInformation();
+
+    void clearGridLayout(QGridLayout* layout);
 
 private:
     Ui::PatientCardsPage *ui;

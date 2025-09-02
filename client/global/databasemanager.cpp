@@ -301,7 +301,6 @@ DatabaseManager& DatabaseManager::instance()
                  role TEXT
              )
           )");
-
         // 2. 管理员表
         if (success)
         {
@@ -574,6 +573,30 @@ DatabaseManager& DatabaseManager::instance()
 
 
     // --- 高级查询接口实现 ---
+    bool DatabaseManager::deleteUser(const int& userId)
+    {
+        if (!isConnected())
+        {
+            m_lastError = "数据库未连接";
+            emit errorOccurred(m_lastError);
+            return false;
+        }
+
+           QString tableName = "users";
+           // WHERE 条件为 "user_id = 'userId'"，注意字符串值需要用单引号括起来
+           QString whereClause = QString("user_id = '%1'").arg(userId);
+
+           qDebug() << "Attempting to delete user with ID:" << userId;
+
+           bool success = remove(tableName, whereClause);
+
+           if (success) {
+               qDebug() << "User with ID" << userId << "deleted successfully.";
+           } else {
+               qCritical() << "Failed to delete user with ID" << userId << ". Error:" << m_lastError;
+           }
+           return success;
+    }
 
     DatabaseManager::ResultSet DatabaseManager::getDoctorsByDepartment(const QString& departmentName)
     {

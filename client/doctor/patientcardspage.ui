@@ -32,7 +32,7 @@
    <item>
     <widget class="QLabel" name="fullHeaderLabel">
      <property name="text">
-      <string>今日预约</string>
+      <string>近日预约</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -50,7 +50,7 @@
         <x>0</x>
         <y>0</y>
         <width>398</width>
-        <height>283</height>
+        <height>286</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -69,6 +69,25 @@
        <property name="bottomMargin">
         <number>20</number>
        </property>
+       <item>
+        <widget class="QComboBox" name="appointmentFilter">
+         <item>
+          <property name="text">
+           <string>3日内的预约</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>10日内的预约</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1月内的预约</string>
+          </property>
+         </item>
+        </widget>
+       </item>
        <item>
         <layout class="QGridLayout" name="PatientCards">
          <property name="sizeConstraint">

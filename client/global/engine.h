@@ -60,9 +60,9 @@ public:
 
 private slots:
     // Engine 的槽函数：处理不同角色登录成功
-    void onLoginSuccessAdmin(const QString& id);
-    void onLoginSuccessDoctor(const QString& id);
-    void onLoginSuccessPatient(const QString& id);
+    void onLoginSuccessAdmin();
+    void onLoginSuccessDoctor();
+    void onLoginSuccessPatient();
 
 private:
     class ChooseRole* m_chooseRole;

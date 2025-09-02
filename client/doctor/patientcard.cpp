@@ -37,5 +37,5 @@ void PatientCard::buildUpPatientCard(int doctorId, QVariantMap &scheduleInfo)
     QVariantMap patientInfo = UiController::get().getPatientInfo(scheduleInfo.value("patient_id").toInt());
     ui->nameInput->setText(patientInfo.value("full_name").toString());
     ui->ageInput->setText(patientInfo.value("age").toString());
-    ui->genderInput->setText(patientInfo.value("sex").toString());
+    ui->dateInput->setText(scheduleInfo.value("appointment_time").toString());
 }

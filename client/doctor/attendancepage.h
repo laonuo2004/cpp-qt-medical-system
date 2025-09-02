@@ -55,6 +55,9 @@ protected:
 
     void checkHistory();
 
+private slots:
+    void on_historyBtn_clicked();
+
 private:
     Ui::AttendancePage *ui;
     int m_doctorId;

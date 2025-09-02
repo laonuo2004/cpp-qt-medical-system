@@ -9,11 +9,7 @@ RegisterPanel::RegisterPanel(QWidget *parent) :
     m_controller(UiController::get())
 {
     ui->setupUi(this);
-    ui->PasswordEdit->setPlaceholderText("至少包含8位，大小写字母，数字和特殊字符");
-    ui->PasswordEdit->setEchoMode(QLineEdit::Password);
-    ui->ConfirmPasswordEdit->setPlaceholderText("与上面输入密码一致");
-    ui->ConfirmPasswordEdit->setEchoMode(QLineEdit::Password);
-
+    
     // 连接 UiController 的注册信号
     connect(&m_controller, &UiController::registrationSuccess, this, &RegisterPanel::handleRegistrationSuccess);
     connect(&m_controller, &UiController::registrationFailed, this, &RegisterPanel::handleRegistrationFailed);
@@ -27,10 +23,11 @@ RegisterPanel::~RegisterPanel()
 
 void RegisterPanel::handleRegister()
 {
+    QString username = ui->UserNameEdit->text();
     QString email = ui->EmailEdit->text();
     QString password = ui->PasswordEdit->text();
     // 从 QComboBox 中获取当前选中项的自定义数据
-    m_controller.registerUser(email, password, UserRole::Patient);
+    m_controller.registerUser(username, email, password, UserRole::Patient);
 }
 
 // 槽函数：处理注册成功
@@ -51,17 +48,4 @@ void RegisterPanel::handleRegistrationFailed(const QString &reason)
     QMessageBox::warning(this, "注册失败", "注册失败，原因：" + reason);
 
     // 此时 RegisterPanel 界面会保持不变，用户可以修改输入再次尝试
-}
-
-void RegisterPanel::on_confirmBtn_clicked()
-{
-    QString name=ui->UserNameEdit->text();
-    QString pwd=ui->PasswordEdit->text();
-    QString phone=ui->EmailEdit->text();
-    QString confirm=ui->ConfirmPasswordEdit->text();
-    if(pwd!=confirm)
-    {
-        QMessageBox::warning(this, tr("注册错误"), tr("密码设置不一致"));
-    }
-    UiController::get().registerUser(phone,pwd,UserRole::Patient);
 }
