@@ -1,6 +1,7 @@
 #include "prescription.h"
 #include "ui_prescription.h"
 #include "patientchattool.h"
+#include "chatdialog.h"
 
 Prescription::Prescription(QWidget *parent) :
     QDialog(parent),
@@ -28,7 +29,7 @@ void Prescription::buildUpPrescription(const QVariantMap& prescription)
 
 void Prescription::startChat()
 {
-    PatientChatTool* chatDialog = new PatientChatTool(this);
+    ChatDialog* chatDialog = new ChatDialog(this); // 原本是PatientChatTool，这里换为ChatDialog用作UI测试
     if (chatDialog->exec() == QDialog::Accepted)
     {
 
