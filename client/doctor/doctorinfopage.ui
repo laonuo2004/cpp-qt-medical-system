@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1360</width>
-    <height>945</height>
+    <height>975</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -400,7 +400,7 @@
        <item>
         <widget class="QPushButton" name="SaveBtn">
          <property name="text">
-          <string>修改信息</string>
+          <string>修改个人信息</string>
          </property>
         </widget>
        </item>
