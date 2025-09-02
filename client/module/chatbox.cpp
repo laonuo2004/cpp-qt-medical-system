@@ -30,9 +30,10 @@ ChatBox::ChatBox(QWidget *parent) :
     if (m_scrollBar) m_scrollBar->setValue(m_scrollBar->maximum());
 }
 
-ChatBox::ChatBox(QWidget *parent , int patientid , int doctorid) :
+ChatBox::ChatBox(QWidget *parent , int patientid , int doctorid, bool isPatientClient) :
     QWidget(parent),
     ui(new Ui::ChatBox),
+    m_isPatientClient(isPatientClient),
     m_patientid(patientid),
     m_doctorid(doctorid),
     m_controller(new UiController(this))
@@ -122,8 +123,17 @@ void ChatBox::newMsg(const QVariantMap& row)
         }
     }
 
-    // 3) 历史/对方消息/非待去重的自发消息 —— 一律插左侧气泡
-    newMsg(content, /*isSelf=*/false);
+    // 3) 历史消息/对方消息/非待去重的自发消息 —— 根据 senderId 判断左右
+    if (m_isPatientClient)
+    {
+        const bool isSelf = (senderId == m_patientid);
+        newMsg(content, isSelf);
+    }
+    else
+    {
+        const bool isSelf = (senderId == m_doctorid);
+        newMsg(content, isSelf);
+    }
 
     // 4) 记录已见ID与最大ID
     if (messageId != 0) {

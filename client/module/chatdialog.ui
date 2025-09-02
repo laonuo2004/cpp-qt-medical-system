@@ -40,7 +40,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>[用户名]</string>
+        <string>医患交流</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

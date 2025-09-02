@@ -17,7 +17,7 @@ class ChatBox : public QWidget
     Q_OBJECT
 public:
     explicit ChatBox(QWidget *parent = nullptr);
-    ChatBox(QWidget *parent, int patientid, int doctorid);
+    ChatBox(QWidget *parent, int patientid, int doctorid, bool isPatientClient);
     ~ChatBox();
 
     void setLeftAvatar(const QString& LeftAvatarUrl);
@@ -39,6 +39,8 @@ private:
 private:
     Ui::ChatBox *ui = nullptr;
     QScrollBar* m_scrollBar = nullptr;
+
+    bool m_isPatientClient = true;
 
     // 会话双方（约定：m_patientid = 本端用户ID；m_doctorid = 对端用户ID）
     int m_patientid = -1;

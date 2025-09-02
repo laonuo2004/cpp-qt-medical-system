@@ -32,7 +32,7 @@ void PatientInfo::diagnose()
 
 void PatientInfo::startChat()
 {
-    ChatDialog* chatDialog = new ChatDialog(this , 12 , 19);
+    ChatDialog* chatDialog = new ChatDialog(this , 12 , 19, false);
     if (chatDialog->exec() == QDialog::Accepted)
     {
 
