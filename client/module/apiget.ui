@@ -46,6 +46,9 @@
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
+       <property name="class" stdset="0">
+        <string>cardFrame</string>
+       </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="leftMargin">
          <number>20</number>

@@ -12,7 +12,7 @@ DoctorCard::DoctorCard(QWidget *parent) :
     ui(new Ui::DoctorCard)
 {
     ui->setupUi(this);
-    ui->Photo->setFixedSize(120, 150);
+    ui->Photo->setFixedSize(150, 180);
     connect(ui->DetailBtn, &QPushButton::clicked, this, &DoctorCard::openDetailPanel);
 }
 
@@ -36,6 +36,9 @@ void DoctorCard::buildUpDoctorCard(QVariantMap& doctorInfo)
     ui->nameInput->setText(doctorInfo.value("full_name").toString());
     ui->jobInput->setText(doctorInfo.value("title").toString());
     ui->idInput->setText(doctorInfo.value("doctor_id").toString());
+    ui->restInput->setText(doctorInfo.value("patient_limit").toString());
+    ui->workTimeInput->setText(doctorInfo.value("doc_start").toString());
+    ui->departmentInput->setText(doctorInfo.value("doc_finish").toString());
 
     // 从网络链接获取并显示图片
     if (doctorInfo.contains("image_url"))

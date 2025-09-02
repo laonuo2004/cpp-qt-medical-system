@@ -13,7 +13,7 @@ DoctorClient::DoctorClient(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_doctorId = 45; // 测试使用（默认登录为测试数据库中45号医生），必须删除
+    m_doctorId = 12; // 测试使用（默认登录为测试数据库中45号医生），必须删除
 
     QVector<QWidget*> pages =
     {
