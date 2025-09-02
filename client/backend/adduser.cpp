@@ -49,27 +49,26 @@ void AddUser::handleregister()
     {
     case 0: // 患者身份登录
     {
-
-        QString username = ui->lineEdit->text();
+        QString email = ui->lineEdit->text();  // lineEdit应该是邮箱输入框
         QString password = ui->lineEdit_2->text();
-        UiController::get().registerUser(username,password,UserRole::Patient );
+        QString username = email;  // 使用邮箱作为用户名，或者可以要求用户输入独立的用户名
+        UiController::get().registerUser(username, email, password, UserRole::Patient);
         break;
     }
     case 1: // 医生身份登录
     {
-
-        QString username = ui->lineEdit->text();
+        QString email = ui->lineEdit->text();  // lineEdit应该是邮箱输入框
         QString password = ui->lineEdit_2->text();
-
-        UiController::get().registerUser(username,password,UserRole::Doctor);
+        QString username = email;  // 使用邮箱作为用户名，或者可以要求用户输入独立的用户名
+        UiController::get().registerUser(username, email, password, UserRole::Doctor);
         break;
     }
     case 2: // 后端管理员身份登录
     {
-
-        QString username = ui->lineEdit->text();
+        QString email = ui->lineEdit->text();  // lineEdit应该是邮箱输入框
         QString password = ui->lineEdit_2->text();
-        UiController::get().registerUser(username,password,UserRole::Admin);
+        QString username = email;  // 使用邮箱作为用户名，或者可以要求用户输入独立的用户名
+        UiController::get().registerUser(username, email, password, UserRole::Admin);
         break;
     }
     }

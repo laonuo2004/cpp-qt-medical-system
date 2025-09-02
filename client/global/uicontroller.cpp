@@ -107,7 +107,7 @@ void UiController::login(const QString &email, const QString &password)
 }
 
 // 注册方法
-void UiController::registerUser(const QString &email, const QString &password, UserRole role)
+void UiController::registerUser(const QString &username, const QString &email, const QString &password, UserRole role)
 {
     if (email.isEmpty() || password.isEmpty()) {
         emit registrationFailed("邮箱或密码不能为空。");
@@ -130,7 +130,7 @@ void UiController::registerUser(const QString &email, const QString &password, U
     }
 
     DatabaseManager::DataRow userData;
-    userData["user_name"] = "";
+    userData["user_name"] = username;
     userData["email"] = email;
     userData["password_hash"] = hashPassword(password);
 
@@ -151,7 +151,7 @@ void UiController::registerUser(const QString &email, const QString &password, U
     userData["role"] = roleString;
     if (DatabaseManager::instance().insert("users", userData))
     {
-        qDebug() << "用户" << email << "注册成功";
+        qDebug() << "用户" << username << "注册成功";
         emit registrationSuccess();
     }
     else
