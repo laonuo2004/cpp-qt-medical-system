@@ -2,6 +2,7 @@
 #include "ui_doctorinfopage.h"
 #include "editdoctorinfo.h"
 #include "uicontroller.h"
+#include "mycalendar.h"
 
 DoctorInfoPage::DoctorInfoPage(QWidget *parent, int doctorId) :
     QWidget(parent),
@@ -11,6 +12,8 @@ DoctorInfoPage::DoctorInfoPage(QWidget *parent, int doctorId) :
     ui->setupUi(this);
     ui->DoctorPhoto->setFixedSize(200, 250);
     connect(ui->SaveBtn, &QPushButton::clicked, this, &DoctorInfoPage::editDoctorInfo);
+
+    ui->rightPanel->addWidget(new MyCalendar(this));
 
     QVariantMap doctorInfo = UiController::get().getDoctorInfo(QString::number(m_doctorId));
     ui->nameLabel->setText(doctorInfo.value("full_name").toString());

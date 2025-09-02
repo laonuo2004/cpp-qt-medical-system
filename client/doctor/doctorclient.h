@@ -26,6 +26,9 @@ public:
     explicit DoctorClient(QWidget *parent = nullptr);
     ~DoctorClient();
 
+protected:
+    void setDarkModeText();
+
 private:
     Ui::DoctorClient *ui;
     class DoctorInfoPage* m_doctorInfoPage; /* 医生信息页面指针 */

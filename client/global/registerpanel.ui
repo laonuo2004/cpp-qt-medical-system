@@ -78,9 +78,6 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="styleSheet">
-         <string notr="true">#CardFrame{background-color: rgb(255, 243, 243)}</string>
-        </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
@@ -88,7 +85,7 @@
          <enum>QFrame::Raised</enum>
         </property>
         <property name="class" stdset="0">
-         <string>cardFrame</string>
+         <string>redCardFrame</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <property name="spacing">
