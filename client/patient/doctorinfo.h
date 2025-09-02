@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QVariantMap>
-
+#include "chatdialog.h"
 namespace Ui {
 class DoctorInfo;
 }
@@ -48,8 +48,8 @@ protected:
 private:
     Ui::DoctorInfo *ui;
     QVariantMap m_doctorInfo;
-    int m_patientid = 25;
-    int m_doctorid;
+    int m_patientid = 19;
+    int m_doctorid = 12;
     QString m_timeslot;
 };
 

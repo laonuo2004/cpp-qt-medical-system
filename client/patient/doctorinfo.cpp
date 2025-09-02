@@ -71,7 +71,7 @@ void DoctorInfo::patientRegister()
 
 void DoctorInfo::startChat()
 {
-    PatientChatTool* chatDialog = new PatientChatTool(this, 25 , 12);
+    ChatDialog* chatDialog = new ChatDialog(this ,19 ,12); // 原本是PatientChatTool，这里换为ChatDialog用作UI测试
     if (chatDialog->exec() == QDialog::Accepted)
     {
 
