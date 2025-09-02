@@ -15,7 +15,7 @@ PatientClient::PatientClient(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_patientId = 19;
+    m_patientId = 25;
 
     QVector<QWidget*> pages =
     {

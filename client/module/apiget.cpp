@@ -13,11 +13,14 @@ APIGet::APIGet(QWidget *parent) :
     ui->setupUi(this);
     ui->label_light->setStyleSheet("color:rgb(255,0,0)");
 
-    QList<QSerialPortInfo> list = QSerialPortInfo::availablePorts();
-    ui->comboBox_port->clear();
-    for(int i=0; i<list.size(); i++)
-    {
-        ui->comboBox_port->addItem(list.at(i).portName());
+    // 扫描可用串口
+    refreshSerialPorts();
+    
+    // 如果没有找到串口，显示提示信息
+    if(ui->comboBox_port->count() == 0) {
+        ui->textBrowser->append("警告: 未检测到串口设备，请连接设备后重新启动应用程序");
+    } else {
+        ui->textBrowser->append(QString("检测到 %1 个可用串口").arg(ui->comboBox_port->count()));
     }
 
     serial = new QSerialPort;
@@ -37,19 +40,66 @@ APIGet::~APIGet()
 
 void APIGet::on_Button_openserial_clicked()
 {
-    if(ui->Button_openserial->text() == "打开端口")
+    if(ui->Button_openserial->text() == "打开串口")
     {
-        serial->setPortName(ui->comboBox_port->currentText());//ttySx
+        // 检查是否有可用串口
+        if(ui->comboBox_port->count() == 0) {
+            ui->textBrowser->append("错误: 没有找到可用的串口设备");
+            return;
+        }
+        
+        QString portName = ui->comboBox_port->currentText();
+        if(portName.isEmpty()) {
+            ui->textBrowser->append("错误: 请选择一个有效的串口");
+            return;
+        }
+        
+        ui->textBrowser->append(QString("尝试打开串口: %1").arg(portName));
+        
+        // 检查串口详细信息
+        QList<QSerialPortInfo> availablePorts = QSerialPortInfo::availablePorts();
+        QSerialPortInfo selectedPortInfo;
+        bool portFound = false;
+        
+        for(const QSerialPortInfo &portInfo : availablePorts) {
+            if(portInfo.portName() == portName) {
+                selectedPortInfo = portInfo;
+                portFound = true;
+                break;
+            }
+        }
+        
+        if(portFound) {
+            if(selectedPortInfo.isBusy()) {
+                ui->textBrowser->append(QString("警告: 串口 %1 当前被其他程序占用").arg(portName));
+            }
+            ui->textBrowser->append(QString("串口描述: %1").arg(selectedPortInfo.description()));
+            ui->textBrowser->append(QString("制造商: %1").arg(selectedPortInfo.manufacturer()));
+            
+            // 测试串口访问性
+            ui->textBrowser->append("正在测试串口访问性...");
+            if(!testSerialPortAccess(portName)) {
+                ui->textBrowser->append("串口访问测试失败，可能被其他程序占用");
+                return;  // 提前返回，避免尝试打开已知不可访问的串口
+            } else {
+                ui->textBrowser->append("串口访问测试通过");
+            }
+        } else {
+            ui->textBrowser->append(QString("警告: 串口 %1 在可用串口列表中未找到").arg(portName));
+        }
+        
+        serial->setPortName(portName);//ttySx
         switch (ui->comboBox_baud->currentIndex())
         {
-            case 0: serial->setBaudRate(QSerialPort::Baud115200); break;
-            case 1: serial->setBaudRate(QSerialPort::Baud9600);   break;
+            case 0: serial->setBaudRate(QSerialPort::Baud9600);   break;
+            case 1: serial->setBaudRate(QSerialPort::Baud115200); break;
             default: break;
         }
         switch (ui->comboBox_databit->currentIndex())
         {
             case 0:serial->setDataBits(QSerialPort::Data8); break;
-            case 1:serial->setDataBits(QSerialPort::Data6); break;
+            case 1:serial->setDataBits(QSerialPort::Data7); break;
+            case 2:serial->setDataBits(QSerialPort::Data6); break;
             default: break;
         }
         switch (ui->comboBox_parity->currentIndex())
@@ -86,7 +136,50 @@ void APIGet::on_Button_openserial_clicked()
         }
         else
         {
-            qDebug()<<"fail";
+            QString errorMsg = QString("串口打开失败: %1").arg(serial->errorString());
+            qDebug() << errorMsg;
+            ui->textBrowser->append(errorMsg);
+            
+            // 显示更详细的错误信息
+            QString detailMsg;
+            QStringList suggestions;
+            
+            switch(serial->error()) {
+                case QSerialPort::DeviceNotFoundError:
+                    detailMsg = "设备未找到，请检查串口连接";
+                    suggestions << "检查设备是否正确连接到电脑";
+                    suggestions << "检查设备驱动是否已正确安装";
+                    break;
+                case QSerialPort::PermissionError:
+                    detailMsg = "权限不足或串口被占用";
+                    suggestions << "关闭可能占用串口的程序 (Arduino IDE、串口调试工具、Hyper Terminal等)";
+                    suggestions << "在设备管理器中禁用并重新启用该串口";
+                    suggestions << "检查串口在设备管理器中是否显示为正常状态";
+                    suggestions << "尝试断开设备重新连接";
+                    suggestions << "如果是USB转串口设备，尝试换一个USB串口";
+                    suggestions << "重启应用程序";
+                    break;
+                case QSerialPort::OpenError:
+                    detailMsg = "串口已被其他程序占用";
+                    suggestions << "关闭可能使用该串口的其他程序";
+                    suggestions << "检查是否有串口调试工具在运行";
+                    break;
+                case QSerialPort::ResourceError:
+                    detailMsg = "资源错误，设备可能已断开";
+                    suggestions << "重新连接设备";
+                    suggestions << "检查USB线缆是否正常";
+                    break;
+                default:
+                    detailMsg = QString("未知错误 (错误码: %1)").arg(serial->error());
+                    suggestions << "尝试重新连接设备";
+                    break;
+            }
+            
+            ui->textBrowser->append(QString("错误详情: %1").arg(detailMsg));
+            ui->textBrowser->append("建议解决方案:");
+            for(const QString &suggestion : suggestions) {
+                ui->textBrowser->append(QString("  • %1").arg(suggestion));
+            }
         }
     }
     else
@@ -100,7 +193,7 @@ void APIGet::on_Button_openserial_clicked()
         ui->comboBox_databit->setEnabled(true);
         ui->comboBox_parity->setEnabled(true);
         ui->comboBox_stopbit->setEnabled(true);
-        ui->Button_openserial->setText(tr("打开端口"));
+        ui->Button_openserial->setText(tr("打开串口"));
     }
 }
 
@@ -125,6 +218,80 @@ void APIGet::processReceivedData(const QByteArray &data)
 
     // 处理包含多个数字的字符串
     processMultiValueString(dataStr);
+}
+
+void APIGet::refreshSerialPorts()
+{
+    QList<QSerialPortInfo> list = QSerialPortInfo::availablePorts();
+    ui->comboBox_port->clear();
+    
+    ui->textBrowser->append("=== 串口扫描结果 ===");
+    
+    for(int i=0; i<list.size(); i++)
+    {
+        QSerialPortInfo portInfo = list.at(i);
+        QString portName = portInfo.portName();
+        ui->comboBox_port->addItem(portName);
+        
+        // 显示详细的串口信息
+        QString info = QString("串口: %1").arg(portName);
+        if(!portInfo.description().isEmpty()) {
+            info += QString(" - %1").arg(portInfo.description());
+        }
+        if(!portInfo.manufacturer().isEmpty()) {
+            info += QString(" (制造商: %1)").arg(portInfo.manufacturer());
+        }
+        if(portInfo.isBusy()) {
+            info += " [占用中]";
+        }
+        ui->textBrowser->append(info);
+    }
+    
+    if(list.size() == 0) {
+        ui->textBrowser->append("未找到任何串口设备");
+    }
+    
+    ui->textBrowser->append("==================");
+}
+
+bool APIGet::testSerialPortAccess(const QString &portName)
+{
+    // 创建一个临时的串口对象进行测试
+    QSerialPort testSerial;
+    testSerial.setPortName(portName);
+    testSerial.setBaudRate(QSerialPort::Baud9600);  // 使用一个标准波特率进行测试
+    testSerial.setDataBits(QSerialPort::Data8);
+    testSerial.setParity(QSerialPort::NoParity);
+    testSerial.setStopBits(QSerialPort::OneStop);
+    testSerial.setFlowControl(QSerialPort::NoFlowControl);
+    
+    // 尝试快速打开和关闭串口
+    bool success = testSerial.open(QIODevice::ReadWrite);
+    if(success) {
+        testSerial.close();
+        return true;
+    } else {
+        QString errorDetail;
+        switch(testSerial.error()) {
+            case QSerialPort::DeviceNotFoundError:
+                errorDetail = "设备未找到";
+                break;
+            case QSerialPort::PermissionError:
+                errorDetail = "权限不足或被占用";
+                break;
+            case QSerialPort::OpenError:
+                errorDetail = "串口被占用";
+                break;
+            case QSerialPort::ResourceError:
+                errorDetail = "资源错误";
+                break;
+            default:
+                errorDetail = QString("未知错误(%1)").arg(testSerial.error());
+                break;
+        }
+        ui->textBrowser->append(QString("测试失败原因: %1").arg(errorDetail));
+        return false;
+    }
 }
 
 // 新增函数：处理包含多个值的字符串

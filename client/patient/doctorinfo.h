@@ -48,7 +48,7 @@ protected:
 private:
     Ui::DoctorInfo *ui;
     QVariantMap m_doctorInfo;
-    int m_patientid = 19;
+    int m_patientid = 25;
     int m_doctorid;
     QString m_timeslot;
 };

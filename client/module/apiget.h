@@ -48,6 +48,8 @@ private:
     void processStringData(const QString &data);
     void processMultiValueString(const QString &dataStr);
     void updateChart();
+    void refreshSerialPorts();  // 刷新串口列表
+    bool testSerialPortAccess(const QString &portName);  // 测试串口是否可访问
 };
 
 #endif // APIGET_H

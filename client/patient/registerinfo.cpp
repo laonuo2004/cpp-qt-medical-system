@@ -14,6 +14,7 @@ RegisterInfo::RegisterInfo(const QVariantMap& doctorInfo, const QString& timeslo
       m_doctorInfo(doctorInfo), m_timeslot(timeslot)
 {
     ui->setupUi(this);
+    connect(ui->confirmBtn, &QPushButton::clicked, this, &RegisterInfo::handlePatientRegister);
     applyToUi();
 }
 

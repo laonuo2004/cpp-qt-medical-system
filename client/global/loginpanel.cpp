@@ -82,7 +82,7 @@ void LoginPanel::buildByRole(int userRole)
     case 0: // 患者身份登录
     {
         ui->HeaderLabel->setText("患者登录");
-        ui->userIdentity->setText("邮箱");
+        ui->userIdentity->setText("用户名");
         break;
     }
     case 1: // 医生身份登录
