@@ -104,6 +104,11 @@ void APIGet::on_Button_openserial_clicked()
     }
 }
 
+void APIGet::updateTheme(bool isDarkMode)
+{
+    lineChartWidget->applyTheme(isDarkMode);
+}
+
 void APIGet::ReadData()
 {
     QByteArray buf = serial->readAll();

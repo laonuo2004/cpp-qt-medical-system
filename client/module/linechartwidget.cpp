@@ -2,10 +2,44 @@
 #include <QtCharts/QValueAxis>
 #include <QFont>
 
+const ChartTheme lightTheme = {
+    QColor("#FFFFFF"),     // backgroundColor
+    QColor("#F7F9FC"),     // plotAreaColor
+    QColor("#D4D8E1"),     // borderColor
+    QColor("#357ABD"),     // titleColor
+    QColor("#3E4A59"),     // legendLabelColor
+    QColor("#D4D8E1"),     // axisLineColor
+    QColor("#3E4A59"),     // axisLabelColor
+    QColor("#357ABD"),     // axisTitleColor
+    QColor("#E6F2FF"),     // gridLineColor
+    QColor("#F0F4F7"),     // minorGridLineColor
+    { QColor("#FF6B6B"), QColor("#357ABD"), QColor("#45B7D1") } // series colors
+};
+
+const ChartTheme darkTheme = {
+    QColor("#121212"),     // backgroundColor
+    QColor("#1E1E1E"),     // plotAreaColor
+    QColor("#2D3B45"),     // borderColor
+    QColor("#20C997"),     // titleColor
+    QColor("#E0E0E0"),     // legendLabelColor
+    QColor("#2D3B45"),     // axisLineColor
+    QColor("#CCCCCC"),     // axisLabelColor
+    QColor("#20C997"),     // axisTitleColor
+    QColor("#333333"),     // gridLineColor
+    QColor("#1E1E1E"),     // minorGridLineColor
+    {
+        QColor("#20C997"), // series 1
+        QColor("#FF6B81"), // series 2
+        QColor("#FFD93D"), // series 3
+    }
+};
+
+
+
 LineChartWidget::LineChartWidget(QWidget *parent)
     : QChartView(parent)
     , m_chart(new QChart())
-{
+{    
     // 初始化系列
     initSeries();
 
@@ -23,6 +57,52 @@ LineChartWidget::~LineChartWidget()
     delete m_chart;
 }
 
+void LineChartWidget::applyTheme(bool isDarkTheme)
+{
+    ChartTheme theme = lightTheme;
+    if (isDarkTheme)
+    {
+        theme = darkTheme;
+    }
+    // 背景 & 绘图区
+    m_chart->setBackgroundBrush(QBrush(theme.backgroundColor));
+    m_chart->setPlotAreaBackgroundVisible(true);
+    m_chart->setPlotAreaBackgroundBrush(QBrush(theme.plotAreaColor));
+    m_chart->setBackgroundPen(QPen(theme.borderColor, 1));
+    m_chart->setBackgroundRoundness(8);
+
+    // 标题
+    m_chart->setTitleBrush(QBrush(theme.titleColor));
+
+    // 图例
+    QLegend* legend = m_chart->legend();
+    legend->setLabelColor(theme.legendLabelColor);
+
+    // 坐标轴
+    for (QAbstractAxis* axis : m_chart->axes()) {
+        if (QValueAxis* vAxis = qobject_cast<QValueAxis*>(axis)) {
+            vAxis->setLabelsColor(theme.axisLabelColor);
+            vAxis->setTitleBrush(QBrush(theme.axisTitleColor));
+            vAxis->setLinePen(QPen(theme.axisLineColor, 1));
+            vAxis->setGridLineColor(theme.gridLineColor);
+            vAxis->setMinorGridLineColor(theme.minorGridLineColor);
+        }
+    }
+
+    // 系列颜色
+    int i = 0;
+    for (QLineSeries* series : m_series) {
+        if (i < theme.seriesColors.size()) {
+            QPen pen(theme.seriesColors[i]);
+            pen.setWidth(2);
+            series->setPen(pen);
+        }
+        i++;
+    }
+}
+
+
+
 void LineChartWidget::initSeries()
 {
     // 创建两个系列
@@ -33,12 +113,12 @@ void LineChartWidget::initSeries()
     m_series.append(series2);
 
     // 设置线条名称
-    series1->setName(QString("折线 " + QString::number(1)));
-    series2->setName(QString("折线 " + QString::number(2)));
+    series1->setName(QString("数据 1"));
+    series2->setName(QString("数据 2"));
 
-    // 设置线条颜色
-    series1->setColor(QColor(255, 0, 255));
-    series2->setColor(QColor(0, 255, 255));
+    // 设置线条颜色（主题色）
+    series1->setColor(QColor("#007BFF"));   // 主题蓝
+    series2->setColor(QColor("#6C757D"));   // 辅助灰蓝
 
     // 设置是否线条可视
     series1->setVisible(true);
@@ -48,13 +128,14 @@ void LineChartWidget::initSeries()
     series1->setPointLabelsVisible(true);
     series2->setPointLabelsVisible(true);
 
-    // 点标签颜色
-    series1->setPointLabelsColor(QColor(255, 255, 255));
-    series2->setPointLabelsColor(QColor(255, 255, 255));
+    // 点标签颜色（统一用主文字色）
+    series1->setPointLabelsColor(QColor("#3E4A59"));
+    series2->setPointLabelsColor(QColor("#3E4A59"));
 
     // 点标签字体
-    series1->setPointLabelsFont(QFont("微软雅黑"));
-    series2->setPointLabelsFont(QFont("微软雅黑"));
+    QFont labelFont("Microsoft YaHei", 10);
+    series1->setPointLabelsFont(labelFont);
+    series2->setPointLabelsFont(labelFont);
 
     // 设置点标签显示格式
     series1->setPointLabelsFormat("(@xPoint,@yPoint)");
@@ -64,20 +145,41 @@ void LineChartWidget::initSeries()
     series1->setPointLabelsClipping(false);
     series2->setPointLabelsClipping(true);
 
-    // 设置点标签是否可视
+    // 设置点是否可视
     series1->setPointsVisible(true);
     series2->setPointsVisible(true);
 }
 
 void LineChartWidget::initChart()
 {
-    // 设置图表主题
-    m_chart->setTheme(QChart::ChartThemeBlueCerulean);
+    // 标题字体
+    QFont titleFont("Microsoft YaHei", 16, QFont::Bold);
+    m_chart->setTitleFont(titleFont);
 
-    // 设置动画选项
+    // 图例
+    QLegend* legend = m_chart->legend();
+    legend->setVisible(true);
+    legend->setAlignment(Qt::AlignBottom);
+    legend->setBackgroundVisible(false);
+    legend->setBorderColor(Qt::transparent);
+    legend->setFont(QFont("Microsoft YaHei", 12));
+
+    // 坐标轴字体（颜色等由 applyTheme 控制）
+    for (QAbstractAxis* axis : m_chart->axes()) {
+        if (QValueAxis* vAxis = qobject_cast<QValueAxis*>(axis)) {
+            QFont axisFont("Microsoft YaHei", 12);
+            vAxis->setLabelsFont(axisFont);
+            vAxis->setTitleFont(axisFont);
+            vAxis->setLabelFormat("%.1f");
+        }
+    }
+
+    m_chart->setMargins(QMargins(30, 30, 30, 30));
+
+    // 动画效果
     m_chart->setAnimationOptions(QChart::AllAnimations);
 
-    // 数字是否本地化
+    // 本地化数字
     m_chart->setLocalizeNumbers(true);
 
     // 添加系列到图表
@@ -85,28 +187,15 @@ void LineChartWidget::initChart()
         m_chart->addSeries(series);
     }
 
-    // 创建默认轴
+    // 创建默认坐标轴
     m_chart->createDefaultAxes();
 
     // 设置标题
     m_chart->setTitle("健康状态分析");
-    m_chart->setTitleBrush(QBrush(QColor(255, 170, 255)));
-    m_chart->setTitleFont(QFont("微软雅黑"));
 
-    // 配置图例
-    m_chart->legend()->setVisible(true);
-    m_chart->legend()->setAlignment(Qt::AlignBottom);
-    m_chart->legend()->setBackgroundVisible(true);
-    m_chart->legend()->setLabelColor(QColor(255, 128, 255));
-    m_chart->legend()->setBorderColor(QColor(255, 255, 170, 185));
+    applyTheme(false);
 
-    QFont font = m_chart->legend()->font();
-    font.setItalic(!font.italic());
-    font.setPointSizeF(12);
-    m_chart->legend()->setFont(font);
-    m_chart->legend()->setFont(QFont("微软雅黑"));
-
-    // 设置图表
+    // 应用图表
     setChart(m_chart);
 }
 

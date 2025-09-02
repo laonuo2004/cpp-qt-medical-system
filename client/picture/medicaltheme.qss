@@ -55,14 +55,22 @@ QLabel#statusLabel {
     font-size: 12px;
 }
 
-QLabel.timeDisplay{
-    background-color: #D4D8E1; 
-    border-radius: 6px;                        
-    padding: 20px 20px;      
+QLabel.timeDisplay {
+    background: qlineargradient(
+        spread:pad,
+        x1:0, y1:0,       /* 左上角 */
+        x2:1, y2:1,       /* 右下角 */
+        stop:0   #F0F3F6, /* 浅灰主色 */
+        stop:0.5 #E6E9EC, /* 中间高光灰 */
+        stop:1   #D4D8E1  /* 收尾灰色 */
+    );
+    border-radius: 6px;
+    padding: 20px 20px;
     font-family: "Microsoft YaHei", "Segoe UI", "Arial", sans-serif;
-font-size: 36px;
-color: rgb(106, 120, 150)                  
+    font-size: 48px;
+    color: rgb(106, 120, 150);  /* 文字淡蓝灰，和整体浅色风格匹配 */
 }
+
 
 QLabel.backImg{
     image: url(:/img/picture/roleBackPage.png);                
@@ -236,11 +244,13 @@ QPushButton.sidebar-btn {
     min-height: 100px;
     max-width: 200px;
     max-height: 100px;
-    font-size: 20px;
-    background-color: #5A6C7D;   
+    font-size: 22px;
+    /* 渐变色：从稍深到稍浅的 #5A6C7D */
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #4F5F6F, stop:1 #6B7D8D);
     color: #FFFFFF;
     border-radius: 0px;
 }
+
 
 QPushButton.sidebar-btn:hover {
     background-color: #4A5A6A;   
@@ -263,8 +273,9 @@ QPushButton.special-btn {
     min-height: 100px;
     max-width: 200px;
     max-height: 100px;
-    font-size: 20px;
-    background-color: #D32F2F;
+    font-size: 22px;
+    /* 渐变色：从稍深到稍浅的 #D32F2F */
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #C12727, stop:1 #E53939);
     color: #FFFFFF;
     border-radius: 0px;
 }
