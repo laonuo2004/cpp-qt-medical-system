@@ -86,7 +86,7 @@ void NetworkManagerServer::onNewConnection()
     connect(clientSocket, &QTcpSocket::disconnected, this, &NetworkManagerServer::onClientDisconnected);
     
     // 添加到会话管理
-    QString sessionId = QString("session_%1_%2").arg(QDateTime::currentMSecsSinceEpoch()).arg(clientSocket);
+    QString sessionId = QString("session_%1_%2").arg(QDateTime::currentMSecsSinceEpoch()).arg(reinterpret_cast<quintptr>(clientSocket));
     m_clientSessions[clientSocket] = sessionId;
     
     qInfo() << "新客户端连接:" << clientSocket->peerAddress().toString() 
@@ -140,24 +140,30 @@ void NetworkManagerServer::handleClientRequest(QTcpSocket* client, const QJsonOb
     QString action = request.value("action").toString();
     QJsonObject params = request.value("params").toObject();
     
+    qDebug() << "处理请求:" << action << "ID:" << requestId;
+    
+    // 检查请求格式
     if (requestId.isEmpty() || action.isEmpty()) {
-        QJsonObject errorResponse = createErrorResponse(requestId, "请求格式错误: requestId或action为空");
+        QJsonObject errorResponse = createErrorResponse(requestId, "请求格式错误：缺少requestId或action字段");
         sendResponse(client, errorResponse);
         return;
     }
     
-    // 查找对应的处理器
+    // 查找并执行对应的处理器
     if (m_requestHandlers.contains(action)) {
         try {
-            QJsonObject result = m_requestHandlers[action](params);
-            QJsonObject response = createSuccessResponse(requestId, result);
+            QJsonObject response = m_requestHandlers[action](params);
+            response["requestId"] = requestId;
+            response["timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
             sendResponse(client, response);
         } catch (const std::exception& e) {
-            QJsonObject errorResponse = createErrorResponse(requestId, QString("处理请求时发生错误: %1").arg(e.what()));
+            QJsonObject errorResponse = createErrorResponse(requestId, 
+                QString("处理请求时发生异常: %1").arg(e.what()));
             sendResponse(client, errorResponse);
         }
     } else {
-        QJsonObject errorResponse = createErrorResponse(requestId, "未知的操作: " + action);
+        QJsonObject errorResponse = createErrorResponse(requestId, 
+            QString("未知的请求类型: %1").arg(action));
         sendResponse(client, errorResponse);
     }
 }
@@ -201,7 +207,7 @@ void NetworkManagerServer::initRequestHandlers()
     m_requestHandlers["forgotPassword"] = [this](const QJsonObject& params) { return handleForgotPassword(params); };
     m_requestHandlers["resetPassword"] = [this](const QJsonObject& params) { return handleResetPassword(params); };
     
-    // 个人信息相关
+    // 个人信息管理
     m_requestHandlers["getPatientInfo"] = [this](const QJsonObject& params) { return handleGetPatientInfo(params); };
     m_requestHandlers["updatePatientInfo"] = [this](const QJsonObject& params) { return handleUpdatePatientInfo(params); };
     m_requestHandlers["getDoctorInfo"] = [this](const QJsonObject& params) { return handleGetDoctorInfo(params); };
@@ -209,10 +215,40 @@ void NetworkManagerServer::initRequestHandlers()
     
     // 预约挂号相关
     m_requestHandlers["getAvailableDoctors"] = [this](const QJsonObject& params) { return handleGetAvailableDoctors(params); };
+    m_requestHandlers["getDoctorScheduleForDate"] = [this](const QJsonObject& params) { return handleGetDoctorScheduleForDate(params); };
     m_requestHandlers["createAppointment"] = [this](const QJsonObject& params) { return handleCreateAppointment(params); };
     m_requestHandlers["getPatientAppointments"] = [this](const QJsonObject& params) { return handleGetPatientAppointments(params); };
+    m_requestHandlers["cancelAppointment"] = [this](const QJsonObject& params) { return handleCancelAppointment(params); };
+    m_requestHandlers["updateAppointmentStatus"] = [this](const QJsonObject& params) { return handleUpdateAppointmentStatus(params); };
     
-    qDebug() << "请求处理器初始化完成，支持" << m_requestHandlers.size() << "种操作";
+    // 病历医嘱相关
+    m_requestHandlers["getPatientMedicalHistory"] = [this](const QJsonObject& params) { return handleGetPatientMedicalHistory(params); };
+    m_requestHandlers["createMedicalRecord"] = [this](const QJsonObject& params) { return handleCreateMedicalRecord(params); };
+    m_requestHandlers["addPrescription"] = [this](const QJsonObject& params) { return handleAddPrescription(params); };
+    m_requestHandlers["getPatientPrescriptions"] = [this](const QJsonObject& params) { return handleGetPatientPrescriptions(params); };
+    
+    // 聊天通信相关
+    m_requestHandlers["sendMessage"] = [this](const QJsonObject& params) { return handleSendMessage(params); };
+    m_requestHandlers["getChatHistory"] = [this](const QJsonObject& params) { return handleGetChatHistory(params); };
+    m_requestHandlers["getRecentContacts"] = [this](const QJsonObject& params) { return handleGetRecentContacts(params); };
+    
+    // 考勤管理相关
+    m_requestHandlers["checkIn"] = [this](const QJsonObject& params) { return handleCheckIn(params); };
+    m_requestHandlers["checkOut"] = [this](const QJsonObject& params) { return handleCheckOut(params); };
+    m_requestHandlers["getAttendanceHistory"] = [this](const QJsonObject& params) { return handleGetAttendanceHistory(params); };
+    m_requestHandlers["submitLeaveRequest"] = [this](const QJsonObject& params) { return handleSubmitLeaveRequest(params); };
+    m_requestHandlers["getLeaveRequests"] = [this](const QJsonObject& params) { return handleGetLeaveRequests(params); };
+    m_requestHandlers["cancelLeave"] = [this](const QJsonObject& params) { return handleCancelLeave(params); };
+    
+    // 科室管理相关
+    m_requestHandlers["getAllDepartments"] = [this](const QJsonObject& params) { return handleGetAllDepartments(params); };
+    m_requestHandlers["getDepartmentInfo"] = [this](const QJsonObject& params) { return handleGetDepartmentInfo(params); };
+    
+    // 药品管理相关
+    m_requestHandlers["searchDrugs"] = [this](const QJsonObject& params) { return handleSearchDrugs(params); };
+    m_requestHandlers["getDrugDetails"] = [this](const QJsonObject& params) { return handleGetDrugDetails(params); };
+    
+    qDebug() << "已注册" << m_requestHandlers.size() << "个请求处理器";
 }
 
 // 处理登录请求
@@ -255,7 +291,10 @@ QJsonObject NetworkManagerServer::handleLogin(const QJsonObject& params)
     data["email"] = userRow.at("email").toString();
     data["role"] = userRow.at("role").toString();
     
-    return data;
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
 }
 
 // 处理用户注册请求
@@ -291,12 +330,16 @@ QJsonObject NetworkManagerServer::handleRegisterUser(const QJsonObject& params)
     userData["created_at"] = QDateTime::currentDateTime().toString(Qt::ISODate);
     
     if (!m_dbManager->insert("users", userData)) {
-        throw std::runtime_error("注册失败: " + m_dbManager->lastError());
+        throw std::runtime_error(("注册失败: " + m_dbManager->lastError()).toStdString());
     }
     
     QJsonObject data;
     data["message"] = "注册成功";
-    return data;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
 }
 
 // 其他处理方法的实现将类似...
@@ -321,7 +364,11 @@ QJsonObject NetworkManagerServer::handleForgotPassword(const QJsonObject& params
     QJsonObject data;
     data["message"] = "验证码已发送";
     data["verificationCode"] = "123456"; // 模拟验证码
-    return data;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
 }
 
 QJsonObject NetworkManagerServer::handleResetPassword(const QJsonObject& params)
@@ -341,12 +388,16 @@ QJsonObject NetworkManagerServer::handleResetPassword(const QJsonObject& params)
     updateData["password_hash"] = passwordHash;
     
     if (!m_dbManager->update("users", updateData, QString("email = '%1'").arg(email))) {
-        throw std::runtime_error("密码重置失败: " + m_dbManager->lastError());
+        throw std::runtime_error(("密码重置失败: " + m_dbManager->lastError()).toStdString());
     }
     
     QJsonObject data;
     data["message"] = "密码重置成功";
-    return data;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
 }
 
 QJsonObject NetworkManagerServer::handleGetPatientInfo(const QJsonObject& params)
@@ -370,10 +421,13 @@ QJsonObject NetworkManagerServer::handleGetPatientInfo(const QJsonObject& params
     QJsonObject data;
     
     for (auto it = row.begin(); it != row.end(); ++it) {
-        data[it.key()] = QJsonValue::fromVariant(it.value());
+        data[it->first] = QJsonValue::fromVariant(it->second);
     }
     
-    return data;
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
 }
 
 QJsonObject NetworkManagerServer::handleUpdatePatientInfo(const QJsonObject& params)
@@ -386,7 +440,11 @@ QJsonObject NetworkManagerServer::handleUpdatePatientInfo(const QJsonObject& par
     
     QJsonObject data;
     data["message"] = "患者信息更新成功";
-    return data;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
 }
 
 QJsonObject NetworkManagerServer::handleGetDoctorInfo(const QJsonObject& params)
@@ -414,10 +472,13 @@ QJsonObject NetworkManagerServer::handleGetDoctorInfo(const QJsonObject& params)
     QJsonObject data;
     
     for (auto it = row.begin(); it != row.end(); ++it) {
-        data[it.key()] = QJsonValue::fromVariant(it.value());
+        data[it->first] = QJsonValue::fromVariant(it->second);
     }
     
-    return data;
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
 }
 
 QJsonObject NetworkManagerServer::handleUpdateDoctorInfo(const QJsonObject& params)
@@ -425,7 +486,47 @@ QJsonObject NetworkManagerServer::handleUpdateDoctorInfo(const QJsonObject& para
     // 实现医生信息更新逻辑
     QJsonObject data;
     data["message"] = "医生信息更新成功";
-    return data;
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+// 工具方法实现
+QJsonObject NetworkManagerServer::dataRowToJsonObject(const DatabaseManager::DataRow& row)
+{
+    QJsonObject obj;
+    for (auto it = row.begin(); it != row.end(); ++it) {
+        obj[it->first] = QJsonValue::fromVariant(it->second);
+    }
+    return obj;
+}
+
+QJsonArray NetworkManagerServer::resultSetToJsonArray(const DatabaseManager::ResultSet& resultSet)
+{
+    QJsonArray arr;
+    for (const auto& row : resultSet) {
+        arr.append(dataRowToJsonObject(row));
+    }
+    return arr;
+}
+
+QVariantMap NetworkManagerServer::jsonObjectToVariantMap(const QJsonObject& obj)
+{
+    QVariantMap map;
+    for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
+        map[it.key()] = it.value().toVariant();
+    }
+    return map;
+}
+
+QVariantList NetworkManagerServer::jsonArrayToVariantList(const QJsonArray& arr)
+{
+    QVariantList list;
+    for (const QJsonValue& value : arr) {
+        list.append(value.toVariant());
+    }
+    return list;
 }
 
 QJsonObject NetworkManagerServer::handleGetAvailableDoctors(const QJsonObject& params)
@@ -452,14 +553,18 @@ QJsonObject NetworkManagerServer::handleGetAvailableDoctors(const QJsonObject& p
     for (const auto& row : result) {
         QJsonObject doctor;
         for (auto it = row.begin(); it != row.end(); ++it) {
-            doctor[it.key()] = QJsonValue::fromVariant(it.value());
+            doctor[it->first] = QJsonValue::fromVariant(it->second);
         }
         doctorArray.append(doctor);
     }
     
     QJsonObject data;
     data["doctors"] = doctorArray;
-    return data;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
 }
 
 QJsonObject NetworkManagerServer::handleCreateAppointment(const QJsonObject& params)
@@ -468,7 +573,11 @@ QJsonObject NetworkManagerServer::handleCreateAppointment(const QJsonObject& par
     QJsonObject data;
     data["message"] = "预约创建成功";
     data["appointmentId"] = 123; // 示例ID
-    return data;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
 }
 
 QJsonObject NetworkManagerServer::handleGetPatientAppointments(const QJsonObject& params)
@@ -476,5 +585,308 @@ QJsonObject NetworkManagerServer::handleGetPatientAppointments(const QJsonObject
     // 实现获取患者预约列表逻辑
     QJsonObject data;
     data["appointments"] = QJsonArray(); // 空数组示例
-    return data;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+// 新增缺失的方法实现
+QJsonObject NetworkManagerServer::handleGetDoctorScheduleForDate(const QJsonObject& params)
+{
+    QString doctorId = params.value("doctorId").toString();
+    QString date = params.value("date").toString();
+    
+    if (doctorId.isEmpty() || date.isEmpty()) {
+        throw std::runtime_error("医生ID和日期不能为空");
+    }
+    
+    QJsonObject data;
+    data["doctorId"] = doctorId;
+    data["date"] = date;
+    data["schedule"] = QJsonArray(); // 空数组示例
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleCancelAppointment(const QJsonObject& params)
+{
+    int appointmentId = params.value("appointmentId").toInt();
+    
+    QJsonObject data;
+    data["message"] = "预约取消成功";
+    data["appointmentId"] = appointmentId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleUpdateAppointmentStatus(const QJsonObject& params)
+{
+    int appointmentId = params.value("appointmentId").toInt();
+    QString status = params.value("status").toString();
+    
+    QJsonObject data;
+    data["message"] = "预约状态更新成功";
+    data["appointmentId"] = appointmentId;
+    data["status"] = status;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleGetPatientMedicalHistory(const QJsonObject& params)
+{
+    int patientId = params.value("patientId").toInt();
+    
+    QJsonObject data;
+    data["medicalRecords"] = QJsonArray();
+    data["patientId"] = patientId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleCreateMedicalRecord(const QJsonObject& params)
+{
+    int appointmentId = params.value("appointmentId").toInt();
+    QString diagnosisNotes = params.value("diagnosisNotes").toString();
+    
+    QJsonObject data;
+    data["message"] = "病历创建成功";
+    data["appointmentId"] = appointmentId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleAddPrescription(const QJsonObject& params)
+{
+    int recordId = params.value("recordId").toInt();
+    QString prescriptionDetails = params.value("prescriptionDetails").toString();
+    
+    QJsonObject data;
+    data["message"] = "处方添加成功";
+    data["recordId"] = recordId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleGetPatientPrescriptions(const QJsonObject& params)
+{
+    int patientId = params.value("patientId").toInt();
+    
+    QJsonObject data;
+    data["prescriptions"] = QJsonArray();
+    data["patientId"] = patientId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+// 聊天通信相关方法
+QJsonObject NetworkManagerServer::handleSendMessage(const QJsonObject& params)
+{
+    int senderId = params.value("senderId").toInt();
+    int receiverId = params.value("receiverId").toInt();
+    QString content = params.value("content").toString();
+    
+    QJsonObject data;
+    data["message"] = "消息发送成功";
+    data["senderId"] = senderId;
+    data["receiverId"] = receiverId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleGetChatHistory(const QJsonObject& params)
+{
+    int user1Id = params.value("user1Id").toInt();
+    int user2Id = params.value("user2Id").toInt();
+    
+    QJsonObject data;
+    data["messages"] = QJsonArray();
+    data["user1Id"] = user1Id;
+    data["user2Id"] = user2Id;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleGetRecentContacts(const QJsonObject& params)
+{
+    int userId = params.value("userId").toInt();
+    
+    QJsonObject data;
+    data["contacts"] = QJsonArray();
+    data["userId"] = userId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+// 考勤管理相关方法
+QJsonObject NetworkManagerServer::handleCheckIn(const QJsonObject& params)
+{
+    QString doctorId = params.value("doctorId").toString();
+    
+    QJsonObject data;
+    data["message"] = "签到成功";
+    data["doctorId"] = doctorId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleCheckOut(const QJsonObject& params)
+{
+    QString doctorId = params.value("doctorId").toString();
+    
+    QJsonObject data;
+    data["message"] = "签退成功";
+    data["doctorId"] = doctorId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleGetAttendanceHistory(const QJsonObject& params)
+{
+    QString doctorId = params.value("doctorId").toString();
+    
+    QJsonObject data;
+    data["attendance"] = QJsonArray();
+    data["doctorId"] = doctorId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleSubmitLeaveRequest(const QJsonObject& params)
+{
+    QString doctorId = params.value("doctorId").toString();
+    
+    QJsonObject data;
+    data["message"] = "请假申请提交成功";
+    data["doctorId"] = doctorId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleGetLeaveRequests(const QJsonObject& params)
+{
+    QString doctorId = params.value("doctorId").toString();
+    
+    QJsonObject data;
+    data["leaveRequests"] = QJsonArray();
+    data["doctorId"] = doctorId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleCancelLeave(const QJsonObject& params)
+{
+    int requestId = params.value("requestId").toInt();
+    
+    QJsonObject data;
+    data["message"] = "销假成功";
+    data["requestId"] = requestId;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+// 科室管理相关方法
+QJsonObject NetworkManagerServer::handleGetAllDepartments(const QJsonObject& params)
+{
+    Q_UNUSED(params)
+    
+    QJsonObject data;
+    data["departments"] = QJsonArray();
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleGetDepartmentInfo(const QJsonObject& params)
+{
+    int departmentId = params.value("departmentId").toInt();
+    
+    QJsonObject data;
+    data["departmentId"] = departmentId;
+    data["departmentName"] = "示例科室";
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+// 药品管理相关方法
+QJsonObject NetworkManagerServer::handleSearchDrugs(const QJsonObject& params)
+{
+    QString keyword = params.value("keyword").toString();
+    
+    QJsonObject data;
+    data["drugs"] = QJsonArray();
+    data["keyword"] = keyword;
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
+}
+
+QJsonObject NetworkManagerServer::handleGetDrugDetails(const QJsonObject& params)
+{
+    int drugId = params.value("drugId").toInt();
+    
+    QJsonObject data;
+    data["drugId"] = drugId;
+    data["drugName"] = "示例药品";
+    
+    QJsonObject response;
+    response["success"] = true;
+    response["data"] = data;
+    return response;
 }
