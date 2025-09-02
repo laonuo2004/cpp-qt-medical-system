@@ -24,9 +24,9 @@ LoginPanel::LoginPanel(QWidget *parent) :
     connect(this, &LoginPanel::loginSuccessful, this, &LoginPanel::accept);
 
     UiController& controller = UiController::get();
-    connect(&controller, &UiController::loginSuccessAdmin, this, &LoginPanel::accept);
-    connect(&controller, &UiController::loginSuccessDoctor, this, &LoginPanel::accept);
-    connect(&controller, &UiController::loginSuccessPatient, this, &LoginPanel::accept);
+    connect(&controller, &UiController::loginSuccessAdmin, this, &LoginPanel::handleLogin);
+    connect(&controller, &UiController::loginSuccessDoctor, this, &LoginPanel::handleLogin);
+    connect(&controller, &UiController::loginSuccessPatient, this, &LoginPanel::handleLogin);
     connect(&controller, &UiController::loginFailed, this, &LoginPanel::onLoginFailed);
 }
 
@@ -40,7 +40,7 @@ void LoginPanel::userRegister()
     RegisterPanel* registerPanel = new RegisterPanel(this);
     if (registerPanel->exec() == QDialog::Accepted)
     {
-        QMessageBox::information(this, tr("用户注册"), tr("用户注册成功。"));
+        //QMessageBox::information(this, tr("用户注册"), tr("用户注册成功。"));
     }
     delete registerPanel;
 }
@@ -50,24 +50,15 @@ void LoginPanel::forgetPwd()
     ResetPwd* resetPwdPanel = new ResetPwd(this);
     if (resetPwdPanel->exec() == QDialog::Accepted)
     {
-        QMessageBox::information(this, tr("重置密码"), tr("密码修改成功。"));
+        //QMessageBox::information(this, tr("重置密码"), tr("密码修改成功。"));
     }
     delete resetPwdPanel;
 }
 
-void LoginPanel::handleLogin()
+void LoginPanel::handleLogin(const QString& id)
 {
-    QString email = ui->userInput->text().trimmed();
-    QString password = ui->pwdInput->text();
-    
-    if (email.isEmpty() || password.isEmpty()) {
-        QMessageBox::warning(this, tr("登录错误"), tr("请输入邮箱和密码"));
-        return;
-    }
-    
-    // 调用UiController进行登录验证
-    UiController::get().login(email, password);
-    // 不需要在这里处理结果，UiController会发出信号，信号已连接到accept()或onLoginFailed()
+
+    accept();
 }
 
 void LoginPanel::onLoginFailed(const QString &reason)
@@ -83,12 +74,16 @@ void LoginPanel::buildByRole(int userRole)
     {
         ui->HeaderLabel->setText("患者登录");
         ui->userIdentity->setText("邮箱");
+        ui->pwdInput->setPlaceholderText("至少包含8位，大小写字母，数字和特殊字符");
+        ui->pwdInput->setEchoMode(QLineEdit::Password);
         break;
     }
     case 1: // 医生身份登录
     {
         ui->HeaderLabel->setText("医生登录");
         ui->userIdentity->setText("工号");
+        ui->pwdInput->setPlaceholderText("至少包含8位，大小写字母，数字和特殊字符");
+        ui->pwdInput->setEchoMode(QLineEdit::Password);
         ui->RegisterBtn->hide();
         break;
     }
@@ -96,8 +91,18 @@ void LoginPanel::buildByRole(int userRole)
     {
         ui->HeaderLabel->setText("管理员登录");
         ui->userIdentity->setText("管理员号");
+        ui->pwdInput->setPlaceholderText("至少包含8位，大小写字母，数字和特殊字符");
+        ui->pwdInput->setEchoMode(QLineEdit::Password);
         ui->RegisterBtn->hide();
         break;
     }
     }
+}
+
+void LoginPanel::on_LoginBtn_clicked()
+{
+    QString phone=ui->userInput->text();
+    QString pwd=ui->pwdInput->text();
+    UiController::get().login(phone,pwd);
+
 }

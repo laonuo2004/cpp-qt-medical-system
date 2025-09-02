@@ -28,6 +28,10 @@ private slots:
     void onPasswordResetSuccess();
     void onPasswordResetFailed(const QString &reason);
 
+    void on_sendBtn_clicked();
+
+    void on_confirmBtn_clicked();
+
 private:
     Ui::ResetPwd *ui;
     UiController& m_controller;

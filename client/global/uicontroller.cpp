@@ -65,7 +65,7 @@ void UiController::login(const QString &email, const QString &password)
         return;
     }
 
-    QString sql = QString("SELECT username, password_hash, role FROM users WHERE email = '%1'").arg(email);
+    QString sql = QString("SELECT user_name, password_hash, role FROM users WHERE email = '%1'").arg(email);
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
 
     if (result.empty())
@@ -78,6 +78,7 @@ void UiController::login(const QString &email, const QString &password)
     DatabaseManager::DataRow userRow = result[0];
     QString storedPasswordHash = userRow["password_hash"].toString();
     QString roleString = userRow["role"].toString(); // 从数据库获取角色字符串
+    QString id=userRow["user_id"].toString();
 
     if (storedPasswordHash == hashPassword(password))
     {
@@ -85,15 +86,15 @@ void UiController::login(const QString &email, const QString &password)
         qDebug() << "用户" << email << "登录成功，角色为" << roleString;
         if (roleString == "admin")
         {
-            emit loginSuccessAdmin();
+            emit loginSuccessAdmin(id);
         }
         else if (roleString == "doctor")
         {
-            emit loginSuccessDoctor();
+            emit loginSuccessDoctor(id);
         }
         else if (roleString == "patient")
         {
-            emit loginSuccessPatient();
+            emit loginSuccessPatient(id);
         }
         else
         {
@@ -107,7 +108,7 @@ void UiController::login(const QString &email, const QString &password)
 }
 
 // 注册方法
-void UiController::registerUser(const QString &username, const QString &email, const QString &password, UserRole role)
+void UiController::registerUser(const QString &email, const QString &password, UserRole role)
 {
     if (email.isEmpty() || password.isEmpty()) {
         emit registrationFailed("邮箱或密码不能为空。");
@@ -130,7 +131,7 @@ void UiController::registerUser(const QString &username, const QString &email, c
     }
 
     DatabaseManager::DataRow userData;
-    userData["user_name"] = username;
+    userData["user_name"] = "";
     userData["email"] = email;
     userData["password_hash"] = hashPassword(password);
 
@@ -140,6 +141,7 @@ void UiController::registerUser(const QString &username, const QString &email, c
     {
         case UserRole::Admin:
             roleString = "admin";
+
             break;
         case UserRole::Doctor:
             roleString = "doctor";
@@ -151,7 +153,16 @@ void UiController::registerUser(const QString &username, const QString &email, c
     userData["role"] = roleString;
     if (DatabaseManager::instance().insert("users", userData))
     {
-        qDebug() << "用户" << username << "注册成功";
+        qDebug() << "用户" << email << "注册成功";
+//        switch(role)
+//        {
+//            case UserRole::Admin:
+//                DatabaseManager::DataRow adminData;
+//                adminData["user_id"] = ;
+//                DatabaseManager::instance().insert("admins", userData);
+//        }
+
+
         emit registrationSuccess();
     }
     else

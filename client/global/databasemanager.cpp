@@ -301,6 +301,7 @@ DatabaseManager& DatabaseManager::instance()
                  role TEXT
              )
           )");
+
         // 2. 管理员表
         if (success)
         {

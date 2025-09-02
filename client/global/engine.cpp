@@ -68,9 +68,9 @@ void Engine::runLoginPanel(int userType)
 }
 
 // Engine 的槽函数：处理管理员登录成功
-void Engine::onLoginSuccessAdmin()
+void Engine::onLoginSuccessAdmin(const QString& id)
 {
-    qDebug() << "Engine 收到管理员登录成功信号。正在创建 Backend 窗口。";
+    qDebug() << "Engine 收到管理员登录成功信号。正在创建 Backend 窗口。用户id为"<<id;
     if (m_mainWindow) {
         delete m_mainWindow; // 清理旧窗口，以防万一
     }
@@ -79,9 +79,9 @@ void Engine::onLoginSuccessAdmin()
 }
 
 // Engine 的槽函数：处理医生登录成功
-void Engine::onLoginSuccessDoctor()
+void Engine::onLoginSuccessDoctor(const QString& id)
 {
-    qDebug() << "Engine 收到医生登录成功信号。正在创建 DoctorClient 窗口。";
+    qDebug() << "Engine 收到医生登录成功信号。正在创建 DoctorClient 窗口。用户id为"<<id;
     if (m_mainWindow) {
         delete m_mainWindow;
     }
@@ -89,9 +89,9 @@ void Engine::onLoginSuccessDoctor()
 }
 
 // Engine 的槽函数：处理患者登录成功
-void Engine::onLoginSuccessPatient()
+void Engine::onLoginSuccessPatient(const QString& id)
 {
-    qDebug() << "Engine 收到患者登录成功信号。正在创建 PatientClient 窗口。";
+    qDebug() << "Engine 收到患者登录成功信号。正在创建 PatientClient 窗口。用户id为"<<id;
     if (m_mainWindow) {
         delete m_mainWindow;
     }

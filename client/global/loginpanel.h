@@ -2,6 +2,7 @@
 #define LOGINPANEL_H
 
 #include <QDialog>
+#include "uicontroller.h"
 
 namespace Ui {
 class LoginPanel;
@@ -51,13 +52,16 @@ protected:
      * 获取用户输入的用户名和密码，并调用 UIController 进行登录验证。
      * 登录成功后，QDialog发出accept信号，触发主窗口的创建。
      */
-    void handleLogin();
+    void handleLogin(const QString& id);
 
     /**
      * @brief 处理登录失败
      */
     void onLoginFailed(const QString &reason);
 
+
+private slots:
+    void on_LoginBtn_clicked();
 
 private:
     Ui::LoginPanel *ui;
