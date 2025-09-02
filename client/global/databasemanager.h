@@ -60,7 +60,7 @@ public:
     QSqlDatabase database() const;
 
     // --- 高级查询接口 ---
-
+    bool deleteUser(const int& id);
     /**
      * @brief 根据科室获取医生列表
      *

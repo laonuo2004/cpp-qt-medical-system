@@ -52,6 +52,8 @@ private slots:
     void displayPatientsInListWidget(const DatabaseManager::ResultSet& patientsData);
     void displayDrug(const DatabaseManager::ResultSet& patientsData);
 
+    void on_pushButton_2_clicked();
+
 private:
     Ui::Backend *ui;
 };
