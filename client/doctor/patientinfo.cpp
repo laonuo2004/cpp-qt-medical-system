@@ -3,7 +3,7 @@
 #include "diagnose.h"
 #include "doctorchattool.h"
 #include "uicontroller.h"
-
+#include "chatdialog.h"
 PatientInfo::PatientInfo(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::PatientInfo)
@@ -32,7 +32,7 @@ void PatientInfo::diagnose()
 
 void PatientInfo::startChat()
 {
-    DoctorChatTool* chatDialog = new DoctorChatTool(this);
+    ChatDialog* chatDialog = new ChatDialog(this , 12 , 19);
     if (chatDialog->exec() == QDialog::Accepted)
     {
 
