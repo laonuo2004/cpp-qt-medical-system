@@ -9,6 +9,14 @@ RegisterInfo::RegisterInfo(QWidget *parent) :
     connect(ui->confirmBtn, &QPushButton::clicked, this, &RegisterInfo::handlePatientRegister);
 }
 
+RegisterInfo::RegisterInfo(const QVariantMap& doctorInfo, const QString& timeslot, QWidget *parent)
+    : QDialog(parent), ui(new Ui::RegisterInfo),
+      m_doctorInfo(doctorInfo), m_timeslot(timeslot)
+{
+    ui->setupUi(this);
+    applyToUi();
+}
+
 RegisterInfo::~RegisterInfo()
 {
     delete ui;
@@ -32,4 +40,12 @@ void RegisterInfo::handlePatientRegister()
     {
         emit reject();
     }
+}
+
+void RegisterInfo::applyToUi()
+{
+    ui->label_2->setText(m_doctorInfo.value("department").toString());
+    ui->label_4->setText(m_doctorInfo.value("full_name").toString());
+    ui->label_6->setText(m_timeslot);
+    ui->label_8->setText(m_doctorInfo.value("registration_fee").toString());
 }

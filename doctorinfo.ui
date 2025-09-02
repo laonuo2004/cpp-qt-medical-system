@@ -271,43 +271,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QDateEdit" name="dateEdit">
-       <item>
-        <property name="text">
-         <string>2025-09-05</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>2025-09-06</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>2025-09-07</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>2025-09-08</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>2025-09-09</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>2025-09-10</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>2025-09-11</string>
-        </property>
-       </item>
-      </widget>
+      <widget class="QDateEdit" name="dateEdit"/>
      </item>
      <item>
       <widget class="QLabel" name="label_7">
@@ -317,43 +281,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="availableTime">
-       <item>
-        <property name="text">
-         <string>9:00</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>10:00</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>11:00</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>12:00</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>14:00</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>15:00</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>16:00</string>
-        </property>
-       </item>
-      </widget>
+      <widget class="QComboBox" name="availableTime"/>
      </item>
     </layout>
    </item>

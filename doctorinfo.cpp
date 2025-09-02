@@ -71,7 +71,7 @@ void DoctorInfo::patientRegister()
 
 void DoctorInfo::startChat()
 {
-    PatientChatTool* chatDialog = new PatientChatTool(this, 19 , 12);
+    PatientChatTool* chatDialog = new PatientChatTool(this, m_patientid ,m_doctorid);
     if (chatDialog->exec() == QDialog::Accepted)
     {
 

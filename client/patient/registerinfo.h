@@ -2,6 +2,7 @@
 #define REGISTERINFO_H
 
 #include <QDialog>
+#include "doctorinfo.h"
 
 namespace Ui {
 class RegisterInfo;
@@ -22,6 +23,7 @@ class RegisterInfo : public QDialog
 
 public:
     explicit RegisterInfo(QWidget *parent = nullptr);
+    RegisterInfo(const QVariantMap& doctorInfo, const QString& timeslot, QWidget *parent = nullptr);
     ~RegisterInfo();
 
 protected:
@@ -36,6 +38,9 @@ protected:
 
 private:
     Ui::RegisterInfo *ui;
+    QVariantMap m_doctorInfo;
+    QString m_timeslot;
+    void applyToUi();
 };
 
 #endif // REGISTERINFO_H

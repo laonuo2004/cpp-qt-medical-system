@@ -2,10 +2,7 @@
 #include "ui_patientinfopage.h"
 #include "editpatientinfo.h"
 #include "uicontroller.h"
-#include "mycalendar.h"
-
-#include <QTextCharFormat>
-
+#include <QTimer>
 PatientInfoPage::PatientInfoPage(QWidget *parent, int patientId) :
     QWidget(parent),
     ui(new Ui::PatientInfoPage),
@@ -14,9 +11,6 @@ PatientInfoPage::PatientInfoPage(QWidget *parent, int patientId) :
     ui->setupUi(this);
     ui->PatientPhoto->setFixedSize(200, 250);
     connect(ui->SaveBtn, &QPushButton::clicked, this, &PatientInfoPage::editPatientInfo);
-
-    MyCalendar* calendar = new MyCalendar(this);
-    ui->rightPanel->addWidget(calendar);
 
     QVariantMap patientInfo = UiController::get().getPatientInfo(m_patientId);
     ui->nameLabel->setText(patientInfo.value("full_name").toString());
@@ -29,6 +23,12 @@ PatientInfoPage::PatientInfoPage(QWidget *parent, int patientId) :
     ui->emerNameLabel->setText(patientInfo.value("sos_name").toString());
     ui->emerContactLabel->setText(patientInfo.value("sos_phone_no").toString());
     // ui->historyLabel->setText(patientInfo.value("history").toString()); 既往病史， 在数据库中没有对应条目
+
+    // 创建定时器
+    QTimer *timer = new QTimer(this);
+    timer->start(1000);  // 1000 毫秒更新一次
+    // 连接信号和槽，每秒触发一次
+    connect(timer, &QTimer::timeout, this, &PatientInfoPage::updateTimeAndGreeting);
 }
 
 PatientInfoPage::~PatientInfoPage()
@@ -55,6 +55,7 @@ void PatientInfoPage::editPatientInfo()
         // ui->historyLabel->setText(InfoSet[9]);
         ui->PatientPhoto->setPixmap(editPanel->getImage());
 
+
         QVariantMap patientInfo;
         patientInfo["full_name"] = InfoSet[0];
         patientInfo["id_card_no"] = InfoSet[1];
@@ -69,4 +70,21 @@ void PatientInfoPage::editPatientInfo()
         UiController::get().updatePatientInfo(m_patientId, patientInfo);
     }
     delete editPanel;
+}
+
+void PatientInfoPage::updateTimeAndGreeting()
+{
+    const QTime now = QTime::currentTime();
+    ui->timeDisplay->setText(now.toString("HH:mm"));
+    ui->title->setText(greetingForHour(now.hour()));
+}
+
+QString PatientInfoPage::greetingForHour(int h) const
+{
+    if (h >= 5  && h <= 8)  return QStringLiteral("早上好");
+    if (h > 8  && h <= 12) return QStringLiteral("上午好");
+    if (h > 12 && h <= 14) return QStringLiteral("中午好");
+    if (h > 14 && h <= 18) return QStringLiteral("下午好");
+    if (h > 18 && h <= 22) return QStringLiteral("晚上好");
+    return QStringLiteral("夜深了，注意休息");
 }
