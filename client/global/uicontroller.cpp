@@ -130,7 +130,7 @@ void UiController::registerUser(const QString &username, const QString &email, c
     }
 
     DatabaseManager::DataRow userData;
-    userData["user_name"] = username;
+    userData["username"] = username;
     userData["email"] = email;
     userData["password_hash"] = hashPassword(password);
 
