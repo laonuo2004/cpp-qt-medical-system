@@ -64,7 +64,7 @@ private:
 private slots:
     void onTabChanged(int index);
     void printLeaveRequests(const QVariantList& rows);
-
+    void on_historyBtn_clicked();
 };
 
 #endif // ATTENDANCEPAGE_H

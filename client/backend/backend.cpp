@@ -20,7 +20,7 @@ Backend::Backend(QWidget *parent) :
     connect(ui->addDoctorAction, &QAction::triggered, [this](){ addUser(1); });
     connect(ui->addAdminAction, &QAction::triggered, [this](){ addUser(2); });
     connect(ui->addDrug, &QAction::triggered, [this](){ openDialog(new AddDrug, "添加药品", "药品添加成功！"); });
-    connect(ui->addDepartment, &QAction::triggered, [this](){ openDialog(new AddDepartment, "添加部门", "部门添加成功！"); });
+    connect(ui->addDepartment, &QAction::triggered, [this](){ openDialog(new AddDepartment, "添加科室", "科室添加成功！"); });
 }
 
 Backend::~Backend()
@@ -211,4 +211,29 @@ void Backend::displayDrug(const DatabaseManager::ResultSet& patientsData)
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     qDebug() << "Drug updated in QTableWidget. Total rows:" << ui->tableWidget->rowCount();
+}
+
+void Backend::on_pushButton_2_clicked()
+{
+    QModelIndexList selectedRows = ui->tableWidget->selectionModel()->selectedRows();
+
+        if (selectedRows.isEmpty()) {
+            QMessageBox::warning(this, "删除", "请选择要删除的记录。");
+            return;
+        }
+
+        // 假设只删除第一行选中的记录，或者只支持单行删除
+        // 如果要支持多行删除，需要遍历 selectedRows
+        int currentRow = selectedRows.first().row();
+        QString userIdToDelete = ui->tableWidget->item(currentRow, 0)->text(); // 获取第一列（ID）的文本
+
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "确认删除",
+                                      QString("您确定要删除用户ID为 %1 的记录吗？").arg(userIdToDelete),
+                                      QMessageBox::Yes|QMessageBox::No);
+
+        if (reply == QMessageBox::Yes) {
+            DatabaseManager::instance().deleteUser(userIdToDelete.toUInt());
+            QMessageBox::information(this, "删除成功", "记录已成功删除。");
+        }
 }

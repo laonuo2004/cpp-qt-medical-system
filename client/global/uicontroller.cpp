@@ -329,7 +329,7 @@ DatabaseManager::ResultSet UiController::getAllPatientInfo()
         }
 
         QString sql = QString(
-            "SELECT u.user_id, u.user_name, u.email, u.role "
+            "SELECT u.user_id, u.username, u.email, u.role "
             "FROM users u "
             "WHERE u.role = 'patient'"
         );
@@ -357,7 +357,7 @@ DatabaseManager::ResultSet UiController::getAllDoctorInfo()
         }
 
         QString sql = QString(
-            "SELECT u.user_id, u.user_name, u.email, u.role "
+            "SELECT u.user_id, u.username, u.email, u.role "
             "FROM users u "
             "WHERE u.role = 'doctor'"
         );
@@ -385,7 +385,7 @@ DatabaseManager::ResultSet UiController::getAllInfo()
         }
 
         QString sql = QString(
-            "SELECT u.user_id, u.user_name, u.email, u.role "
+            "SELECT u.user_id, u.username, u.email, u.role "
             "FROM users u "
         );
 

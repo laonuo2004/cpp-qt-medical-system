@@ -71,7 +71,21 @@ QLabel.timeDisplay {
     color: #121212;   /* 深色文字，保持对比 */
 }
 
+QLabel.chat-bubble-left {
+    background-color: #145C52;  /* 灰色背景的左侧气泡 */
+    color: #E0E0E0;
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 16px;
+}
 
+QLabel.chat-bubble-right {
+    background-color: #20C997;  /* 蓝色背景的右侧气泡 */
+    color: #121212;
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 16px;
+}
 
 QPushButton {
     background-color: #20C997;   /* 默认青绿 */
