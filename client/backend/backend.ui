@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Backend</class>
+ <widget class="QMainWindow" name="Backend">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>管理员客户端</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>查看</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="comboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <item>
+         <property name="text">
+          <string>所有用户</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>医生</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>病患</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>药品</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="LogoutBtn">
+        <property name="text">
+         <string>退出登录</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QTableWidget" name="tableWidget"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="user">
+    <property name="title">
+     <string>用户</string>
+    </property>
+    <addaction name="addAdminAction"/>
+    <addaction name="addDoctorAction"/>
+    <addaction name="addPatientAction"/>
+   </widget>
+   <widget class="QMenu" name="drug">
+    <property name="title">
+     <string>药品</string>
+    </property>
+    <addaction name="addDrug"/>
+   </widget>
+   <widget class="QMenu" name="department">
+    <property name="title">
+     <string>科室</string>
+    </property>
+    <addaction name="addDepartment"/>
+   </widget>
+   <addaction name="user"/>
+   <addaction name="drug"/>
+   <addaction name="department"/>
+  </widget>
+  <action name="addAdminAction">
+   <property name="text">
+    <string>添加管理员</string>
+   </property>
+  </action>
+  <action name="addDoctorAction">
+   <property name="text">
+    <string>添加医生</string>
+   </property>
+  </action>
+  <action name="addPatientAction">
+   <property name="text">
+    <string>添加患者</string>
+   </property>
+  </action>
+  <action name="addDrug">
+   <property name="text">
+    <string>添加药品</string>
+   </property>
+  </action>
+  <action name="addDepartment">
+   <property name="text">
+    <string>添加科室</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
