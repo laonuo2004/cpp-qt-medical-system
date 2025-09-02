@@ -46,7 +46,7 @@ void PatientInfoPage::editPatientInfo()
         ui->emailLabel->setText(InfoSet[6]);
         ui->emerNameLabel->setText(InfoSet[7]);
         ui->emerContactLabel->setText(InfoSet[8]);
-        ui->historyLabel->setText(InfoSet[9]);
+        // ui->historyLabel->setText(InfoSet[9]);
         ui->PatientPhoto->setPixmap(editPanel->getImage());
 
         QVariantMap patientInfo;

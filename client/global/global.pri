@@ -2,9 +2,9 @@ HEADERS += \
     $$PWD/chooserole.h \
     $$PWD/loginpanel.h \
     $$PWD/registerpanel.h \
-    $$PWD/resetpwd.h
-    $$PWD/uicontroller.h
-    $$PWD/databasemanager.h
+    $$PWD/resetpwd.h \
+    $$PWD/uicontroller.h \
+    $$PWD/databasemanager.h \
     $$PWD/engine.h
 
 SOURCES += \
