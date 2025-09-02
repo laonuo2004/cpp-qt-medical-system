@@ -2,6 +2,7 @@
 #define ADDUSER_H
 
 #include <QDialog>
+#include "global/uicontroller.h"
 
 namespace Ui {
 class AddUser;
@@ -32,8 +33,14 @@ public:
      */
     void buildByRole(int userRole);
 
+private slots:
+    void on_confirmBtn_clicked();
+    void handleregister();
+    void handlefail(const QString &reason);
+
 private:
     Ui::AddUser *ui;
+    int usersRole;
 };
 
 #endif // ADDUSER_H

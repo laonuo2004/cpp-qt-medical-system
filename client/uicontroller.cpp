@@ -320,6 +320,89 @@ QVariantMap UiController::getPatientInfo(int userId)
     return rowToMap(result.front());
 }
 
+DatabaseManager::ResultSet UiController::getAllPatientInfo()
+{
+    if (!ensureDbConnected(__func__))
+        {
+            qCritical() << "Database not connected for getAllPatientInfo.";
+            return {}; // 返回空的 ResultSet
+        }
+
+        QString sql = QString(
+            "SELECT u.user_id, u.user_name, u.email, u.role "
+            "FROM users u "
+            "WHERE u.role = 'patient'"
+        );
+
+        DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+        if (result.empty())
+        {
+            qDebug() << "No patient information found in the database.";
+        }
+        else
+        {
+            qDebug() << "Successfully retrieved patient information. Rows:" << result.size();
+        }
+
+        return result; // 直接返回 ResultSet
+}
+
+DatabaseManager::ResultSet UiController::getAllDoctorInfo()
+{
+    if (!ensureDbConnected(__func__))
+        {
+            qCritical() << "Database not connected for getAllPatientInfo.";
+            return {}; // 返回空的 ResultSet
+        }
+
+        QString sql = QString(
+            "SELECT u.user_id, u.user_name, u.email, u.role "
+            "FROM users u "
+            "WHERE u.role = 'doctor'"
+        );
+
+        DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+        if (result.empty())
+        {
+            qDebug() << "No patient information found in the database.";
+        }
+        else
+        {
+            qDebug() << "Successfully retrieved patient information. Rows:" << result.size();
+        }
+
+        return result; // 直接返回 ResultSet
+}
+
+DatabaseManager::ResultSet UiController::getAllInfo()
+{
+    if (!ensureDbConnected(__func__))
+        {
+            qCritical() << "Database not connected for getAllPatientInfo.";
+            return {}; // 返回空的 ResultSet
+        }
+
+        QString sql = QString(
+            "SELECT u.user_id, u.user_name, u.email, u.role "
+            "FROM users u "
+        );
+
+        DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+        if (result.empty())
+        {
+            qDebug() << "No patient information found in the database.";
+        }
+        else
+        {
+            qDebug() << "Successfully retrieved patient information. Rows:" << result.size();
+        }
+
+        return result; // 直接返回 ResultSet
+}
+
 bool UiController::updatePatientInfo(int userId, const QVariantMap &details)
 {
     if (!ensureDbConnected(__func__)) {
@@ -406,7 +489,6 @@ QVariantMap UiController::getDoctorInfo(const QString &doctorId)
         "JOIN departments dept ON d.department_id = dept.department_id "
         "WHERE d.doctor_id = '%1'"
     ).arg(doctorId);
-
 
     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
 
@@ -897,7 +979,6 @@ QVariantMap UiController::getAppointmentsByPrescriptionId(int patientId, int pre
     emit appointmentListReady({ appointment });
     return appointment;
 }
-
 
 bool UiController::createHospitalization(int recordId, const QString &doctorId, const QString &wardNo, const QString &bedNo)
 {
@@ -1766,4 +1847,34 @@ QVariantMap UiController::getDrugDetails(int drugId)
 
     emit drugDetailsReady(drugDetails);
     return drugDetails;
+}
+
+DatabaseManager::ResultSet UiController::getAllDrugInfo()
+{
+     if (!ensureDbConnected(__func__))
+     {
+         qCritical() << "Database not connected for getAllDrugInfo.";
+     }
+
+     QString sql = QString(R"(
+         SELECT drug_id, drug_name, description, usage, precautions, drug_price, image_url, unit
+         FROM drugs
+     )");
+
+     // 3. 通过 DatabaseManager 单例执行查询
+     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+
+
+     if (result.empty()) // 或 !result.isValid() 如果您的 ResultSet 有此方法来表示无结果或查询失败
+     {
+         qDebug() << "No drug information found in the database or query failed.";
+     }
+     else
+     {
+
+         qDebug() << "Successfully initiated retrieval of drug information.";
+     }
+
+     // 4. 直接返回 ResultSet
+     return result;
 }

@@ -2,6 +2,8 @@
 #define BACKEND_H
 
 #include <QMainWindow>
+#include "databasemanager.h"
+#include "global/uicontroller.h"
 
 namespace Ui {
 class Backend;
@@ -43,6 +45,12 @@ protected:
      * addUser由专门的函数addUser实现。
      */
     void openDialog(QDialog* dialog, const QString& msgTitle, const QString& msgContent);
+
+private slots:
+    void on_pushButton_clicked();
+    // 辅助函数，解析 ResultSet 并填充 QListWidget
+    void displayPatientsInListWidget(const DatabaseManager::ResultSet& patientsData);
+    void displayDrug(const DatabaseManager::ResultSet& patientsData);
 
 private:
     Ui::Backend *ui;

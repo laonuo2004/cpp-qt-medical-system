@@ -2,6 +2,7 @@
 #define ADDDRUG_H
 
 #include <QDialog>
+#include "global/uicontroller.h"
 
 namespace Ui {
 class AddDrug;
@@ -32,6 +33,9 @@ protected:
      * 将药品图片的链接显示在下方label上。
      */
     void addPhoto();
+
+private slots:
+    void on_confirmBtn_clicked();
 
 private:
     Ui::AddDrug *ui;

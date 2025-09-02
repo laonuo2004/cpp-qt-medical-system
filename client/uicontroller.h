@@ -18,7 +18,7 @@ enum class UserRole {
 };
 Q_DECLARE_METATYPE(UserRole) // 这一行非常重要，允许QVariant存储UserRole
 
-class   UiController : public QObject
+class UiController : public QObject
 {
     Q_OBJECT
 public:
@@ -113,6 +113,10 @@ public:
      *         返回空映射表表示用户不存在或数据库连接失败
      */
     Q_INVOKABLE QVariantMap getPatientInfo(int userId);
+    Q_INVOKABLE DatabaseManager::ResultSet getAllPatientInfo();
+    Q_INVOKABLE DatabaseManager::ResultSet getAllDoctorInfo();
+    Q_INVOKABLE DatabaseManager::ResultSet getAllInfo();
+//    Q_INVOKABLE DatabaseManager::ResultSet getAllAdminInfo();
 
     /**
      * @brief 更新患者信息
@@ -202,8 +206,6 @@ public:
      *         成功时发出appointmentCreated(int appointmentId)信号
      *         失败时发出appointmentCreationFailed(QString reason)信号
      */
-
-
     Q_INVOKABLE bool createAppointment(int patientId, const QString &doctorId, const QDateTime &appointmentTime);
 
     /**
@@ -589,6 +591,7 @@ public:
      */
     Q_INVOKABLE QVariantMap getDrugDetails(int drugId);
     Q_INVOKABLE bool registerDrug(const QString &drug_name,const QString &drug_price,const QString &description,const QString &image_url);
+    Q_INVOKABLE DatabaseManager::ResultSet getAllDrugInfo();
 
 private:
     // 用于生成和验证密码哈希
