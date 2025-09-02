@@ -13,10 +13,13 @@ class ChatDialog : public QDialog
 
 public:
     explicit ChatDialog(QWidget *parent = nullptr);
+    ChatDialog(QWidget *parent , int patientid , int doctorid);
     ~ChatDialog();
 
 private:
     Ui::ChatDialog *ui;
+    int m_patientid;
+    int m_doctorid;
 };
 
 #endif // CHATDIALOG_H
