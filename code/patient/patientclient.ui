@@ -86,7 +86,7 @@
             </size>
            </property>
            <property name="text">
-            <string>个人信息</string>
+            <string>个人中心</string>
            </property>
           </widget>
          </item>
@@ -105,7 +105,7 @@
             </size>
            </property>
            <property name="text">
-            <string>挂号</string>
+            <string>挂在线号</string>
            </property>
           </widget>
          </item>
@@ -124,7 +124,7 @@
             </size>
            </property>
            <property name="text">
-            <string>报告</string>
+            <string>报查看告</string>
            </property>
           </widget>
          </item>

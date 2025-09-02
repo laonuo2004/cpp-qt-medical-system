@@ -4,8 +4,16 @@
         <file>picture/patientAvatar.png</file>
         <file>picture/doctorAvatar.png</file>
         <file>picture/drugDefaultPhoto.png</file>
+        <file>picture/roleBack.png</file>
+        <file>picture/roleBackPage.png</file>
     </qresource>
     <qresource prefix="/style">
         <file>picture/medicaltheme.qss</file>
+    </qresource>
+    <qresource prefix="/icon">
+        <file>picture/down_arrow.svg</file>
+        <file>picture/left_arrow.svg</file>
+        <file>picture/right_arrow.svg</file>
+        <file>picture/up_arrow.svg</file>
     </qresource>
 </RCC>
