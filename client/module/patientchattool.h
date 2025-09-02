@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include "uicontroller.h"
+#include <QTimer>
 
 namespace Ui {
 class PatientChatTool;
@@ -27,10 +28,15 @@ private:
     int m_patientid;
     int m_doctorid;
     UiController* controller;
+    QTimer* m_refreshTimer = nullptr;
+
     void displayMessage(int senderId, int receiverId, const QString &message);
 
 private slots:
     void  sendMessage() ;
+
+private slots:
+    void loadChatHistory();  // 拉取并展示最新聊天记录
 
 };
 
