@@ -8,7 +8,7 @@
 #include <QRandomGenerator> // 用于生成随机验证码
 #include <QDate>
 
-#include "databasemanager.h" // 包含数据库管理类
+#include "networkmanager_client.h" // 包含网络客户端管理类
 
 // 定义用户身份枚举 (与数据库中的角色对应)
 enum class UserRole {
@@ -113,10 +113,10 @@ public:
      *         返回空映射表表示用户不存在或数据库连接失败
      */
     Q_INVOKABLE QVariantMap getPatientInfo(int userId);
-    Q_INVOKABLE DatabaseManager::ResultSet getAllPatientInfo();
-    Q_INVOKABLE DatabaseManager::ResultSet getAllDoctorInfo();
-    Q_INVOKABLE DatabaseManager::ResultSet getAllInfo();
-//    Q_INVOKABLE DatabaseManager::ResultSet getAllAdminInfo();
+    Q_INVOKABLE QVariantList getAllPatientInfo();
+    Q_INVOKABLE QVariantList getAllDoctorInfo();
+    Q_INVOKABLE QVariantList getAllInfo();
+//    Q_INVOKABLE QVariantList getAllAdminInfo();
 
     /**
      * @brief 更新患者信息
@@ -591,7 +591,7 @@ public:
      */
     Q_INVOKABLE QVariantMap getDrugDetails(int drugId);
     Q_INVOKABLE bool registerDrug(const QString &drug_name,const QString &drug_price,const QString &description,const QString &image_url);
-    Q_INVOKABLE DatabaseManager::ResultSet getAllDrugInfo();
+    Q_INVOKABLE QVariantList getAllDrugInfo();
 
 private:
     // 用于生成和验证密码哈希
@@ -619,26 +619,26 @@ private:
     /**
      * @brief 将单行数据转换为QVariantMap
      *
-     * 功能：将DatabaseManager::DataRow转换为Qt标准的QVariantMap格式
+     * 功能：将QJsonObject转换为Qt标准的QVariantMap格式
      * 简化操作：消除手动遍历键值对的重复代码
      * 注意事项：适用于单行查询结果的转换
      *
-     * @param row 数据库查询返回的单行数据
+     * @param row 网络查询返回的单行JSON数据
      * @return QVariantMap 转换后的键值映射表
      */
-    QVariantMap rowToMap(const DatabaseManager::DataRow& row);
+    QVariantMap rowToMap(const QJsonObject& row);
 
     /**
      * @brief 将查询结果集转换为QVariantList
      *
-     * 功能：将DatabaseManager::ResultSet转换为Qt标准的QVariantList格式
+     * 功能：将QJsonArray转换为Qt标准的QVariantList格式
      * 简化操作：一行代码完成整个结果集的转换，替代手动循环
      * 注意事项：适用于多行查询结果，每行转换为QVariantMap后加入列表
      *
-     * @param rs 数据库查询返回的结果集
+     * @param rs 网络查询返回的JSON数组
      * @return QVariantList 转换后的数据列表
      */
-    QVariantList resultToList(const DatabaseManager::ResultSet& rs);
+    QVariantList resultToList(const QJsonArray& rs);
 
     /**
      * @brief 从查询结果中获取计数值
@@ -647,10 +647,10 @@ private:
      * 简化操作：替代复杂的front().begin()->second.toInt()模式
      * 注意事项：适用于SELECT COUNT(*) 或类似的单值查询结果
      *
-     * @param result 数据库查询返回的结果集
+     * @param result 网络查询返回的JSON数组
      * @return int 计数值，如果结果为空则返回0
      */
-    int getCountFromResult(const DatabaseManager::ResultSet& result);
+    int getCountFromResult(const QJsonArray& result);
 
 signals:
     // 认证信号

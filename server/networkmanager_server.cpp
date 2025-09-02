@@ -435,6 +435,7 @@ QJsonObject NetworkManagerServer::handleUpdatePatientInfo(const QJsonObject& par
     int userId = params.value("userId").toInt();
     QJsonObject details = params.value("details").toObject();
     
+    // TODO: 实现具体的更新逻辑
     // 这里应实现具体的更新逻辑
     // 由于代码较长，这里只提供框架
     
@@ -483,7 +484,7 @@ QJsonObject NetworkManagerServer::handleGetDoctorInfo(const QJsonObject& params)
 
 QJsonObject NetworkManagerServer::handleUpdateDoctorInfo(const QJsonObject& params)
 {
-    // 实现医生信息更新逻辑
+    // TODO: 实现医生信息更新逻辑
     QJsonObject data;
     data["message"] = "医生信息更新成功";
     QJsonObject response;
@@ -569,7 +570,7 @@ QJsonObject NetworkManagerServer::handleGetAvailableDoctors(const QJsonObject& p
 
 QJsonObject NetworkManagerServer::handleCreateAppointment(const QJsonObject& params)
 {
-    // 实现预约创建逻辑
+    // TODO: 实现预约创建逻辑
     QJsonObject data;
     data["message"] = "预约创建成功";
     data["appointmentId"] = 123; // 示例ID
@@ -582,7 +583,7 @@ QJsonObject NetworkManagerServer::handleCreateAppointment(const QJsonObject& par
 
 QJsonObject NetworkManagerServer::handleGetPatientAppointments(const QJsonObject& params)
 {
-    // 实现获取患者预约列表逻辑
+    // TODO: 实现获取患者预约列表逻辑
     QJsonObject data;
     data["appointments"] = QJsonArray(); // 空数组示例
     
