@@ -10,6 +10,7 @@
     </qresource>
     <qresource prefix="/style">
         <file>picture/medicaltheme.qss</file>
+        <file>picture/medicaltheme_dark.qss</file>
     </qresource>
     <qresource prefix="/icon">
         <file>picture/down_arrow.svg</file>
