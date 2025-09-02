@@ -3,6 +3,8 @@
 #include "editpatientinfo.h"
 #include "uicontroller.h"
 
+#include <QTextCharFormat>
+
 PatientInfoPage::PatientInfoPage(QWidget *parent, int patientId) :
     QWidget(parent),
     ui(new Ui::PatientInfoPage),
@@ -11,6 +13,15 @@ PatientInfoPage::PatientInfoPage(QWidget *parent, int patientId) :
     ui->setupUi(this);
     ui->PatientPhoto->setFixedSize(200, 250);
     connect(ui->SaveBtn, &QPushButton::clicked, this, &PatientInfoPage::editPatientInfo);
+
+    // 主体颜色（蓝色）
+    QTextCharFormat weekendFormat;
+    weekendFormat.setForeground(QColor("#357ABD"));
+
+    // 周六
+    ui->calendarWidget->setWeekdayTextFormat(Qt::Saturday, weekendFormat);
+    // 周日
+    ui->calendarWidget->setWeekdayTextFormat(Qt::Sunday, weekendFormat);
 
     QVariantMap patientInfo = UiController::get().getPatientInfo(m_patientId);
     ui->nameLabel->setText(patientInfo.value("full_name").toString());

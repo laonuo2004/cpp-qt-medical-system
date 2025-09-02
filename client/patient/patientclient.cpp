@@ -15,7 +15,7 @@ PatientClient::PatientClient(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_patientId = 22; // 测试使用（默认登录为测试数据库中22号患者），必须删除
+    m_patientId = 25; // 测试使用（默认登录为测试数据库中22号患者），必须删除
 
     QVector<QWidget*> pages =
     {

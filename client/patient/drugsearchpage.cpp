@@ -72,7 +72,7 @@ void DrugSearchPage::loadDrugInformation()
         }
 
         DrugCard* newDrugCard = new DrugCard(this);
-        ui->DrugList->addWidget(newDrugCard, cnt / 4, cnt % 4);
+        ui->drugList->addWidget(newDrugCard);
         newDrugCard->buildUpDrugCard(drug);
         cnt++;
     }

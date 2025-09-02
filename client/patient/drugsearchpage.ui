@@ -95,6 +95,9 @@
         </layout>
        </item>
        <item>
+        <layout class="QVBoxLayout" name="drugList"/>
+       </item>
+       <item>
         <layout class="QGridLayout" name="DrugList">
          <property name="spacing">
           <number>10</number>

@@ -105,7 +105,7 @@
             </size>
            </property>
            <property name="text">
-            <string>挂在线号</string>
+            <string>在线挂号</string>
            </property>
           </widget>
          </item>
@@ -124,7 +124,7 @@
             </size>
            </property>
            <property name="text">
-            <string>报查看告</string>
+            <string>查看报告</string>
            </property>
           </widget>
          </item>

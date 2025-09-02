@@ -10,7 +10,8 @@ DrugInfo::DrugInfo(QWidget *parent) :
     ui(new Ui::DrugInfo)
 {
     ui->setupUi(this);
-    ui->Photo->setFixedSize(200, 200);
+    setFixedSize(1200, 800);
+    ui->Photo->setFixedSize(300, 300);
 }
 
 DrugInfo::~DrugInfo()
@@ -24,6 +25,7 @@ void DrugInfo::buildUpDrugInfo(const QVariantMap& drugInfo)
     ui->priceInput->setText(drugInfo.value("drug_price").toString());
     ui->usageInput->setText(drugInfo.value("usage").toString());
     ui->precautions->setText(drugInfo.value("precautions").toString());
+    ui->descriptionInput->setText(drugInfo.value("description").toString());
 
     // 从网络链接获取并显示图片
     if (drugInfo.contains("image_url"))
