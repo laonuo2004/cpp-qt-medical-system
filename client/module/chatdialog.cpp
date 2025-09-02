@@ -10,14 +10,14 @@ ChatDialog::ChatDialog(QWidget *parent) :
     ui->mainPanel->addWidget(new ChatBox(this));
 }
 
-ChatDialog::ChatDialog(QWidget *parent , int patientid , int doctorid):
+ChatDialog::ChatDialog(QWidget *parent , int patientid , int doctorid, bool isPatientClient):
     QDialog(parent),
     ui(new Ui::ChatDialog),
     m_patientid(patientid),
     m_doctorid(doctorid)
 {
     ui->setupUi(this);
-    ui->mainPanel->addWidget(new ChatBox(this , 19 ,12));
+    ui->mainPanel->addWidget(new ChatBox(this , 19 ,12, isPatientClient));
 }
 
 ChatDialog::~ChatDialog()

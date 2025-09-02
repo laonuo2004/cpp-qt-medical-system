@@ -13,7 +13,7 @@ class ChatDialog : public QDialog
 
 public:
     explicit ChatDialog(QWidget *parent = nullptr);
-    ChatDialog(QWidget *parent , int patientid , int doctorid);
+    ChatDialog(QWidget *parent , int patientid , int doctorid, bool isPatientClient);
     ~ChatDialog();
 
 private:

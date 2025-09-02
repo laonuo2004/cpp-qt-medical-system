@@ -18,7 +18,7 @@ DoctorInfo::DoctorInfo(QWidget *parent) :
     ui->setupUi(this);
     ui->DoctorPhoto->setFixedSize(200, 250);
 
-    ui->dateEdit->setCalendarPopup(true);                  // 可选：点击弹出日历
+    ui->dateEdit->setCalendarPopup(false);                  // 可选：点击弹出日历
     ui->dateEdit->setDisplayFormat(QStringLiteral("yyyy年MM月dd日"));
     ui->dateEdit->setDate(QDate::currentDate());
 
@@ -41,7 +41,7 @@ DoctorInfo::DoctorInfo(QWidget *parent , int doctorid) :
     ui->setupUi(this);
     ui->DoctorPhoto->setFixedSize(200, 250);
 
-    ui->dateEdit->setCalendarPopup(true);                  // 可选：点击弹出日历
+    ui->dateEdit->setCalendarPopup(false);                  // 可选：点击弹出日历
     ui->dateEdit->setDisplayFormat(QStringLiteral("yyyy年MM月dd日"));
     ui->dateEdit->setDate(QDate::currentDate());
 
@@ -71,7 +71,7 @@ void DoctorInfo::patientRegister()
 
 void DoctorInfo::startChat()
 {
-    ChatDialog* chatDialog = new ChatDialog(this ,19 ,12); // 原本是PatientChatTool，这里换为ChatDialog用作UI测试
+    ChatDialog* chatDialog = new ChatDialog(this ,19 ,12, true); // 原本是PatientChatTool，这里换为ChatDialog用作UI测试
     if (chatDialog->exec() == QDialog::Accepted)
     {
 
