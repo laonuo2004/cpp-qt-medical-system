@@ -76,6 +76,22 @@ QLabel.backImg{
     image: url(:/img/picture/roleBackPage.png);                
 }
 
+QLabel.chat-bubble-left {
+    background-color: #E5E5EA;  /* 灰色背景的左侧气泡 */
+    color: #000000;
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 16px;
+}
+
+QLabel.chat-bubble-right {
+    background-color: #007BFF;  /* 蓝色背景的右侧气泡 */
+    color: #FFFFFF;
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 16px;
+}
+
 QPushButton {
     background-color: #007BFF;
     color: #FFFFFF;
