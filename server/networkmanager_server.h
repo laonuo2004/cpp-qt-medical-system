@@ -9,7 +9,7 @@
 #include <QMap>
 #include <QDateTime>
 
-class DatabaseManager;
+#include "databasemanager.h"
 
 /**
  * @class NetworkManagerServer
@@ -90,19 +90,58 @@ private:
      */
     QJsonObject createSuccessResponse(const QString& requestId, const QJsonObject& data = QJsonObject());
 
-    // 数据库操作处理方法
+    // 用户认证相关处理方法
     QJsonObject handleLogin(const QJsonObject& params);
     QJsonObject handleRegisterUser(const QJsonObject& params);
     QJsonObject handleForgotPassword(const QJsonObject& params);
     QJsonObject handleResetPassword(const QJsonObject& params);
+    
+    // 个人信息管理处理方法
     QJsonObject handleGetPatientInfo(const QJsonObject& params);
     QJsonObject handleUpdatePatientInfo(const QJsonObject& params);
     QJsonObject handleGetDoctorInfo(const QJsonObject& params);
     QJsonObject handleUpdateDoctorInfo(const QJsonObject& params);
+    
+    // 预约挂号相关处理方法
     QJsonObject handleGetAvailableDoctors(const QJsonObject& params);
+    QJsonObject handleGetDoctorScheduleForDate(const QJsonObject& params);
     QJsonObject handleCreateAppointment(const QJsonObject& params);
     QJsonObject handleGetPatientAppointments(const QJsonObject& params);
-    // ... 可以根据需要添加更多处理方法
+    QJsonObject handleCancelAppointment(const QJsonObject& params);
+    QJsonObject handleUpdateAppointmentStatus(const QJsonObject& params);
+    
+    // 病历医嘱相关处理方法
+    QJsonObject handleGetPatientMedicalHistory(const QJsonObject& params);
+    QJsonObject handleCreateMedicalRecord(const QJsonObject& params);
+    QJsonObject handleAddPrescription(const QJsonObject& params);
+    QJsonObject handleGetPatientPrescriptions(const QJsonObject& params);
+    
+    // 聊天通信相关处理方法
+    QJsonObject handleSendMessage(const QJsonObject& params);
+    QJsonObject handleGetChatHistory(const QJsonObject& params);
+    QJsonObject handleGetRecentContacts(const QJsonObject& params);
+    
+    // 考勤管理相关处理方法
+    QJsonObject handleCheckIn(const QJsonObject& params);
+    QJsonObject handleCheckOut(const QJsonObject& params);
+    QJsonObject handleGetAttendanceHistory(const QJsonObject& params);
+    QJsonObject handleSubmitLeaveRequest(const QJsonObject& params);
+    QJsonObject handleGetLeaveRequests(const QJsonObject& params);
+    QJsonObject handleCancelLeave(const QJsonObject& params);
+    
+    // 科室管理相关处理方法
+    QJsonObject handleGetAllDepartments(const QJsonObject& params);
+    QJsonObject handleGetDepartmentInfo(const QJsonObject& params);
+    
+    // 药品管理相关处理方法
+    QJsonObject handleSearchDrugs(const QJsonObject& params);
+    QJsonObject handleGetDrugDetails(const QJsonObject& params);
+    
+    // 工具方法
+    QJsonObject dataRowToJsonObject(const DatabaseManager::DataRow& row);
+    QJsonArray resultSetToJsonArray(const DatabaseManager::ResultSet& resultSet);
+    QVariantMap jsonObjectToVariantMap(const QJsonObject& obj);
+    QVariantList jsonArrayToVariantList(const QJsonArray& arr);
 
 private:
     QTcpServer* m_server;                           // TCP服务器

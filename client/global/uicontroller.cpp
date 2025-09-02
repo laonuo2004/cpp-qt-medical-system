@@ -1,45 +1,56 @@
 #include "uicontroller.h"
 #include <QDebug>
 #include <QDateTime> // 用于验证码的过期时间（可选，但推荐）
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonValue>
 
 bool UiController::ensureDbConnected(const char* where)
 {
 // --- 辅助函数实现 ---
-    if (!DatabaseManager::instance().isConnected())
+    if (!NetworkManagerClient::instance().isConnected())
     {
-        qCritical() << "数据库未连接，位置：" << where;
+        qCritical() << "网络未连接，位置：" << where;
         return false;
     }
     return true;
 }
 
-QVariantMap UiController::rowToMap(const DatabaseManager::DataRow& row)
+QVariantMap UiController::rowToMap(const QJsonObject& row)
 {
     QVariantMap map;
-    for (const auto& pair : row)
+    for (auto it = row.constBegin(); it != row.constEnd(); ++it)
     {
-        map[pair.first] = pair.second;
+        map[it.key()] = it.value().toVariant();
     }
     return map;
 }
 
-QVariantList UiController::resultToList(const DatabaseManager::ResultSet& rs)
+QVariantList UiController::resultToList(const QJsonArray& rs)
 {
     QVariantList list;
-    for (const auto& row : rs)
+    for (const auto& value : rs)
     {
-        list.append(rowToMap(row));
+        if (value.isObject())
+        {
+            list.append(rowToMap(value.toObject()));
+        }
     }
     return list;
 }
 
-int UiController::getCountFromResult(const DatabaseManager::ResultSet& result)
+int UiController::getCountFromResult(const QJsonArray& result)
 {
     if (result.empty())
     {
         return 0;
     }
-    return result.front().begin()->second.toInt();
+    QJsonObject firstRow = result.first().toObject();
+    if (!firstRow.isEmpty())
+    {
+        return firstRow.constBegin().value().toInt();
+    }
+    return 0;
 }
 
 UiController::UiController(QObject *parent) : QObject(parent)
@@ -61,48 +72,46 @@ void UiController::login(const QString &email, const QString &password)
     }
 
     if (!ensureDbConnected(__func__)) {
-        emit loginFailed("数据库未连接。");
+        emit loginFailed("网络未连接。");
         return;
     }
 
-    QString sql = QString("SELECT username, password_hash, role FROM users WHERE email = '%1'").arg(email);
-    DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+    // 构造登录请求参数
+    QJsonObject params;
+    params["email"] = email;
+    params["password"] = password;
 
-    if (result.empty())
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("login", params);
+
+    if (!response.value("success").toBool())
     {
-        emit loginFailed("邮箱未注册，请先注册。");
+        QString errorMsg = response.value("error").toString();
+        emit loginFailed(errorMsg.isEmpty() ? "登录失败" : errorMsg);
         return;
     }
 
-    // 找到了用户
-    DatabaseManager::DataRow userRow = result[0];
-    QString storedPasswordHash = userRow["password_hash"].toString();
-    QString roleString = userRow["role"].toString(); // 从数据库获取角色字符串
+    // 登录成功，解析用户信息
+    QJsonObject userData = response.value("data").toObject();
+    QString roleString = userData.value("role").toString();
 
-    if (storedPasswordHash == hashPassword(password))
+    qDebug() << "用户" << email << "登录成功，角色为" << roleString;
+    
+    if (roleString == "admin")
     {
-        // 登录成功
-        qDebug() << "用户" << email << "登录成功，角色为" << roleString;
-        if (roleString == "admin")
-        {
-            emit loginSuccessAdmin();
-        }
-        else if (roleString == "doctor")
-        {
-            emit loginSuccessDoctor();
-        }
-        else if (roleString == "patient")
-        {
-            emit loginSuccessPatient();
-        }
-        else
-        {
-            emit loginFailed("未知用户角色。");
-        }
+        emit loginSuccessAdmin();
+    }
+    else if (roleString == "doctor")
+    {
+        emit loginSuccessDoctor();
+    }
+    else if (roleString == "patient")
+    {
+        emit loginSuccessPatient();
     }
     else
     {
-        emit loginFailed("密码不正确。");
+        emit loginFailed("未知用户角色。");
     }
 }
 
@@ -115,12 +124,7 @@ void UiController::registerUser(const QString &email, const QString &password, U
     }
 
     if (!ensureDbConnected(__func__)) {
-        emit registrationFailed("数据库未连接。");
-        return;
-    }
-
-    if (isEmailRegistered(email)) {
-        emit registrationFailed("该邮箱已被注册。");
+        emit registrationFailed("网络未连接。");
         return;
     }
 
@@ -129,12 +133,7 @@ void UiController::registerUser(const QString &email, const QString &password, U
         return;
     }
 
-    DatabaseManager::DataRow userData;
-    userData["user_name"] = "";
-    userData["email"] = email;
-    userData["password_hash"] = hashPassword(password);
-
-    // 将枚举转换为字符串存储
+    // 将枚举转换为字符串
     QString roleString;
     switch (role)
     {
@@ -148,16 +147,27 @@ void UiController::registerUser(const QString &email, const QString &password, U
             roleString = "patient";
             break;
     }
-    userData["role"] = roleString;
-    if (DatabaseManager::instance().insert("users", userData))
+
+    // 构造注册请求参数
+    QJsonObject params;
+    params["username"] = "";
+    params["email"] = email;
+    params["password"] = password;
+    params["role"] = roleString;
+
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("registerUser", params);
+
+    if (response.value("success").toBool())
     {
         qDebug() << "用户" << email << "注册成功";
         emit registrationSuccess();
     }
     else
     {
-        qCritical() << "用户注册失败：" << DatabaseManager::instance().lastError();
-        emit registrationFailed("注册失败：" + DatabaseManager::instance().lastError());
+        QString errorMsg = response.value("error").toString();
+        qCritical() << "用户注册失败：" << errorMsg;
+        emit registrationFailed("注册失败：" + errorMsg);
     }
 }
 
@@ -166,21 +176,24 @@ bool UiController::isEmailRegistered(const QString &email)
 {
     if (!ensureDbConnected(__func__))
     {
-        qWarning() << "邮箱检查时数据库未连接";
-        return false; // 如果数据库未连接，暂时认为未注册
+        qWarning() << "邮箱检查时网络未连接";
+        return false; // 如果网络未连接，暂时认为未注册
     }
 
-    QString sql = QString("SELECT COUNT(*) FROM users WHERE email = '%1'").arg(email);
-    DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+    // 构造查询参数 (使用一个通用的查询接口)
+    QJsonObject params;
+    params["email"] = email;
 
-    if (result.empty())
+    // 发送网络请求检查邮箱
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("checkEmailExists", params);
+
+    if (response.value("success").toBool())
     {
-        qWarning() << "邮箱注册检查查询返回空结果";
-        return false;
+        return response.value("data").toObject().value("exists").toBool();
     }
 
-    // 获取第一行第一列的值（COUNT(*)）
-    return result[0].begin()->second.toInt() > 0;
+    qWarning() << "邮箱注册检查请求失败";
+    return false;
 }
 
 // 检查密码复杂度
@@ -214,23 +227,34 @@ void UiController::forgotPassword(const QString &email)
     }
 
     if (!ensureDbConnected(__func__)) {
-        emit forgotPasswordRequestFailed("数据库未连接。");
+        emit forgotPasswordRequestFailed("网络未连接。");
         return;
     }
 
-    if (!isEmailRegistered(email)) {
-        emit forgotPasswordRequestFailed("该邮箱未注册。");
-        return;
+    // 构造忘记密码请求参数
+    QJsonObject params;
+    params["email"] = email;
+
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("forgotPassword", params);
+
+    if (response.value("success").toBool())
+    {
+        // 从服务器响应中获取验证码（仅用于模拟）
+        QJsonObject data = response.value("data").toObject();
+        QString verificationCode = data.value("verificationCode").toString();
+        
+        // 存储验证码到本地（保持原有的模拟机制）
+        m_verificationCodes.insert(email, verificationCode);
+        
+        qDebug() << "为" << email << "生成验证码：" << verificationCode;
+        emit forgotPasswordRequestSuccess(email);
     }
-
-    // 模拟发送验证码到邮箱
-    QString verificationCode = generateVerificationCode();
-    // 存储验证码，可以考虑存储一个时间戳，用于判断验证码是否过期
-    m_verificationCodes.insert(email, verificationCode);
-
-    qDebug() << "为" << email << "生成验证码：" << verificationCode;
-    // 实际应用中，这里会调用邮件发送服务
-    emit forgotPasswordRequestSuccess(email);
+    else
+    {
+        QString errorMsg = response.value("error").toString();
+        emit forgotPasswordRequestFailed(errorMsg.isEmpty() ? "请求失败" : errorMsg);
+    }
 }
 
 // 验证验证码并重置密码
@@ -242,7 +266,7 @@ void UiController::resetPassword(const QString &email, const QString &verificati
     }
 
     if (!ensureDbConnected(__func__)) {
-        emit passwordResetFailed("数据库未连接。");
+        emit passwordResetFailed("网络未连接。");
         return;
     }
 
@@ -256,11 +280,16 @@ void UiController::resetPassword(const QString &email, const QString &verificati
         return;
     }
 
-    DatabaseManager::DataRow updateData;
-    updateData["password_hash"] = hashPassword(newPassword);
-    QString whereClause = QString("email = '%1'").arg(email);
+    // 构造重置密码请求参数
+    QJsonObject params;
+    params["email"] = email;
+    params["verificationCode"] = verificationCode;
+    params["newPassword"] = newPassword;
 
-    if (DatabaseManager::instance().update("users", updateData, whereClause))
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("resetPassword", params);
+
+    if (response.value("success").toBool())
     {
         m_verificationCodes.remove(email); // 移除已使用的验证码
         qDebug() << "用户" << email << "密码重置成功";
@@ -268,8 +297,9 @@ void UiController::resetPassword(const QString &email, const QString &verificati
     }
     else
     {
-        qCritical() << "密码重置失败：" << DatabaseManager::instance().lastError();
-        emit passwordResetFailed("密码重置失败：" + DatabaseManager::instance().lastError());
+        QString errorMsg = response.value("error").toString();
+        qCritical() << "密码重置失败：" << errorMsg;
+        emit passwordResetFailed("密码重置失败：" + errorMsg);
     }
 }
 
@@ -301,106 +331,104 @@ QVariantMap UiController::getPatientInfo(int userId)
         return {};
     }
 
-    // 使用 LEFT JOIN 联合查询，确保即使用户还没有详细信息也能查出用户名
-    QString sql = QString(
-        "SELECT u.username, u.email, p.* "
-        "FROM users u "
-        "LEFT JOIN patients p ON u.user_id = p.user_id "
-        "WHERE u.user_id = %1"
-    ).arg(userId);
+    // 构造获取患者信息请求参数
+    QJsonObject params;
+    params["userId"] = userId;
 
-    DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("getPatientInfo", params);
 
-    if (result.empty())
+    if (response.value("success").toBool())
+    {
+        QJsonObject data = response.value("data").toObject();
+        return rowToMap(data);
+    }
+    else
     {
         qWarning() << "未找到用户ID为" << userId << "的用户";
         return {}; // 没有找到用户
     }
-
-    return rowToMap(result.front());
 }
 
-DatabaseManager::ResultSet UiController::getAllPatientInfo()
+QVariantList UiController::getAllPatientInfo()
 {
     if (!ensureDbConnected(__func__))
-        {
-            qCritical() << "Database not connected for getAllPatientInfo.";
-            return {}; // 返回空的 ResultSet
-        }
+    {
+        qCritical() << "网络未连接，无法获取患者信息。";
+        return {}; // 返回空的列表
+    }
 
-        QString sql = QString(
-            "SELECT u.user_id, u.user_name, u.email, u.role "
-            "FROM users u "
-            "WHERE u.role = 'patient'"
-        );
+    // 构造获取所有患者信息请求参数
+    QJsonObject params; // 无需特定参数
 
-        DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("getAllPatientInfo", params);
 
-        if (result.empty())
-        {
-            qDebug() << "No patient information found in the database.";
-        }
-        else
-        {
-            qDebug() << "Successfully retrieved patient information. Rows:" << result.size();
-        }
-
-        return result; // 直接返回 ResultSet
+    if (response.value("success").toBool())
+    {
+        QJsonArray data = response.value("data").toArray();
+        qDebug() << "成功获取患者信息。记录数:" << data.size();
+        return resultToList(data);
+    }
+    else
+    {
+        qDebug() << "数据库中未找到患者信息。";
+        return {}; // 返回空的列表
+    }
 }
 
-DatabaseManager::ResultSet UiController::getAllDoctorInfo()
+QVariantList UiController::getAllDoctorInfo()
 {
     if (!ensureDbConnected(__func__))
-        {
-            qCritical() << "Database not connected for getAllPatientInfo.";
-            return {}; // 返回空的 ResultSet
-        }
+    {
+        qCritical() << "网络未连接，无法获取医生信息。";
+        return {}; // 返回空的列表
+    }
 
-        QString sql = QString(
-            "SELECT u.user_id, u.user_name, u.email, u.role "
-            "FROM users u "
-            "WHERE u.role = 'doctor'"
-        );
+    // 构造获取所有医生信息请求参数
+    QJsonObject params; // 无需特定参数
 
-        DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("getAllDoctorInfo", params);
 
-        if (result.empty())
-        {
-            qDebug() << "No patient information found in the database.";
-        }
-        else
-        {
-            qDebug() << "Successfully retrieved patient information. Rows:" << result.size();
-        }
-
-        return result; // 直接返回 ResultSet
+    if (response.value("success").toBool())
+    {
+        QJsonArray data = response.value("data").toArray();
+        qDebug() << "成功获取医生信息。记录数:" << data.size();
+        return resultToList(data);
+    }
+    else
+    {
+        qDebug() << "数据库中未找到医生信息。";
+        return {}; // 返回空的列表
+    }
 }
 
-DatabaseManager::ResultSet UiController::getAllInfo()
+QVariantList UiController::getAllInfo()
 {
     if (!ensureDbConnected(__func__))
-        {
-            qCritical() << "Database not connected for getAllPatientInfo.";
-            return {}; // 返回空的 ResultSet
-        }
+    {
+        qCritical() << "网络未连接，无法获取用户信息。";
+        return {}; // 返回空的列表
+    }
 
-        QString sql = QString(
-            "SELECT u.user_id, u.user_name, u.email, u.role "
-            "FROM users u "
-        );
+    // 构造获取所有用户信息请求参数
+    QJsonObject params; // 无需特定参数
 
-        DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("getAllInfo", params);
 
-        if (result.empty())
-        {
-            qDebug() << "No patient information found in the database.";
-        }
-        else
-        {
-            qDebug() << "Successfully retrieved patient information. Rows:" << result.size();
-        }
-
-        return result; // 直接返回 ResultSet
+    if (response.value("success").toBool())
+    {
+        QJsonArray data = response.value("data").toArray();
+        qDebug() << "成功获取用户信息。记录数:" << data.size();
+        return resultToList(data);
+    }
+    else
+    {
+        qDebug() << "数据库中未找到用户信息。";
+        return {}; // 返回空的列表
+    }
 }
 
 bool UiController::updatePatientInfo(int userId, const QVariantMap &details)
@@ -409,67 +437,32 @@ bool UiController::updatePatientInfo(int userId, const QVariantMap &details)
         return false;
     }
 
-    // 开启事务，确保数据一致性
-    if (!DatabaseManager::instance().beginTransaction()) {
-        qCritical() << "开启事务失败:" << DatabaseManager::instance().lastError();
-        return false;
-    }
-
-    // 1. 更新 users 表中的姓名 (username)
-    if (details.contains("username"))
+    // 构造更新患者信息请求参数
+    QJsonObject params;
+    params["userId"] = userId;
+    
+    // 将 QVariantMap 转换为 QJsonObject
+    QJsonObject detailsJson;
+    for (auto it = details.constBegin(); it != details.constEnd(); ++it)
     {
-        DatabaseManager::DataRow userData;
-        userData["username"] = details["username"];
-        QString userWhereClause = QString("user_id = %1").arg(userId);
-        if (!DatabaseManager::instance().update("users", userData, userWhereClause))
-        {
-            qCritical() << "更新用户名失败:" << DatabaseManager::instance().lastError();
-            DatabaseManager::instance().rollbackTransaction();
-            return false;
-        }
+        detailsJson[it.key()] = QJsonValue::fromVariant(it.value());
     }
+    params["details"] = detailsJson;
 
-    // 2. 更新或插入 patients 表
-    DatabaseManager::DataRow patientData;
-    // 遍历传入的数据，填充到 DataRow 中
-    for(auto it = details.constBegin(); it != details.constEnd(); ++it)
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("updatePatientInfo", params);
+
+    if (response.value("success").toBool())
     {
-        // "username" 字段不属于 patients 表，跳过
-        if (it.key() != "username")
-        {
-            patientData[it.key()] = it.value();
-        }
-    }
-
-    // 检查 patients 中是否已存在该用户的记录
-    QString checkSql = QString("SELECT COUNT(*) as count FROM patients WHERE user_id = %1").arg(userId);
-    DatabaseManager::ResultSet result = DatabaseManager::instance().query(checkSql);
-    bool detailsExist = !result.empty() && result.front()["count"].toInt() > 0;
-
-    bool success;
-    if (detailsExist)
-    {
-        // 记录存在，执行 UPDATE
-        QString patientWhereClause = QString("user_id = %1").arg(userId);
-        success = DatabaseManager::instance().update("patients", patientData, patientWhereClause);
+        qInfo() << "用户" << userId << "信息更新成功.";
+        return true;
     }
     else
     {
-        // 记录不存在，执行 INSERT
-        patientData["user_id"] = userId; // 必须插入 user_id
-        success = DatabaseManager::instance().insert("patients", patientData);
-    }
-
-    if (!success)
-    {
-        qCritical() << "更新患者信息失败:" << DatabaseManager::instance().lastError();
-        DatabaseManager::instance().rollbackTransaction();
+        QString errorMsg = response.value("error").toString();
+        qCritical() << "更新患者信息失败:" << errorMsg;
         return false;
     }
-
-    // 所有操作成功，提交事务
-    qInfo() << "用户" << userId << "信息更新成功.";
-    return DatabaseManager::instance().commitTransaction();
 }
 
 QVariantMap UiController::getDoctorInfo(const QString &doctorId)
@@ -479,26 +472,23 @@ QVariantMap UiController::getDoctorInfo(const QString &doctorId)
         return {};
     }
 
-    QString sql = QString(
-        "SELECT u.username, u.email, "
-        "d.doctor_id, d.user_id, d.full_name, d.sex, d.age, "
-        "dept.department_name, d.title, d.phone_no, d.doc_start, d.doc_finish, "
-        "d.registration_fee, d.patient_limit, d.photo_url "
-        "FROM users u "
-        "JOIN doctors d ON u.user_id = d.user_id "
-        "JOIN departments dept ON d.department_id = dept.department_id "
-        "WHERE d.doctor_id = '%1'"
-    ).arg(doctorId);
+    // 构造获取医生信息请求参数
+    QJsonObject params;
+    params["doctorId"] = doctorId;
 
-    DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("getDoctorInfo", params);
 
-    if (result.empty())
+    if (response.value("success").toBool())
+    {
+        QJsonObject data = response.value("data").toObject();
+        return rowToMap(data);
+    }
+    else
     {
         qWarning() << "未找到医生工号为:" << doctorId;
         return {};
     }
-
-    return rowToMap(result.front());
 }
 
 bool UiController::updateDoctorInfo(const QString &doctorId, const QVariantMap &details)
@@ -508,65 +498,32 @@ bool UiController::updateDoctorInfo(const QString &doctorId, const QVariantMap &
         return false;
     }
 
-    // 开启事务
-    if (!DatabaseManager::instance().beginTransaction())
+    // 构造更新医生信息请求参数
+    QJsonObject params;
+    params["doctorId"] = doctorId;
+    
+    // 将 QVariantMap 转换为 QJsonObject
+    QJsonObject detailsJson;
+    for (auto it = details.constBegin(); it != details.constEnd(); ++it)
     {
-        qCritical() << "开启事务失败:" << DatabaseManager::instance().lastError();
+        detailsJson[it.key()] = QJsonValue::fromVariant(it.value());
+    }
+    params["details"] = detailsJson;
+
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("updateDoctorInfo", params);
+
+    if (response.value("success").toBool())
+    {
+        qInfo() << "Doctor info for" << doctorId << "信息更新成功.";
+        return true;
+    }
+    else
+    {
+        QString errorMsg = response.value("error").toString();
+        qCritical() << "更新医生信息失败:" << errorMsg;
         return false;
     }
-
-    // 首先获取医生的 user_id
-    QString getUserSql = QString("SELECT user_id FROM doctors WHERE doctor_id = '%1'").arg(doctorId);
-    DatabaseManager::ResultSet userResult = DatabaseManager::instance().query(getUserSql);
-
-    if (userResult.empty())
-    {
-        qCritical() << "Doctor not found:" << doctorId;
-        DatabaseManager::instance().rollbackTransaction();
-        return false;
-    }
-
-    int userId = userResult.front()["user_id"].toInt();
-
-    // 1. 更新 users 表中的姓名 (username)
-    if (details.contains("username"))
-    {
-        DatabaseManager::DataRow userData;
-        userData["username"] = details["username"];
-        QString userWhereClause = QString("user_id = %1").arg(userId);
-        if (!DatabaseManager::instance().update("users", userData, userWhereClause))
-        {
-            qCritical() << "更新用户名失败:" << DatabaseManager::instance().lastError();
-            DatabaseManager::instance().rollbackTransaction();
-            return false;
-        }
-    }
-
-    // 2. 更新 doctors 表
-    DatabaseManager::DataRow doctorData;
-    for(auto it = details.constBegin(); it != details.constEnd(); ++it)
-    {
-        // "username" 字段不属于 doctors 表，跳过
-        if (it.key() != "username")
-        {
-            doctorData[it.key()] = it.value();
-        }
-    }
-
-    if (!doctorData.empty())
-    {
-        QString doctorWhereClause = QString("doctor_id = '%1'").arg(doctorId);
-        if (!DatabaseManager::instance().update("doctors", doctorData, doctorWhereClause))
-        {
-            qCritical() << "更新医生信息失败:" << DatabaseManager::instance().lastError();
-            DatabaseManager::instance().rollbackTransaction();
-            return false;
-        }
-    }
-
-    // 提交事务
-    qInfo() << "Doctor info for" << doctorId << "信息更新成功.";
-    return DatabaseManager::instance().commitTransaction();
 }
 
     // --- 3. 挂号预约后端 ---
@@ -579,8 +536,21 @@ QVariantList UiController::getAvailableDoctors(const QString &department)
         return QVariantList();
     }
 
-    auto result = DatabaseManager::instance().getDoctorsByDepartment(department);
-    auto doctorList = resultToList(result);
+    // 构造获取可用医生请求参数
+    QJsonObject params;
+    if (!department.isEmpty()) {
+        params["department"] = department;
+    }
+
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("getAvailableDoctors", params);
+
+    QVariantList doctorList;
+    if (response.value("success").toBool())
+    {
+        QJsonArray data = response.value("data").toObject().value("doctors").toArray();
+        doctorList = resultToList(data);
+    }
 
     emit doctorListReady(doctorList);
     return doctorList;
@@ -594,8 +564,20 @@ QVariantList UiController::getDoctorScheduleForDate(const QString &doctorId, con
         return QVariantList();
     }
 
-    auto result = DatabaseManager::instance().getDoctorSchedule(doctorId, date);
-    auto scheduleList = resultToList(result);
+    // 构造获取医生排班请求参数
+    QJsonObject params;
+    params["doctorId"] = doctorId;
+    params["date"] = date.toString(Qt::ISODate);
+
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("getDoctorScheduleForDate", params);
+
+    QVariantList scheduleList;
+    if (response.value("success").toBool())
+    {
+        QJsonArray data = response.value("data").toObject().value("schedule").toArray();
+        scheduleList = resultToList(data);
+    }
 
     emit doctorScheduleReady(scheduleList);
     return scheduleList;
@@ -613,63 +595,32 @@ bool UiController::createAppointment(int patientId, const QString &doctorId, con
 {
     if (!ensureDbConnected(__func__))
     {
-        emit appointmentCreationFailed("数据库未连接");
+        emit appointmentCreationFailed("网络未连接");
         return false;
     }
 
-    // 关键逻辑：预约前必须检查时间槽可用性，避免重复预约
-    if (!DatabaseManager::instance().isTimeSlotAvailable(doctorId, appointmentTime))
+    // 构造创建预约请求参数
+    QJsonObject params;
+    params["patientId"] = patientId;
+    params["doctorId"] = doctorId;
+    params["appointmentTime"] = appointmentTime.toString(Qt::ISODate);
+
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("createAppointment", params);
+
+    if (response.value("success").toBool())
     {
-        emit appointmentCreationFailed("该时间段已被预约或医生不存在");
-        return false;
-    }
-
-    // 使用事务确保预约创建的原子性，避免部分数据写入的情况
-    if (!DatabaseManager::instance().beginTransaction())
-    {
-        emit appointmentCreationFailed("事务开启失败");
-        return false;
-    }
-
-    // 创建预约记录
-    DatabaseManager::DataRow appointmentData;
-    appointmentData["patient_id"] = patientId;
-    appointmentData["doctor_id"] = doctorId;
-    appointmentData["appointment_date"] = appointmentTime.date();
-    appointmentData["appointment_time"] = appointmentTime;
-    appointmentData["status"] = "scheduled";
-    appointmentData["payment_status"] = "unpaid";
-
-    if (!DatabaseManager::instance().insert("appointments", appointmentData))
-    {
-        DatabaseManager::instance().rollbackTransaction();
-        emit appointmentCreationFailed("预约创建失败: " + DatabaseManager::instance().lastError());
-        return false;
-    }
-
-    // 获取刚创建的预约ID
-    QString getIdSql = "SELECT last_insert_rowid() as appointment_id";
-    DatabaseManager::ResultSet idResult = DatabaseManager::instance().query(getIdSql);
-
-    if (idResult.empty())
-    {
-        DatabaseManager::instance().rollbackTransaction();
-        emit appointmentCreationFailed("无法获取预约ID");
-        return false;
-    }
-
-    int appointmentId = idResult.front()["appointment_id"].toInt();
-
-    // 提交事务
-    if (DatabaseManager::instance().commitTransaction())
-    {
+        QJsonObject data = response.value("data").toObject();
+        int appointmentId = data.value("appointmentId").toInt();
+        
         qInfo() << "预约创建成功，预约ID为:" << appointmentId;
         emit appointmentCreated(appointmentId);
         return true;
     }
     else
     {
-        emit appointmentCreationFailed("事务提交失败");
+        QString errorMsg = response.value("error").toString();
+        emit appointmentCreationFailed(errorMsg.isEmpty() ? "预约创建失败" : errorMsg);
         return false;
     }
 }
@@ -682,8 +633,22 @@ QVariantList UiController::getPatientAppointments(int patientId, const QDate &da
         return QVariantList();
     }
 
-    auto result = DatabaseManager::instance().getPatientAppointments(patientId, date);
-    auto appointmentList = resultToList(result);
+    // 构造获取患者预约请求参数
+    QJsonObject params;
+    params["patientId"] = patientId;
+    if (date.isValid()) {
+        params["date"] = date.toString(Qt::ISODate);
+    }
+
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("getPatientAppointments", params);
+
+    QVariantList appointmentList;
+    if (response.value("success").toBool())
+    {
+        QJsonArray data = response.value("data").toObject().value("appointments").toArray();
+        appointmentList = resultToList(data);
+    }
 
     emit appointmentListReady(appointmentList);
     return appointmentList;
@@ -693,15 +658,18 @@ bool UiController::cancelAppointment(int appointmentId)
 {
     if (!ensureDbConnected(__func__))
     {
-        emit appointmentOperationFailed("数据库未连接");
+        emit appointmentOperationFailed("网络未连接");
         return false;
     }
 
-    DatabaseManager::DataRow updateData;
-    updateData["status"] = "cancelled";
-    QString whereClause = QString("appointment_id = %1").arg(appointmentId);
+    // 构造取消预约请求参数
+    QJsonObject params;
+    params["appointmentId"] = appointmentId;
 
-    if (DatabaseManager::instance().update("appointments", updateData, whereClause))
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("cancelAppointment", params);
+
+    if (response.value("success").toBool())
     {
         qInfo() << "Appointment" << appointmentId << "取消成功";
         emit appointmentCancelled(appointmentId);
@@ -709,7 +677,8 @@ bool UiController::cancelAppointment(int appointmentId)
     }
     else
     {
-        emit appointmentOperationFailed("预约取消失败: " + DatabaseManager::instance().lastError());
+        QString errorMsg = response.value("error").toString();
+        emit appointmentOperationFailed(errorMsg.isEmpty() ? "预约取消失败" : errorMsg);
         return false;
     }
 }
@@ -718,7 +687,7 @@ bool UiController::updateAppointmentStatus(int appointmentId, const QString &sta
 {
     if (!ensureDbConnected(__func__))
     {
-        emit appointmentOperationFailed("数据库未连接");
+        emit appointmentOperationFailed("网络未连接");
         return false;
     }
 
@@ -730,18 +699,23 @@ bool UiController::updateAppointmentStatus(int appointmentId, const QString &sta
         return false;
     }
 
-    DatabaseManager::DataRow updateData;
-    updateData["status"] = status;
-    QString whereClause = QString("appointment_id = %1").arg(appointmentId);
+    // 构造更新预约状态请求参数
+    QJsonObject params;
+    params["appointmentId"] = appointmentId;
+    params["status"] = status;
 
-    if (DatabaseManager::instance().update("appointments", updateData, whereClause))
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("updateAppointmentStatus", params);
+
+    if (response.value("success").toBool())
     {
         qInfo() << "Appointment" << appointmentId << "状态已更新为:" << status;
         return true;
     }
     else
     {
-        emit appointmentOperationFailed("预约状态更新失败: " + DatabaseManager::instance().lastError());
+        QString errorMsg = response.value("error").toString();
+        emit appointmentOperationFailed(errorMsg.isEmpty() ? "预约状态更新失败" : errorMsg);
         return false;
     }
 }
@@ -756,8 +730,19 @@ QVariantList UiController::getPatientMedicalHistory(int patientId)
         return QVariantList();
     }
 
-    auto result = DatabaseManager::instance().getPatientMedicalRecords(patientId);
-    auto recordList = resultToList(result);
+    // 构造获取患者病历请求参数
+    QJsonObject params;
+    params["patientId"] = patientId;
+
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("getPatientMedicalHistory", params);
+
+    QVariantList recordList;
+    if (response.value("success").toBool())
+    {
+        QJsonArray data = response.value("data").toObject().value("medicalRecords").toArray();
+        recordList = resultToList(data);
+    }
 
     emit medicalHistoryReady(recordList);
     return recordList;
@@ -774,85 +759,31 @@ bool UiController::createMedicalRecord(int appointmentId, const QString &diagnos
 {
     if (!ensureDbConnected(__func__))
     {
-        emit medicalOperationFailed("数据库未连接");
+        emit medicalOperationFailed("网络未连接");
         return false;
     }
 
-    // 关键验证：确保预约存在，防止为不存在的预约创建病历
-    QString checkSql = QString("SELECT COUNT(*) FROM appointments WHERE appointment_id = %1").arg(appointmentId);
-    DatabaseManager::ResultSet checkResult = DatabaseManager::instance().query(checkSql);
+    // 构造创建病历请求参数
+    QJsonObject params;
+    params["appointmentId"] = appointmentId;
+    params["diagnosisNotes"] = diagnosisNotes;
 
-    if (getCountFromResult(checkResult) == 0)
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("createMedicalRecord", params);
+
+    if (response.value("success").toBool())
     {
-        emit medicalOperationFailed("预约记录不存在");
-        return false;
-    }
-
-    // 业务规则：一个预约只能有一个病历记录，防止重复创建
-    QString existsSql = QString("SELECT COUNT(*) FROM medical_records WHERE appointment_id = %1").arg(appointmentId);
-    DatabaseManager::ResultSet existsResult = DatabaseManager::instance().query(existsSql);
-
-    if (getCountFromResult(existsResult) > 0)
-    {
-        emit medicalOperationFailed("该预约已有病历记录");
-        return false;
-    }
-
-    // 开启事务
-    if (!DatabaseManager::instance().beginTransaction())
-    {
-        emit medicalOperationFailed("事务开启失败");
-        return false;
-    }
-
-    // 创建病历记录
-    DatabaseManager::DataRow recordData;
-    recordData["appointment_id"] = appointmentId;
-    recordData["diagnosis_notes"] = diagnosisNotes;
-    recordData["diagnosis_date"] = QDate::currentDate();
-
-    if (!DatabaseManager::instance().insert("medical_records", recordData))
-    {
-        DatabaseManager::instance().rollbackTransaction();
-        emit medicalOperationFailed("病历创建失败: " + DatabaseManager::instance().lastError());
-        return false;
-    }
-
-    // 获取刚创建的病历ID
-    QString getIdSql = "SELECT last_insert_rowid() as record_id";
-    DatabaseManager::ResultSet idResult = DatabaseManager::instance().query(getIdSql);
-
-    if (idResult.empty())
-    {
-        DatabaseManager::instance().rollbackTransaction();
-        emit medicalOperationFailed("无法获取病历ID");
-        return false;
-    }
-
-    int recordId = idResult.front()["record_id"].toInt();
-
-    // 重要：创建病历后必须更新预约状态，确保业务流程的完整性
-    DatabaseManager::DataRow appointmentUpdate;
-    appointmentUpdate["status"] = "completed";
-    QString whereClause = QString("appointment_id = %1").arg(appointmentId);
-
-    if (!DatabaseManager::instance().update("appointments", appointmentUpdate, whereClause))
-    {
-        DatabaseManager::instance().rollbackTransaction(); // 任何步骤失败都要回滚
-        emit medicalOperationFailed("预约状态更新失败");
-        return false;
-    }
-
-    // 提交事务
-    if (DatabaseManager::instance().commitTransaction())
-    {
+        QJsonObject data = response.value("data").toObject();
+        int recordId = data.value("recordId").toInt(appointmentId); // 如果没有recordId就用appointmentId作为默认值
+        
         qInfo() << "病历创建成功，病历ID为:" << recordId;
         emit medicalRecordCreated(recordId);
         return true;
     }
     else
     {
-        emit medicalOperationFailed("事务提交失败");
+        QString errorMsg = response.value("error").toString();
+        emit medicalOperationFailed(errorMsg.isEmpty() ? "病历创建失败" : errorMsg);
         return false;
     }
 }
@@ -861,42 +792,33 @@ bool UiController::addPrescription(int recordId, const QString &prescriptionDeta
 {
     if (!ensureDbConnected(__func__))
     {
-        emit medicalOperationFailed("数据库未连接");
+        emit medicalOperationFailed("网络未连接");
         return false;
     }
 
-    // 检查病历记录是否存在
-    QString checkSql = QString("SELECT COUNT(*) FROM medical_records WHERE record_id = %1").arg(recordId);
-    DatabaseManager::ResultSet checkResult = DatabaseManager::instance().query(checkSql);
+    // 构造添加处方请求参数
+    QJsonObject params;
+    params["recordId"] = recordId;
+    params["prescriptionDetails"] = prescriptionDetails;
 
-    if (getCountFromResult(checkResult) == 0)
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("addPrescription", params);
+
+    if (response.value("success").toBool())
     {
-        emit medicalOperationFailed("病历记录不存在");
+        QJsonObject data = response.value("data").toObject();
+        int prescriptionId = data.value("prescriptionId").toInt(recordId);
+        
+        qInfo() << "处方添加成功，处方ID为:" << prescriptionId;
+        emit prescriptionAdded(prescriptionId);
+        return true;
+    }
+    else
+    {
+        QString errorMsg = response.value("error").toString();
+        emit medicalOperationFailed(errorMsg.isEmpty() ? "处方添加失败" : errorMsg);
         return false;
     }
-
-    // 创建处方记录
-    DatabaseManager::DataRow prescriptionData;
-    prescriptionData["record_id"] = recordId;
-    prescriptionData["details"] = prescriptionDetails;
-
-    if (DatabaseManager::instance().insert("prescriptions", prescriptionData))
-    {
-        // 获取刚创建的处方ID
-        QString getIdSql = "SELECT last_insert_rowid() as prescription_id";
-        DatabaseManager::ResultSet idResult = DatabaseManager::instance().query(getIdSql);
-
-        if (!idResult.empty())
-        {
-            int prescriptionId = idResult.front()["prescription_id"].toInt();
-            qInfo() << "处方添加成功，处方ID为:" << prescriptionId;
-            emit prescriptionAdded(prescriptionId);
-            return true;
-        }
-    }
-
-    emit medicalOperationFailed("处方添加失败: " + DatabaseManager::instance().lastError());
-    return false;
 }
 
 QVariantList UiController::getPatientPrescriptions(int patientId)
@@ -1702,7 +1624,7 @@ QVariantList UiController::getPrescriptionDrugs(int prescriptionId)
     emit prescriptionDrugsReady(drugList);
     return drugList;
 }
-bool UiController::registerDrug(const QString &drug_name,const QString &drug_price_str,const QString &description,const QString &image_url)
+bool UiController::registerDrug(const QString &drug_name,const QString &drug_price_str,const QString &description,const QString &precaution,const QString &image_url)
 {
     // 1. 准备数据
         DatabaseManager::DataRow drugData;
@@ -1710,6 +1632,7 @@ bool UiController::registerDrug(const QString &drug_name,const QString &drug_pri
         // 必填字段
         drugData["drug_name"] = drug_name;
         drugData["description"] = description;
+        drugData["precautions"] = precaution;
         drugData["image_url"] = image_url;
 
         // 2. 转换 drug_price
@@ -1724,7 +1647,6 @@ bool UiController::registerDrug(const QString &drug_name,const QString &drug_pri
 
         // 3. 处理可选字段 (这里暂时为空字符串或 NULL，如果需要可修改函数签名传入)
         drugData["usage"] = ""; // 或者 QVariant(); 表示 NULL
-        drugData["precautions"] = ""; // 或者 QVariant(); 表示 NULL
         drugData["unit"] = ""; // 或者 QVariant(); 表示 NULL
 
 
@@ -1830,51 +1752,57 @@ QVariantMap UiController::getDrugDetails(int drugId)
 {
     if (!ensureDbConnected(__func__))
     {
-        emit drugOperationFailed("数据库未连接");
+        emit drugOperationFailed("网络未连接");
         return {};
     }
 
-    QString sql = QString("SELECT * FROM drugs WHERE drug_id = %1").arg(drugId);
-    DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+    // 构造获取药品详情请求参数
+    QJsonObject params;
+    params["drugId"] = drugId;
 
-    if (result.empty())
+    // 发送网络请求
+    QJsonObject response = NetworkManagerClient::instance().sendRequestSync("getDrugDetails", params);
+
+    if (response.value("success").toBool())
+    {
+        QJsonObject data = response.value("data").toObject();
+        auto drugDetails = rowToMap(data);
+        
+        emit drugDetailsReady(drugDetails);
+        return drugDetails;
+    }
+    else
     {
         emit drugOperationFailed("药品不存在");
         return {};
     }
-
-    auto drugDetails = rowToMap(result.front());
-
-    emit drugDetailsReady(drugDetails);
-    return drugDetails;
 }
 
-DatabaseManager::ResultSet UiController::getAllDrugInfo()
+QVariantList UiController::getAllDrugInfo()
 {
      if (!ensureDbConnected(__func__))
      {
-         qCritical() << "Database not connected for getAllDrugInfo.";
+         qCritical() << "网络未连接，无法获取药品信息。";
+         return {};
      }
 
      QString sql = QString(R"(
-         SELECT drug_id, drug_name, description, usage, precautions, drug_price, image_url, unit
+         SELECT drug_id, drug_name, description, usage, precautions, drug_price, image_url, unit, drug_price, image_url, unit
          FROM drugs
      )");
 
-     // 3. 通过 DatabaseManager 单例执行查询
-     DatabaseManager::ResultSet result = DatabaseManager::instance().query(sql);
+     // 发送网络请求
+     QJsonObject response = NetworkManagerClient::instance().sendRequestSync("getAllDrugInfo", params);
 
-
-     if (result.empty()) // 或 !result.isValid() 如果您的 ResultSet 有此方法来表示无结果或查询失败
+     if (response.value("success").toBool())
      {
-         qDebug() << "No drug information found in the database or query failed.";
+         QJsonArray data = response.value("data").toArray();
+         qDebug() << "成功获取药品信息。记录数:" << data.size();
+         return resultToList(data);
      }
      else
      {
-
-         qDebug() << "Successfully initiated retrieval of drug information.";
+         qDebug() << "数据库中未找到药品信息。";
+         return {}; // 返回空的列表
      }
-
-     // 4. 直接返回 ResultSet
-     return result;
 }

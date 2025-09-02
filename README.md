@@ -25,10 +25,13 @@
 
 ### 📅 8/31
 
-1. [ ] 更新了[架构图](#31-总体模块视图)，主要是添加了服务器端和网络通信层部分，尚待实现。实现思路：
-   - 将 databaseManager 迁移到服务器端，可以直接复用原有的代码
-   - 在 databaseManager 与 uiController 之间新增一个 networkManager 模块，用于处理网络通信。使用 TCP 通信，使用 JSON 数据格式。客户端与服务器端均需要添加相关模块来处理信息收发与处理
-   - 修改 databaseManager, uiController 与 networkManager 的接口，在此之前两者之间是直接调用，现在需要通过 networkManager 来调用
+1. [x] ✅ **网络架构重构完成** - 更新了[架构图](#31-总体模块视图)，主要是添加了服务器端和网络通信层部分。实现思路：
+   - ✅ 将 `DatabaseManager` 迁移到服务器端，复用原有的代码
+   - ✅ 在 `DatabaseManager` 与 `UiController` 之间新增 `NetworkManager` 模块，用于处理网络通信
+   - ✅ 使用 TCP 通信，使用 JSON 数据格式进行数据传输
+   - ✅ 客户端与服务器端均已添加相关模块来处理信息收发与处理
+   - ⏸️ 修改 `UiController` 接口（等其他人代码合并后进行）
+
 2. [x] 补充科室的表格，医生表的科室变成外键
 
 ### 📅 9/1
