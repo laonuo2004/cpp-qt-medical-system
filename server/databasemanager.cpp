@@ -287,19 +287,20 @@ DatabaseManager& DatabaseManager::instance()
         {
             return false;
         }
-
+//        bool success = execute(R"(
+//            DROP TABLE IF EXISTS users;
+//            )"
+//        );
         // 1. 用户表（存储所有角色用户）
-        bool success = execute(R"(
-            CREATE TABLE IF NOT EXISTS users (
-                user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT NOT NULL,
-                email TEXT NOT NULL UNIQUE,
-                password_hash TEXT NOT NULL,
-                role TEXT NOT NULL CHECK(role IN ('admin', 'doctor', 'patient')),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        )");
-
+        bool success= execute(R"(
+             CREATE TABLE IF NOT EXISTS users (
+                 user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 user_name TEXT ,
+                 email TEXT,
+                 password_hash TEXT,
+                 role TEXT
+             )
+          )");
         // 2. 管理员表
         if (success)
         {
@@ -570,6 +571,7 @@ DatabaseManager& DatabaseManager::instance()
         return success;
     }
 
+
     // --- 高级查询接口实现 ---
 
     DatabaseManager::ResultSet DatabaseManager::getDoctorsByDepartment(const QString& departmentName)
@@ -678,7 +680,23 @@ DatabaseManager& DatabaseManager::instance()
         return query(sql);
     }
 
+    DatabaseManager::ResultSet DatabaseManager::getTimeByDoctorId(const QString& doctorId)
+    {
+        if (!isConnected())
+        {
+            m_lastError = "数据库未连接";
+            emit errorOccurred(m_lastError);
+            return {};
+        }
+        QString sql = QString(R"(
+                SELECT doc_start, doc_finish
+                FROM doctors
+                WHERE doctor_id = '%1'
+            )").arg(doctorId);
 
+         // Execute the query using the existing query method
+         return query(sql);
+    }
     bool DatabaseManager::isTimeSlotAvailable(const QString& doctorId, const QDateTime& dateTime)
     {
         if (!isConnected())

@@ -18,9 +18,9 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QPushButton" name="pushButton">
         <property name="text">
-         <string>查看:</string>
+         <string>查看</string>
         </property>
        </widget>
       </item>
@@ -64,7 +64,7 @@
      </layout>
     </item>
     <item>
-     <widget class="QListWidget" name="UserList"/>
+     <widget class="QTableWidget" name="tableWidget"/>
     </item>
    </layout>
   </widget>

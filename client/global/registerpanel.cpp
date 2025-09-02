@@ -23,7 +23,6 @@ RegisterPanel::~RegisterPanel()
 
 void RegisterPanel::handleRegister()
 {
-    QString username = ui->UserNameEdit->text();
     QString email = ui->EmailEdit->text();
     QString password = ui->PasswordEdit->text();
     // 从 QComboBox 中获取当前选中项的自定义数据
