@@ -11,6 +11,12 @@ PatientChatTool::PatientChatTool(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->SendBtn, &QPushButton::clicked, this, &PatientChatTool::sendMessage);
+    loadChatHistory();
+    m_refreshTimer = new QTimer(this);
+    m_refreshTimer->setInterval(3000); // 每3秒刷新一次；你可改为2000/5000等
+    connect(m_refreshTimer, &QTimer::timeout,
+            this, &PatientChatTool::loadChatHistory);
+    m_refreshTimer->start();
 }
 
 PatientChatTool::PatientChatTool(QWidget *parent, int patientid , int doctorid) :
@@ -22,6 +28,11 @@ PatientChatTool::PatientChatTool(QWidget *parent, int patientid , int doctorid) 
 {
     ui->setupUi(this);
     connect(ui->SendBtn, &QPushButton::clicked, this, &PatientChatTool::sendMessage);
+    m_refreshTimer = new QTimer(this);
+        m_refreshTimer->setInterval(3000); // 每3秒刷新一次；你可改为2000/5000等
+        connect(m_refreshTimer, &QTimer::timeout,
+                this, &PatientChatTool::loadChatHistory);
+        m_refreshTimer->start();
 }
 
 PatientChatTool::~PatientChatTool()
@@ -81,7 +92,7 @@ void PatientChatTool::sendMessage()
 
         if (success) {
             // 7. 显示发送的消息
-            displayMessage(m_patientid, m_doctorid , message);
+            loadChatHistory();
 
             // 8. 清空消息输入框
             ui->Message->clear();
@@ -130,3 +141,67 @@ void PatientChatTool::displayMessage(int senderId, int receiverId, const QString
     ui->MessageBox->setTextCursor(cursor);
 }
 
+void PatientChatTool::loadChatHistory()
+{
+    if (!ui->MessageBox) {
+        qWarning() << "MessageBox widget is not initialized";
+        return;
+    }
+    if (!controller) {
+        qWarning() << "UiController is not initialized";
+        return;
+    }
+
+    // 拉取最新 N 条（默认 UiController 里有缺省 limit，可在其实现里调大）
+    QVariantList list = controller->getChatHistory(m_patientid, m_doctorid);
+
+    // 清空并重新渲染
+    ui->MessageBox->clear();
+
+    // 数据库查询按 sent_at DESC（最新在前），为了让“最新显示在底部”，倒序追加
+    for (int i = list.size() - 1; i >= 0; --i) {
+        const QVariant &row = list[i];
+        const QVariantMap m = row.toMap();
+
+        const int senderId   = m.value("sender_id").toInt();
+        const int receiverId = m.value("receiver_id").toInt();
+        const QString content = m.value("content").toString();
+
+        // 发送者/接收者名（容错）
+        const QString senderName   = m.value("sender_name").toString().isEmpty()
+                ? QStringLiteral("用户%1").arg(senderId)
+                : m.value("sender_name").toString();
+        const QString receiverName = m.value("receiver_name").toString().isEmpty()
+                ? QStringLiteral("用户%1").arg(receiverId)
+                : m.value("receiver_name").toString();
+
+        // 时间戳（可能是 QDateTime 或 ISO 字符串）
+        QDateTime ts;
+        const QVariant sentVar = m.value("sent_at");
+        if (sentVar.canConvert<QDateTime>()) {
+            ts = sentVar.toDateTime();
+        } else {
+            // 尝试 ISO8601 / 常见格式
+            ts = QDateTime::fromString(sentVar.toString(), Qt::ISODate);
+            if (!ts.isValid())
+                ts = QDateTime::fromString(sentVar.toString(), "yyyy-MM-dd hh:mm:ss");
+        }
+        const QString timestamp = ts.isValid()
+                ? ts.toString("yyyy-MM-dd hh:mm:ss")
+                : QStringLiteral("时间未知");
+
+        // 统一格式
+        const QString line = QString("[%1] %2(%3) → %4(%5): %6")
+                                 .arg(timestamp)
+                                 .arg(senderName).arg(senderId)
+                                 .arg(receiverName).arg(receiverId)
+                                 .arg(content);
+
+        ui->MessageBox->append(line);
+    }
+
+    // 滚动到底
+    QTextCursor cursor = ui->MessageBox->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->MessageBox->setTextCursor(cursor);
+}

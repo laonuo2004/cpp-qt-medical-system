@@ -2,13 +2,11 @@
 #define DOCTORCHATTOOL_H
 
 #include <QDialog>
-#include <QTcpServer>
-#include <QHostAddress>
-#include <QNetworkInterface>
 #include <QDebug>
 #include <QMessageBox>
-#include <QTcpSocket>
 #include <QIntValidator>
+#include "uicontroller.h"
+#include <QTimer>
 
 namespace Ui {
 class DoctorChatTool;
@@ -20,24 +18,24 @@ class DoctorChatTool : public QDialog
 
 public:
     explicit DoctorChatTool(QWidget *parent = nullptr);
+    DoctorChatTool(QWidget *parent , int patientid ,int doctorid);
     ~DoctorChatTool();
 
 private slots:
-    void on_startServerBtn_clicked();//启动服务器按钮
-    void slotNewConnection();//新的链接
-    void slotReadyRead();
-    void slotAcceptError(QAbstractSocket::SocketError error);
-    void slotDisconnected();
-    void on_clientSendBtn_clicked();
-    void slotConnected();
 
 private:
     Ui::DoctorChatTool *ui;
-    QTcpServer * myTcpServer = nullptr;//服务器端
-    QTcpSocket *myTcpClient = nullptr;//新接入的客户端
-    QList<QTcpSocket *> clients;//客户端列表   STL再封装  //数组，STL   【vector，list，map，set】
+    int m_patientid;
+    int m_doctorid;
+    UiController* controller;
+    QTimer* m_refreshTimer = nullptr;  // 新增：定时器
 
-    void init();//初始化函数
+    void displayMessage(int senderId, int receiverId, const QString &message);
+    void loadChatHistory();   // 新增：拉取并展示最新聊天记录#include
+
+private slots:
+    void  sendMessage() ;
+
 };
 
 #endif // DOCTORCHATTOOL_H
