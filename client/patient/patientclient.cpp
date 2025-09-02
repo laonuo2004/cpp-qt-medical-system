@@ -17,13 +17,14 @@ PatientClient::PatientClient(QWidget *parent) :
 
     m_patientId = 25; // 测试使用（默认登录为测试数据库中22号患者），必须删除
 
+    m_apiGetPage = new APIGet(this);
     QVector<QWidget*> pages =
     {
         new PatientInfoPage(this, m_patientId),
         new RegisterPage(this, m_patientId),
         new ReportPage(this, m_patientId),
         new DrugSearchPage(this),
-        new APIGet(this)
+        m_apiGetPage
     };
 
     QVector<QPushButton*> navButtons =
@@ -81,9 +82,11 @@ void PatientClient::setDarkModeText()
     if (Engine::get().getCurrentMode())
     {
         ui->StyleBtn->setText("切换浅色");
+        m_apiGetPage->updateTheme(true);
     }
     else
     {
         ui->StyleBtn->setText("切换深色");
+        m_apiGetPage->updateTheme(false);
     }
 }

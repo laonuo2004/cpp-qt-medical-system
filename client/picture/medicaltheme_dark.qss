@@ -20,7 +20,7 @@ QLabel#HeaderLabel {
     font-weight: bold;
     color: #20C997;
     padding: 15px 20px;
-    border-bottom: 3px solid #145C52;
+    border-bottom: 3px solid #12504b;
 }
 
 QLabel#fullHeaderLabel {
@@ -29,7 +29,7 @@ QLabel#fullHeaderLabel {
     font-weight: bold;
     color: #20C997;
     padding: 15px 20px;
-    background-color: #145C52;
+    background-color: #12504b;
 }
 
 QLabel.fullHeaderLabel {
@@ -38,7 +38,7 @@ QLabel.fullHeaderLabel {
     font-weight: bold;
     color: #20C997;
     padding: 15px 20px;
-    background-color: #145C52;
+    background-color: #12504b;
 }
 
 QLabel.backHeaderLabel {
@@ -56,12 +56,19 @@ QLabel#statusLabel {
 }
 
 QLabel.timeDisplay {
-    background-color: #20C997;       /* 深色背景，和其他输入框/卡片一致 */
-    border-radius: 6px;              
-    padding: 20px 20px;              
+    background: qlineargradient(
+        spread:pad,
+        x1:0, y1:0,      /* 左上角 */
+        x2:1, y2:1,      /* 右下角 */
+        stop:0   #3BAFDA,  /* 青绿 (主色) */
+        stop:0.5 #20C997,  /* 中间过渡的蓝色 (提亮) */
+        stop:1   #145C52   /* 深青绿 (收尾) */
+    );
+    border-radius: 6px;
+    padding: 20px 20px;
     font-family: "Microsoft YaHei", "Segoe UI", "Arial", sans-serif;
-    font-size: 36px;                 
-    color: #121212;                   
+    font-size: 48px;
+    color: #121212;   /* 深色文字，保持对比 */
 }
 
 
@@ -232,16 +239,20 @@ QPushButton.toolbox:disabled {
     color: #e9ecef;
 }
 
+/* sidebar-btn 渐变色，普通状态 */
 QPushButton.sidebar-btn {
     min-width: 200px;
     min-height: 100px;
     max-width: 200px;
     max-height: 100px;
-    font-size: 20px;
-    background-color: #0e403a;   /* 深青绿底 */
-    color: #E0E0E0;              /* 浅灰文字 */
+    font-size: 22px;
+    /* 渐变色：深青绿到稍浅青绿 */
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0e403a, stop:1 #12504b);
+
+    color: #E0E0E0;              
     border-radius: 0px;
 }
+
 
 QPushButton.sidebar-btn:hover {
     background-color: #1AA179;   /* hover 更亮的青绿 */
@@ -260,15 +271,16 @@ QPushButton.sidebar-btn:checked {
     padding-left: 12px;       
 }
 
-
+/* special-btn 渐变色，普通状态 */
 QPushButton.special-btn {
     min-width: 200px;
     min-height: 100px;
     max-width: 200px;
     max-height: 100px;
-    font-size: 20px;
-    background-color: #8B0000;   /* 深暗红色 */
-    color: #FFFFFF;              /* 白色文字 */
+    font-size: 22px;
+    /* 渐变色：深暗红到稍亮红 */
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #700000, stop:1 #9C0000);
+    color: #FFFFFF;
     border-radius: 0px;
 }
 

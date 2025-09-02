@@ -6,7 +6,7 @@ PayPage::PayPage(QWidget *parent) :
     ui(new Ui::PayPage)
 {
     ui->setupUi(this);
-    ui->QRCode->setFixedSize(200, 200);
+    setFixedSize(400, 500);
     connect(ui->confirmBtn, &QPushButton::clicked, this, &QDialog::accept);
 }
 

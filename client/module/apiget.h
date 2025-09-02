@@ -25,6 +25,8 @@ public:
     explicit APIGet(QWidget *parent = nullptr);
     ~APIGet();
 
+    void updateTheme(bool isDarkMode);
+
 public slots:
     void on_Button_openserial_clicked();
 
