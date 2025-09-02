@@ -193,7 +193,7 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QLabel" name="HeaderLabel">
+          <widget class="QLabel" name="fullHeaderLabel">
            <property name="font">
             <font>
              <pointsize>12</pointsize>
@@ -243,8 +243,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>905</width>
-                 <height>475</height>
+                 <width>907</width>
+                 <height>489</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_5">

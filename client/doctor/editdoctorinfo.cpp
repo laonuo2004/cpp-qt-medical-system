@@ -41,7 +41,7 @@ void EditDoctorInfo::getInfoSet(QList<QString>& InfoSet)
     InfoSet.push_back(ui->departmentInput->currentText());
     InfoSet.push_back(ui->birthdayInput->text());
     InfoSet.push_back(ui->contactInput->text());
-    InfoSet.push_back(ui->addressInput->text());
+    InfoSet.push_back(ui->descriptionInput->toPlainText());
 }
 
 QPixmap EditDoctorInfo::getImage()
