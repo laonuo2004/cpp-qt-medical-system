@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1373</width>
-    <height>698</height>
+    <width>1384</width>
+    <height>1420</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -51,6 +51,9 @@
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
+     </property>
+     <property name="class" stdset="0">
+      <string>cardFrame</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="spacing">
