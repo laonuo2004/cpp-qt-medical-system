@@ -73,8 +73,6 @@ void APIGet::on_Button_openserial_clicked()
             if(selectedPortInfo.isBusy()) {
                 ui->textBrowser->append(QString("警告: 串口 %1 当前被其他程序占用").arg(portName));
             }
-            ui->textBrowser->append(QString("串口描述: %1").arg(selectedPortInfo.description()));
-            ui->textBrowser->append(QString("制造商: %1").arg(selectedPortInfo.manufacturer()));
             
             // 测试串口访问性
             ui->textBrowser->append("正在测试串口访问性...");
@@ -128,7 +126,7 @@ void APIGet::on_Button_openserial_clicked()
             ui->comboBox_databit->setEnabled(false);
             ui->comboBox_parity->setEnabled(false);
             ui->comboBox_stopbit->setEnabled(false);
-            ui->Button_openserial->setText(tr("closePort"));
+            ui->Button_openserial->setText(tr("关闭串口"));
 
             // 清空之前的数据
             receivedData.clear();
