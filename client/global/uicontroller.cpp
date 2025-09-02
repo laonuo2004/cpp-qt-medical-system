@@ -483,7 +483,7 @@ QVariantMap UiController::getDoctorInfo(const QString &doctorId)
         "SELECT u.username, u.email, "
         "d.doctor_id, d.user_id, d.full_name, d.sex, d.age, "
         "dept.department_name, d.title, d.phone_no, d.doc_start, d.doc_finish, "
-        "d.registration_fee, d.patient_limit, d.photo_url "
+        "d.registration_fee, d.patient_limit, d.photo_url, d.description "
         "FROM users u "
         "JOIN doctors d ON u.user_id = d.user_id "
         "JOIN departments dept ON d.department_id = dept.department_id "
