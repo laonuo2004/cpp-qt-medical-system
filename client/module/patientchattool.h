@@ -19,12 +19,15 @@ class PatientChatTool : public QDialog
 
 public:
     explicit PatientChatTool(QWidget *parent = nullptr);
+    PatientChatTool(QWidget *parent, int patientid , int doctorid);
     ~PatientChatTool();
 
 private:
     Ui::PatientChatTool *ui;
+    int m_patientid;
+    int m_doctorid;
     UiController* controller;
-    void displayMessage(int senderId, const QString &message);
+    void displayMessage(int senderId, int receiverId, const QString &message);
 
 private slots:
     void  sendMessage() ;

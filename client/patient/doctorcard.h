@@ -38,6 +38,8 @@ protected:
 private:
     Ui::DoctorCard *ui;
     QVariantMap m_doctorInfo;
+    int m_doctorid;
+    int m_patientid;
 };
 
 #endif // DOCTORCARD_H

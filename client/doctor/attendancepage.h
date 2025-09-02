@@ -55,9 +55,16 @@ protected:
 
     void checkHistory();
 
+    void checkLeave(const QVariantList &rows);
+
 private:
     Ui::AttendancePage *ui;
     int m_doctorId;
+
+private slots:
+    void onTabChanged(int index);
+    void printLeaveRequests(const QVariantList& rows);
+
 };
 
 #endif // ATTENDANCEPAGE_H

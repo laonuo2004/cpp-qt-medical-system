@@ -51,91 +51,37 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
-       <number>10</number>
+       <number>20</number>
       </property>
       <property name="leftMargin">
-       <number>30</number>
+       <number>20</number>
       </property>
       <property name="topMargin">
-       <number>30</number>
+       <number>20</number>
       </property>
       <property name="rightMargin">
-       <number>30</number>
+       <number>20</number>
       </property>
       <property name="bottomMargin">
-       <number>30</number>
+       <number>20</number>
       </property>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
-        <property name="spacing">
-         <number>20</number>
-        </property>
         <item>
-         <layout class="QGridLayout" name="gridLayout">
-          <property name="spacing">
+         <layout class="QFormLayout" name="formLayout">
+          <property name="formAlignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+          <property name="horizontalSpacing">
            <number>20</number>
           </property>
-          <item row="1" column="0">
-           <widget class="QLabel" name="ShowText_2">
-            <property name="font">
-             <font>
-              <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;, &quot;Arial&quot;, sans-serif;
-font-size: 18px;</string>
-            </property>
-            <property name="text">
-             <string>医生职务：</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="label">
-            <property name="font">
-             <font>
-              <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;, &quot;Arial&quot;, sans-serif;
-font-size: 18px;</string>
-            </property>
-            <property name="text">
-             <string>剩余名额：</string>
-            </property>
-           </widget>
-          </item>
+          <property name="verticalSpacing">
+           <number>20</number>
+          </property>
           <item row="0" column="0">
            <widget class="QLabel" name="ShowText_1">
-            <property name="font">
-             <font>
-              <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;, &quot;Arial&quot;, sans-serif;
-font-size: 18px;</string>
-            </property>
             <property name="text">
-             <string>医生姓名：</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="idInput">
-            <property name="text">
-             <string>[...]</string>
+             <string>姓名：</string>
             </property>
            </widget>
           </item>
@@ -146,60 +92,10 @@ font-size: 18px;</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="2">
-           <widget class="QLabel" name="label_3">
-            <property name="font">
-             <font>
-              <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;, &quot;Arial&quot;, sans-serif;
-font-size: 18px;</string>
-            </property>
+          <item row="1" column="0">
+           <widget class="QLabel" name="ShowText_2">
             <property name="text">
-             <string>下班时间：</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="label_2">
-            <property name="font">
-             <font>
-              <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;, &quot;Arial&quot;, sans-serif;
-font-size: 18px;</string>
-            </property>
-            <property name="text">
-             <string>上班时间：</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="ShowText_3">
-            <property name="font">
-             <font>
-              <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;, &quot;Arial&quot;, sans-serif;
-font-size: 18px;</string>
-            </property>
-            <property name="text">
-             <string>挂号费用：</string>
+             <string>职务：</string>
             </property>
            </widget>
           </item>
@@ -210,22 +106,15 @@ font-size: 18px;</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="3">
-           <widget class="QLabel" name="restInput">
+          <item row="2" column="0">
+           <widget class="QLabel" name="ShowText_3">
             <property name="text">
-             <string>[...]</string>
+             <string>工号：</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="3">
-           <widget class="QLabel" name="workTimeInput">
-            <property name="text">
-             <string>[...]</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="3">
-           <widget class="QLabel" name="departmentInput">
+          <item row="2" column="1">
+           <widget class="QLabel" name="idInput">
             <property name="text">
              <string>[...]</string>
             </property>
@@ -234,21 +123,11 @@ font-size: 18px;</string>
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QPushButton" name="DetailBtn">
-            <property name="styleSheet">
-             <string notr="true">padding: 10px 40px;</string>
-            </property>
-            <property name="text">
-             <string>在线挂号</string>
-            </property>
-            <property name="class" stdset="0">
-             <string>lightblue</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QPushButton" name="DetailBtn">
+          <property name="text">
+           <string>挂号</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

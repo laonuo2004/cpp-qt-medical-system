@@ -13,6 +13,17 @@ PatientChatTool::PatientChatTool(QWidget *parent) :
     connect(ui->SendBtn, &QPushButton::clicked, this, &PatientChatTool::sendMessage);
 }
 
+PatientChatTool::PatientChatTool(QWidget *parent, int patientid , int doctorid) :
+    QDialog(parent),
+    ui(new Ui::PatientChatTool),
+    m_patientid(patientid),
+    m_doctorid(doctorid),
+    controller(new UiController(this)) // 使用初始化列表初始化controller
+{
+    ui->setupUi(this);
+    connect(ui->SendBtn, &QPushButton::clicked, this, &PatientChatTool::sendMessage);
+}
+
 PatientChatTool::~PatientChatTool()
 {
     delete ui;
@@ -21,6 +32,7 @@ PatientChatTool::~PatientChatTool()
 
 void PatientChatTool::sendMessage()
 {
+    /*
     // 1. 验证发送者ID
     bool conversionOk = false;
     int senderId = ui->senderID->text().toInt(&conversionOk);
@@ -39,6 +51,7 @@ void PatientChatTool::sendMessage()
         ui->ReceiverID->selectAll();
         return;
     }
+    */
 
     // 3. 验证消息内容
     QString message = ui->Message->text().trimmed();
@@ -64,11 +77,11 @@ void PatientChatTool::sendMessage()
 
     try {
         // 6. 尝试发送消息
-        bool success = controller->sendMessage(senderId, receiverId, message);
+        bool success = controller->sendMessage(m_patientid, m_doctorid, message);
 
         if (success) {
             // 7. 显示发送的消息
-            displayMessage(senderId, message);
+            displayMessage(m_patientid, m_doctorid , message);
 
             // 8. 清空消息输入框
             ui->Message->clear();
@@ -86,7 +99,7 @@ void PatientChatTool::sendMessage()
     }
 }
 
-void PatientChatTool::displayMessage(int senderId, const QString &message)
+void PatientChatTool::displayMessage(int senderId, int receiverId, const QString &message)
 {
     // 1. 检查消息显示控件是否有效
     if (!ui->MessageBox) {
@@ -102,10 +115,11 @@ void PatientChatTool::displayMessage(int senderId, const QString &message)
     QString timestamp = currentTime.toString("yyyy-MM-dd hh:mm:ss");
 
     // 格式化消息
-    formattedMessage = QString("[%1] 用户%2: %3")
+    formattedMessage = QString("[%1] 用户%2 发送消息 %3 接收者%4")
                           .arg(timestamp)
                           .arg(senderId)
-                          .arg(message);
+                          .arg(message)
+                          .arg(receiverId);
 
     // 3. 添加到消息框
     ui->MessageBox->append(formattedMessage);

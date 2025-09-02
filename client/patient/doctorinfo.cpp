@@ -3,6 +3,7 @@
 #include "registerinfo.h"
 #include "patientchattool.h"
 #include "uicontroller.h"
+#include "patientclient.h"
 
 #include <QMessageBox>
 #include <QNetworkAccessManager>
@@ -13,8 +14,42 @@ DoctorInfo::DoctorInfo(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DoctorInfo)
 {
+
     ui->setupUi(this);
     ui->DoctorPhoto->setFixedSize(200, 250);
+
+    ui->dateEdit->setCalendarPopup(true);                  // 可选：点击弹出日历
+    ui->dateEdit->setDisplayFormat(QStringLiteral("yyyy年MM月dd日"));
+    ui->dateEdit->setDate(QDate::currentDate());
+
+    ui->availableTime->addItem("08:00-10:00");
+    ui->availableTime->addItem("10:00-12:00");
+    ui->availableTime->addItem("13:00-15:00");
+    ui->availableTime->addItem("15:00-17:00");
+
+    connect(ui->confirmBtn, &QPushButton::clicked, this, &DoctorInfo::patientRegister);
+    connect(ui->chatBtn, &QPushButton::clicked, this, &DoctorInfo::startChat);
+}
+
+DoctorInfo::DoctorInfo(QWidget *parent , int doctorid) :
+    QDialog(parent),
+    ui(new Ui::DoctorInfo),
+    m_doctorid(doctorid)
+{
+
+    qDebug() << m_doctorid ;
+    ui->setupUi(this);
+    ui->DoctorPhoto->setFixedSize(200, 250);
+
+    ui->dateEdit->setCalendarPopup(true);                  // 可选：点击弹出日历
+    ui->dateEdit->setDisplayFormat(QStringLiteral("yyyy年MM月dd日"));
+    ui->dateEdit->setDate(QDate::currentDate());
+
+    ui->availableTime->addItem("08:00-10:00");
+    ui->availableTime->addItem("10:00-12:00");
+    ui->availableTime->addItem("13:00-15:00");
+    ui->availableTime->addItem("15:00-17:00");
+
     connect(ui->confirmBtn, &QPushButton::clicked, this, &DoctorInfo::patientRegister);
     connect(ui->chatBtn, &QPushButton::clicked, this, &DoctorInfo::startChat);
 }
@@ -26,7 +61,7 @@ DoctorInfo::~DoctorInfo()
 
 void DoctorInfo::patientRegister()
 {
-    RegisterInfo* registerPanel = new RegisterInfo(this);
+    RegisterInfo* registerPanel = new RegisterInfo(m_doctorInfo, ui->availableTime->currentText() , this);
     if (registerPanel->exec() == QDialog::Accepted)
     {
         QMessageBox::information(this, tr("挂号"), tr("挂号成功。"));
@@ -36,7 +71,7 @@ void DoctorInfo::patientRegister()
 
 void DoctorInfo::startChat()
 {
-    PatientChatTool* chatDialog = new PatientChatTool(this);
+    PatientChatTool* chatDialog = new PatientChatTool(this, 19 , 12);
     if (chatDialog->exec() == QDialog::Accepted)
     {
 
@@ -46,6 +81,7 @@ void DoctorInfo::startChat()
 
 void DoctorInfo::buildUpDoctorInfo(QVariantMap doctorInfo)
 {
+    m_doctorInfo = doctorInfo;
     // 加载基本的医生信息
     ui->nameInput->setText(doctorInfo.value("full_name").toString());
     ui->idInput->setText(doctorInfo.value("doctor_id").toString());

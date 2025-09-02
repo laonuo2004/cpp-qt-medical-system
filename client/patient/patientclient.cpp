@@ -15,16 +15,15 @@ PatientClient::PatientClient(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_patientId = 25; // 测试使用（默认登录为测试数据库中22号患者），必须删除
+    m_patientId = 19;
 
-    m_apiGetPage = new APIGet(this);
     QVector<QWidget*> pages =
     {
         new PatientInfoPage(this, m_patientId),
         new RegisterPage(this, m_patientId),
         new ReportPage(this, m_patientId),
         new DrugSearchPage(this),
-        m_apiGetPage
+        new APIGet(this)
     };
 
     QVector<QPushButton*> navButtons =
@@ -48,9 +47,6 @@ PatientClient::PatientClient(QWidget *parent) :
     ui->LogoutBtn->setFixedSize(150, 50);
     ui->LogoutBtn->setProperty("class", "special-btn");
 
-    ui->StyleBtn->setFixedSize(150, 50);
-    ui->StyleBtn->setProperty("class", "sidebar-btn");
-
     m_navButtonGroup = new QButtonGroup(this);
     for (int i = 0; i < navButtons.size(); ++i)
     {
@@ -63,8 +59,6 @@ PatientClient::PatientClient(QWidget *parent) :
             });
 
     // 连接退出按钮
-    connect(ui->StyleBtn, &QPushButton::clicked, &Engine::get(), &Engine::switchDarkMode);
-    connect(ui->StyleBtn, &QPushButton::clicked, this, &PatientClient::setDarkModeText);
     connect(ui->LogoutBtn, &QPushButton::clicked, &Engine::get(), &Engine::startEngine);
 
     // 设置初始状态
@@ -75,18 +69,4 @@ PatientClient::PatientClient(QWidget *parent) :
 PatientClient::~PatientClient()
 {
     delete ui;
-}
-
-void PatientClient::setDarkModeText()
-{
-    if (Engine::get().getCurrentMode())
-    {
-        ui->StyleBtn->setText("切换浅色");
-        m_apiGetPage->updateTheme(true);
-    }
-    else
-    {
-        ui->StyleBtn->setText("切换深色");
-        m_apiGetPage->updateTheme(false);
-    }
 }

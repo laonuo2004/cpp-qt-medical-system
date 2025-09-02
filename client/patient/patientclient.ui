@@ -105,7 +105,7 @@
             </size>
            </property>
            <property name="text">
-            <string>在线挂号</string>
+            <string>挂在线号</string>
            </property>
           </widget>
          </item>
@@ -124,7 +124,7 @@
             </size>
            </property>
            <property name="text">
-            <string>查看报告</string>
+            <string>报查看告</string>
            </property>
           </widget>
          </item>
@@ -154,13 +154,6 @@
             </size>
            </property>
           </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="StyleBtn">
-           <property name="text">
-            <string>切换深色</string>
-           </property>
-          </widget>
          </item>
          <item>
           <widget class="QPushButton" name="LogoutBtn">

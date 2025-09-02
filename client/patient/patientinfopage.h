@@ -27,11 +27,16 @@ public:
 protected:
     /* 创建编辑个人信息弹窗 */
     void editPatientInfo();
-
+    void updateTime();
 private:
     Ui::PatientInfoPage *ui;
 
     int m_patientId;
+
+    QString greetingForHour(int hour) const;
+
+private slots:
+    void updateTimeAndGreeting();
 };
 
 #endif // PATIENTINFOPAGE_H

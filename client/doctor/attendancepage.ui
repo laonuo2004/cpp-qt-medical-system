@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="CheckInTab">
       <property name="font">
@@ -193,7 +193,7 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QLabel" name="fullHeaderLabel">
+          <widget class="QLabel" name="HeaderLabel">
            <property name="font">
             <font>
              <pointsize>12</pointsize>
@@ -244,7 +244,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>907</width>
-                 <height>489</height>
+                 <height>469</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -254,6 +254,9 @@
                    <number>10</number>
                   </property>
                  </layout>
+                </item>
+                <item>
+                 <widget class="QTextEdit" name="textEdit"/>
                 </item>
                 <item>
                  <spacer name="verticalSpacer">

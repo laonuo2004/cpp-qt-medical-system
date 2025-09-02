@@ -2,6 +2,7 @@
 #define DOCTORINFO_H
 
 #include <QDialog>
+#include <QVariantMap>
 
 namespace Ui {
 class DoctorInfo;
@@ -23,6 +24,7 @@ class DoctorInfo : public QDialog
 
 public:
     explicit DoctorInfo(QWidget *parent = nullptr);
+    DoctorInfo(QWidget *parent , int doctorid);
     ~DoctorInfo();
 
     /**
@@ -45,6 +47,10 @@ protected:
 
 private:
     Ui::DoctorInfo *ui;
+    QVariantMap m_doctorInfo;
+    int m_patientid = 19;
+    int m_doctorid;
+    QString m_timeslot;
 };
 
 #endif // DOCTORINFO_H
