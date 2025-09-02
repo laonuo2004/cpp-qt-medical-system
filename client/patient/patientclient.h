@@ -26,6 +26,9 @@ public:
     explicit PatientClient(QWidget *parent = nullptr);
     ~PatientClient();
 
+protected:
+    void setDarkModeText();
+
 private:
     Ui::PatientClient *ui;
     class PatientInfoPage* m_patientInfoPage; /* 个人信息界面 */

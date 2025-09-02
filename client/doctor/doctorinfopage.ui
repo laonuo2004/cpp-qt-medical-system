@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1215</width>
-    <height>776</height>
+    <width>1360</width>
+    <height>945</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,15 +30,15 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QLabel" name="fullHeaderLabel">
-     <property name="styleSheet">
-      <string notr="true">background-color: #F7F9FC;</string>
-     </property>
+    <widget class="QLabel" name="title">
      <property name="text">
       <string>早上好！</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+     <property name="class" stdset="0">
+      <string>backHeaderLabel</string>
      </property>
     </widget>
    </item>
@@ -108,15 +108,10 @@
               <property name="font">
                <font>
                 <family>Microsoft YaHei</family>
-                <pointsize>-1</pointsize>
+                <pointsize>18</pointsize>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;, &quot;Arial&quot;, sans-serif;
-    font-size: 18px;
-color: rgb(0, 40, 150)</string>
               </property>
               <property name="text">
                <string>个人信息</string>
@@ -345,10 +340,6 @@ color: rgb(0, 40, 150)</string>
        </item>
        <item>
         <widget class="QFrame" name="cardFrame">
-         <property name="styleSheet">
-          <string notr="true">#cardFrame{background-color: rgb(229, 229, 229)}
-</string>
-         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
@@ -384,17 +375,11 @@ color: rgb(0, 40, 150)</string>
               <property name="font">
                <font>
                 <family>Microsoft YaHei</family>
-                <pointsize>-1</pointsize>
+                <pointsize>18</pointsize>
                 <weight>75</weight>
                 <italic>false</italic>
                 <bold>true</bold>
                </font>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;, &quot;Arial&quot;, sans-serif;
-    font-size: 18px;
-
-color: rgb(100, 100, 100)</string>
               </property>
               <property name="text">
                <string>简介</string>
@@ -428,25 +413,18 @@ color: rgb(100, 100, 100)</string>
        </property>
        <item>
         <widget class="QLabel" name="timeDisplay">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <family>Microsoft YaHei</family>
-           <pointsize>-1</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">#timeDisplay{
-    background-color: #D4D8E1; 
-    border-radius: 6px;                        
-    padding: 20px 20px;      
-    font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;, &quot;Arial&quot;, sans-serif;
-font-size: 36px;
-color: rgb(106, 120, 150)                  
-}
-
-</string>
          </property>
          <property name="text">
           <string>10:26</string>
@@ -454,10 +432,10 @@ color: rgb(106, 120, 150)
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
+         <property name="class" stdset="0">
+          <string>timeDisplay</string>
+         </property>
         </widget>
-       </item>
-       <item>
-        <widget class="QCalendarWidget" name="calendarWidget"/>
        </item>
       </layout>
      </item>
@@ -484,11 +462,11 @@ color: rgb(106, 120, 150)
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="styleSheet">
-      <string notr="true">image: url(:/img/picture/roleBackPage.png);</string>
-     </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="class" stdset="0">
+      <string>backImg</string>
      </property>
     </widget>
    </item>

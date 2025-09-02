@@ -41,6 +41,9 @@ DoctorClient::DoctorClient(QWidget *parent) :
     ui->LogoutBtn->setFixedSize(150, 50);
     ui->LogoutBtn->setProperty("class", "special-btn");
 
+    ui->StyleBtn->setFixedSize(150, 50);
+    ui->StyleBtn->setProperty("class", "sidebar-btn");
+
     m_navButtonGroup = new QButtonGroup(this);
     for (int i = 0; i < navButtons.size(); ++i)
     {
@@ -53,6 +56,8 @@ DoctorClient::DoctorClient(QWidget *parent) :
             });
 
     // 连接退出按钮
+    connect(ui->StyleBtn, &QPushButton::clicked, &Engine::get(), &Engine::switchDarkMode);
+    connect(ui->StyleBtn, &QPushButton::clicked, this, &DoctorClient::setDarkModeText);
     connect(ui->LogoutBtn, &QPushButton::clicked, &Engine::get(), &Engine::startEngine);
 
     // 设置初始状态
@@ -63,4 +68,16 @@ DoctorClient::DoctorClient(QWidget *parent) :
 DoctorClient::~DoctorClient()
 {
     delete ui;
+}
+
+void DoctorClient::setDarkModeText()
+{
+    if (Engine::get().getCurrentMode())
+    {
+        ui->StyleBtn->setText("切换浅色");
+    }
+    else
+    {
+        ui->StyleBtn->setText("切换深色");
+    }
 }

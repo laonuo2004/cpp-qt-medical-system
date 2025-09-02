@@ -127,6 +127,13 @@
           </spacer>
          </item>
          <item>
+          <widget class="QPushButton" name="StyleBtn">
+           <property name="text">
+            <string>切换深色</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="LogoutBtn">
            <property name="text">
             <string>退出登录</string>

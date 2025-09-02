@@ -58,6 +58,13 @@ public:
       */
      void runLoginPanel(int userType);
 
+
+     void switchDarkMode();
+
+     bool getCurrentMode();
+
+     void setDarkMode(bool isDarkMode);
+
 private slots:
     // Engine 的槽函数：处理不同角色登录成功
     void onLoginSuccessAdmin();
@@ -65,8 +72,12 @@ private slots:
     void onLoginSuccessPatient();
 
 private:
+    void setGlobalStyleSheet(const QString &qssFilePath);
+
     class ChooseRole* m_chooseRole;
     class QMainWindow* m_mainWindow;
+    QMap<QString, QString> m_styleCache;
+    bool isDarkMode = false;
 };
 
 #endif // ENGINE_H

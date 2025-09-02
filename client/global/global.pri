@@ -1,6 +1,7 @@
 HEADERS += \
     $$PWD/chooserole.h \
     $$PWD/loginpanel.h \
+    $$PWD/mycalendar.h \
     $$PWD/registerpanel.h \
     $$PWD/resetpwd.h \
     $$PWD/uicontroller.h \
@@ -10,6 +11,7 @@ HEADERS += \
 SOURCES += \
     $$PWD/chooserole.cpp \
     $$PWD/loginpanel.cpp \
+    $$PWD/mycalendar.cpp \
     $$PWD/registerpanel.cpp \
     $$PWD/resetpwd.cpp \
     $$PWD/uicontroller.cpp \

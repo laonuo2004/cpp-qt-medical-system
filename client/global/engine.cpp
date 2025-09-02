@@ -97,3 +97,59 @@ void Engine::onLoginSuccessPatient()
     }
     m_mainWindow = new PatientClient;
 }
+
+void Engine::setGlobalStyleSheet(const QString &qssFilePath)
+{
+    QString qss;
+
+    // 先检查缓存
+    if (m_styleCache.contains(qssFilePath)) {
+        qss = m_styleCache[qssFilePath];
+    } else {
+        QFile file(qssFilePath);
+        if (!file.open(QFile::ReadOnly | QFile::Text)) {
+            qWarning() << "Cannot open QSS file:" << qssFilePath;
+            return;
+        }
+        QTextStream stream(&file);
+        qss = stream.readAll();
+        file.close();
+
+        // 缓存内容
+        m_styleCache[qssFilePath] = qss;
+    }
+
+    // 应用样式表
+    qApp->setStyleSheet(qss);
+}
+
+void Engine::setDarkMode(bool isDarkMode)
+{
+    if (isDarkMode)
+    {
+        setGlobalStyleSheet(":/style/picture/medicaltheme_dark.qss");
+    }
+    else
+    {
+        setGlobalStyleSheet(":/style/picture/medicaltheme.qss");
+    }
+}
+
+bool Engine::getCurrentMode()
+{
+    return isDarkMode;
+}
+
+void Engine::switchDarkMode()
+{
+    if (isDarkMode)
+    {
+        setGlobalStyleSheet(":/style/picture/medicaltheme.qss");
+        isDarkMode = false;
+    }
+    else
+    {
+        setGlobalStyleSheet(":/style/picture/medicaltheme_dark.qss");
+        isDarkMode = true;
+    }
+}
