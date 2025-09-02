@@ -112,7 +112,7 @@ void Backend::displayPatientsInListWidget(const DatabaseManager::ResultSet& pati
         ui->tableWidget->setItem(rowIdx, 0, idItem);
 
         // 用户名
-        QTableWidgetItem *nameItem = new QTableWidgetItem(getColumnValue("user_name"));
+        QTableWidgetItem *nameItem = new QTableWidgetItem(getColumnValue("username"));
         ui->tableWidget->setItem(rowIdx, 1, nameItem);
 
         // 邮箱

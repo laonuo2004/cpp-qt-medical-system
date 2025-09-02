@@ -295,7 +295,7 @@ DatabaseManager& DatabaseManager::instance()
         bool success= execute(R"(
              CREATE TABLE IF NOT EXISTS users (
                  user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 user_name TEXT ,
+                 username TEXT ,
                  email TEXT,
                  password_hash TEXT,
                  role TEXT
