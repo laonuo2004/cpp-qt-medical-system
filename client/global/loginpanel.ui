@@ -60,7 +60,7 @@
         <item row="0" column="0">
          <widget class="QLabel" name="userIdentity">
           <property name="text">
-           <string>邮箱</string>
+           <string>用户名</string>
           </property>
          </widget>
         </item>
