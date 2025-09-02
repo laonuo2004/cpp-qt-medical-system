@@ -1702,7 +1702,7 @@ QVariantList UiController::getPrescriptionDrugs(int prescriptionId)
     emit prescriptionDrugsReady(drugList);
     return drugList;
 }
-bool UiController::registerDrug(const QString &drug_name,const QString &drug_price_str,const QString &description,const QString &image_url)
+bool UiController::registerDrug(const QString &drug_name,const QString &drug_price_str,const QString &description,const QString &precaution,const QString &image_url)
 {
     // 1. 准备数据
         DatabaseManager::DataRow drugData;
@@ -1710,6 +1710,7 @@ bool UiController::registerDrug(const QString &drug_name,const QString &drug_pri
         // 必填字段
         drugData["drug_name"] = drug_name;
         drugData["description"] = description;
+        drugData["precautions"] = precaution;
         drugData["image_url"] = image_url;
 
         // 2. 转换 drug_price
@@ -1724,7 +1725,6 @@ bool UiController::registerDrug(const QString &drug_name,const QString &drug_pri
 
         // 3. 处理可选字段 (这里暂时为空字符串或 NULL，如果需要可修改函数签名传入)
         drugData["usage"] = ""; // 或者 QVariant(); 表示 NULL
-        drugData["precautions"] = ""; // 或者 QVariant(); 表示 NULL
         drugData["unit"] = ""; // 或者 QVariant(); 表示 NULL
 
 
@@ -1857,7 +1857,7 @@ DatabaseManager::ResultSet UiController::getAllDrugInfo()
      }
 
      QString sql = QString(R"(
-         SELECT drug_id, drug_name, description, usage, precautions, drug_price, image_url, unit
+         SELECT drug_id, drug_name, description, usage, precautions, drug_price, image_url, unit, drug_price, image_url, unit
          FROM drugs
      )");
 

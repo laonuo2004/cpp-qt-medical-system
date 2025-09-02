@@ -590,7 +590,7 @@ public:
      * @return QVariantMap 药品详细信息，包括名称、描述、用法、注意事项、价格、图片、单位等
      */
     Q_INVOKABLE QVariantMap getDrugDetails(int drugId);
-    Q_INVOKABLE bool registerDrug(const QString &drug_name,const QString &drug_price,const QString &description,const QString &image_url);
+    Q_INVOKABLE bool registerDrug(const QString &drug_name,const QString &drug_price,const QString &description,const QString &precaution,const QString &image_url);
     Q_INVOKABLE DatabaseManager::ResultSet getAllDrugInfo();
 
 private:
