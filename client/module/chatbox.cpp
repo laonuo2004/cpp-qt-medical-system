@@ -43,6 +43,18 @@ ChatBox::ChatBox(QWidget *parent , int patientid , int doctorid, bool isPatientC
 
     m_scrollBar = ui->scrollArea->verticalScrollBar();
 
+    if (isPatientClient)
+    {
+        setLeftAvatar(":/img/picture/doctorAvatar.png");
+        setRightAvatar(":/img/picture/patientAvatar.png");
+    }
+    else
+    {
+        setLeftAvatar(":/img/picture/patientAvatar.png");
+        setRightAvatar(":/img/picture/doctorAvatar.png");
+    }
+
+
     loadHistoryMsg();
 
     m_refreshTimer = new QTimer(this);
