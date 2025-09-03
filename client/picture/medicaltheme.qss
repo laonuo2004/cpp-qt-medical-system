@@ -25,7 +25,6 @@ QLabel#HeaderLabel {
 
 QLabel#fullHeaderLabel {
     font-size: 24px;
-
     font-weight: bold;
     color: #357ABD;
     padding: 15px 20px;
@@ -34,7 +33,6 @@ QLabel#fullHeaderLabel {
 
 QLabel.fullHeaderLabel {
     font-size: 24px;
-    
     font-weight: bold;
     color: #357ABD;
     padding: 15px 20px;
@@ -43,7 +41,6 @@ QLabel.fullHeaderLabel {
 
 QLabel.backHeaderLabel {
     font-size: 24px;
-    
     font-weight: bold;
     color: #357ABD;
     padding: 15px 20px;
@@ -58,26 +55,25 @@ QLabel#statusLabel {
 QLabel.timeDisplay {
     background: qlineargradient(
         spread:pad,
-        x1:0, y1:0,       /* 左上角 */
-        x2:1, y2:1,       /* 右下角 */
-        stop:0   #F0F3F6, /* 浅灰主色 */
-        stop:0.5 #E6E9EC, /* 中间高光灰 */
-        stop:1   #D4D8E1  /* 收尾灰色 */
+        x1:0, y1:0,
+        x2:1, y2:1,
+        stop:0   #F0F3F6,
+        stop:0.5 #E6E9EC,
+        stop:1   #D4D8E1
     );
     border-radius: 6px;
     padding: 20px 20px;
     font-family: "Microsoft YaHei", "Segoe UI", "Arial", sans-serif;
     font-size: 48px;
-    color: rgb(106, 120, 150);  /* 文字淡蓝灰，和整体浅色风格匹配 */
+    color: rgb(106, 120, 150);
 }
 
-
 QLabel.backImg{
-    image: url(:/img/picture/roleBackPage.png);                
+    image: url(:/img/picture/roleBackPage.png);
 }
 
 QLabel.chat-bubble-left {
-    background-color: #E5E5EA;  /* 灰色背景的左侧气泡 */
+    background-color: #E5E5EA;
     color: #000000;
     border-radius: 12px;
     padding: 6px 12px;
@@ -85,7 +81,7 @@ QLabel.chat-bubble-left {
 }
 
 QLabel.chat-bubble-right {
-    background-color: #007BFF;  /* 蓝色背景的右侧气泡 */
+    background-color: #007BFF;
     color: #FFFFFF;
     border-radius: 12px;
     padding: 6px 12px;
@@ -117,7 +113,7 @@ QPushButton:disabled {
 }
 
 QPushButton.grey {
-    background-color: #6c757d;   /* 默认灰色 */
+    background-color: #6c757d;
     color: #ffffff;
     border: none;
     border-radius: 5px;
@@ -126,22 +122,22 @@ QPushButton.grey {
 }
 
 QPushButton.grey:hover {
-    background-color: #5a6268;   /* 深灰色 hover */
+    background-color: #5a6268;
     border: none;
 }
 
 QPushButton.grey:pressed {
-    background-color: #343a40;   /* 更深灰色 pressed */
+    background-color: #343a40;
 }
 
 QPushButton.grey:disabled {
-    background-color: #ced4da;   /* 浅灰禁用 */
+    background-color: #ced4da;
     border: 1px solid #ced4da;
     color: #e9ecef;
 }
 
 QPushButton.lightblue {
-    background-color: #a8c5e6;   /* 默认淡蓝灰 */
+    background-color: #a8c5e6;
     color: #ffffff;
     border: none;
     border-radius: 5px;
@@ -150,21 +146,19 @@ QPushButton.lightblue {
 }
 
 QPushButton.lightblue:hover {
-    background-color: #90b2d9;   /* hover 深一点点 */
+    background-color: #90b2d9;
     border: none;
 }
 
 QPushButton.lightblue:pressed {
-    background-color: #6e94bb;   /* pressed 更深灰蓝 */
+    background-color: #6e94bb;
 }
 
 QPushButton.lightblue:disabled {
-    background-color: #d4e1f0;   /* 禁用更浅的灰蓝 */
+    background-color: #d4e1f0;
     border: 1px solid #d4e1f0;
     color: #f0f4f8;
 }
-
-
 
 QPushButton#SignInBtn {
     min-width: 200px;
@@ -200,22 +194,18 @@ QPushButton#SignOutBtn {
     min-height: 200px;
     max-width: 200px;
     max-height: 200px;
-    
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, 
-                                    stop:0 #FF4757, stop:1 #FF6B81);
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 #FF4757, stop:1 #FF6B81);
     color: #FFFFFF;
     border: none;
-    border-radius: 100px;  
-    padding: 0;          
+    border-radius: 100px;
+    padding: 0;
     outline: none;
-    
     font-size: 24px;
     font-weight: bold;
 }
 
 QPushButton#SignOutBtn:hover {
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, 
-                                    stop:0 #E84118, stop:1 #ED4C67);
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 #E84118, stop:1 #ED4C67);
 }
 
 QPushButton#SignOutBtn:pressed {
@@ -261,27 +251,25 @@ QPushButton.sidebar-btn {
     max-width: 200px;
     max-height: 100px;
     font-size: 22px;
-    /* 渐变色：从稍深到稍浅的 #5A6C7D */
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #4F5F6F, stop:1 #6B7D8D);
     color: #FFFFFF;
     border-radius: 0px;
 }
 
-
 QPushButton.sidebar-btn:hover {
-    background-color: #4A5A6A;   
+    background-color: #4A5A6A;
 }
 
 QPushButton.sidebar-btn:pressed {
-    background-color: #3A4A58;   
+    background-color: #3A4A58;
 }
 
 QPushButton.sidebar-btn:checked {
     background-color: #F7F9FC;
     color: #3E4A59;
-    font-weight: bold;          
-    border-left: 10px solid #007BFF;  
-    padding-left: 12px;       
+    font-weight: bold;
+    border-left: 10px solid #007BFF;
+    padding-left: 12px;
 }
 
 QPushButton.special-btn {
@@ -290,25 +278,23 @@ QPushButton.special-btn {
     max-width: 200px;
     max-height: 100px;
     font-size: 22px;
-    /* 渐变色：从稍深到稍浅的 #D32F2F */
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #C12727, stop:1 #E53939);
     color: #FFFFFF;
     border-radius: 0px;
 }
 
 QPushButton.special-btn:hover {
-    background-color: #B71C1C; 
+    background-color: #B71C1C;
 }
 
 QPushButton.special-btn:pressed {
-    background-color: #7F0000; 
+    background-color: #7F0000;
 }
 
 QPushButton.special-btn:disabled {
-    background-color: #EF9A9A; 
+    background-color: #EF9A9A;
 }
 
-/* 通用输入控件样式 */
 QLineEdit,
 QTextEdit,
 QPlainTextEdit,
@@ -324,7 +310,6 @@ QComboBox {
     selection-color: #FFFFFF;
 }
 
-/* 焦点高亮 */
 QLineEdit:focus,
 QTextEdit:focus,
 QPlainTextEdit:focus,
@@ -334,7 +319,6 @@ QComboBox:focus {
     border-color: #4A90E2;
 }
 
-/* 禁用状态 */
 QLineEdit:disabled,
 QTextEdit:disabled,
 QPlainTextEdit:disabled,
@@ -345,13 +329,11 @@ QComboBox:disabled {
     color: #B0BEC5;
 }
 
-/* SpinBox & DateEdit 右侧预留空间 */
 QSpinBox,
 QDateEdit {
     padding-right: 28px;
 }
 
-/* 上下按钮统一样式 */
 QSpinBox::up-button,
 QSpinBox::down-button,
 QDateEdit::up-button,
@@ -366,7 +348,7 @@ QSpinBox::up-button,
 QDateEdit::up-button {
     subcontrol-position: top right;
     border-top-right-radius: 5px;
-    image: url(:/icon/picture/up_arrow.svg); 
+    image: url(:/icon/picture/up_arrow.svg);
 }
 
 QSpinBox::down-button,
@@ -374,10 +356,9 @@ QDateEdit::down-button {
     subcontrol-position: bottom right;
     border-bottom-right-radius: 5px;
     border-top: 1px solid #D4D8E1;
-    image: url(:/icon/picture/down_arrow.svg); 
+    image: url(:/icon/picture/down_arrow.svg);
 }
 
-/* 按钮 hover/pressed */
 QSpinBox::up-button:hover,
 QSpinBox::down-button:hover,
 QDateEdit::up-button:hover,
@@ -392,7 +373,6 @@ QDateEdit::down-button:pressed {
     background: #E4E7F0;
 }
 
-/* 下拉框按钮 */
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -400,13 +380,12 @@ QComboBox::drop-down {
     border-left: 1px solid #D4D8E1;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
-    image: url(:/icon/picture/down_arrow.svg); 
+    image: url(:/icon/picture/down_arrow.svg);
 }
 
 QComboBox::drop-down:hover { background: #F0F4F7; }
 QComboBox::drop-down:pressed { background: #E4E7F0; }
 
-/* 下拉列表 */
 QComboBox QAbstractItemView {
     border: 1px solid #D4D8E1;
     background: #FFFFFF;
@@ -414,7 +393,6 @@ QComboBox QAbstractItemView {
     selection-color: #357ABD;
     padding: 5px 0;
 }
-
 
 QTableView {
     border: 1px solid #D4D8E1;
@@ -555,7 +533,7 @@ QFrame#NoFrame {
 
 QFrame.transparentFrame {
     background: transparent;
-    border: none;   
+    border: none;
 }
 
 QListWidget,
@@ -564,10 +542,10 @@ QScrollArea {
     border: none
 }
 
-QFrame[frameShape="4"] 
-{  
+QFrame[frameShape="4"]
+{
     background-color: transparent;
-    border: 2px solid #D4E1F4; 
+    border: 2px solid #D4E1F4;
 }
 
 QFrame.redCardFrame {
@@ -575,110 +553,90 @@ QFrame.redCardFrame {
     background-color: rgb(255, 243, 243);
 }
 
-
-/* =============== QCalendarWidget ================== */
-
-/* 整体容器 */
 #MyCalendar {
-    background-color: #FFFFFF; /* 使用白色背景，与TableView等内容区域保持一致 */
-    border: 1px solid #D4D8E1; /* 统一的边框颜色 */
-    border-radius: 8px; /* 统一的圆角 */
-    color: #3E4A59; /* 统一的字体颜色 */
+    background-color: #FFFFFF;
+    border: 1px solid #D4D8E1;
+    border-radius: 8px;
+    color: #3E4A59;
 }
 
-
-/* ---- 1. 顶部导航栏 ---- */
 #navigationBar {
-    background-color: transparent; /* 透明背景，融入整体 */
-    border-bottom: 1px solid #E6F2FF; /* 使用浅蓝色作为分割线，更柔和 */
+    background-color: transparent;
+    border-bottom: 1px solid #E6F2FF;
     padding: 5px;
 }
 
-/* 年月显示标签 */
 #yearMonthLabel {
-    color: #357ABD; /* 使用主题中的标题蓝色 */
-    font-size: 18px; /* 稍大字体以突出 */
+    color: #357ABD;
+    font-size: 18px;
     font-weight: bold;
 }
 
-/* 上/下月切换按钮 */
 #prevMonthBtn, #nextMonthBtn {
     background-color: transparent;
     border: none;
-    color: #357ABD; /* 按钮颜色与年月标签一致 */
+    color: #357ABD;
     font-size: 22px;
     font-weight: bold;
     min-width: 35px;
     max-width: 35px;
     min-height: 35px;
     max-height: 35px;
-    border-radius: 17px; /* 圆形按钮 */
+    border-radius: 17px;
 }
 
 #prevMonthBtn:hover, #nextMonthBtn:hover {
-    background-color: #E6F2FF; /* 使用主题中的悬浮/选中淡蓝色 */
-    color: #007BFF; /* 悬浮时颜色加深 */
+    background-color: #E6F2FF;
+    color: #007BFF;
 }
 
 #prevMonthBtn:pressed, #nextMonthBtn:pressed {
-    background-color: #D4E1F4; /* 按下时颜色更深 */
+    background-color: #D4E1F4;
 }
 
-
-/* ---- 2. 日历主体 ---- */
-
-/* 星期栏 (一, 二, ...) */
 #weekLabel {
     background-color: transparent;
-    color: #7A8C9B; /* 使用次要文字颜色，类似statusLabel */
+    color: #7A8C9B;
     font-size: 14px;
     font-weight: bold;
     padding: 10px 0;
-    border: none; /* 移除边框，保持简洁 */
+    border: none;
 }
 
-/* 周数栏 (左侧) */
 #weekNumLabel {
-    background-color: #F7F9FC; /* 使用窗口主背景色，与内容区形成区分 */
-    color: #B0BEC5; /* 使用更浅的灰色文字 */
+    background-color: #F7F9FC;
+    color: #B0BEC5;
     font-size: 12px;
     padding: 8px 0;
-    border-right: 1px solid #E6F2FF; /* 使用浅蓝色分割线 */
+    border-right: 1px solid #E6F2FF;
 }
 
-
-/* ---- 3. 日期单元格 ---- */
 #dayLabel {
     font-size: 14px;
     font-weight: 500;
     min-height: 40px;
-    border: 2px solid transparent; /* 预留边框位置，防止悬浮和选中时跳动 */
+    border: 2px solid transparent;
     margin: 1px;
-    border-radius: 5px; /* 与按钮等控件统一圆角 */
+    border-radius: 5px;
 }
 
-/* 鼠标悬浮在日期上 */
 #dayLabel:hover {
-    background-color: #E6F2FF; /* 使用主题统一的悬浮背景色 */
+    background-color: #E6F2FF;
 }
 
-/* 今天 */
 #dayLabel[isToday="true"] {
-    /* 用边框高亮今天，不影响背景色 */
     border: 2px solid #007BFF;
     font-weight: bold;
 }
 
-/* 选中的日期 */
 #dayLabel[selected="true"] {
-    background-color: #007BFF; /* 使用主题中的主按钮蓝色 */
-    color: #FFFFFF; /* 白色字体 */
+    background-color: #007BFF;
+    color: #FFFFFF;
     font-weight: bold;
 }
 
-/* 选中且是今天的日期 (特殊样式) */
 #dayLabel[isToday="true"][selected="true"] {
-    background-color: #0056b3; /* 使用主按钮的悬浮色，使其更突出 */
-    border-color: #004085; /* 边框颜色加深 */
+    background-color: #0056b3; 
+    border-color: #004085; 
     color: #FFFFFF;
 }
